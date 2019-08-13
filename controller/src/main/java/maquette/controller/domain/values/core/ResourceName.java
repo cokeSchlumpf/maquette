@@ -1,15 +1,27 @@
-package maquette.controller.domain.values;
+package maquette.controller.domain.values.core;
 
 import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
-import maquette.
+import maquette.controller.domain.exceptions.InvalidResourceNameException;
+import maquette.controller.domain.util.NameFactory;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@JsonSerialize(using = ResourceName.Serializer.class)
+@JsonDeserialize(using = ResourceName.Deserializer.class)
 public class ResourceName {
 
     private final String value;
@@ -57,22 +69,6 @@ public class ResourceName {
         @Override
         public ResourceName deserialize(JsonParser p, DeserializationContext ignore) throws IOException {
             return ResourceName.apply(p.readValueAs(String.class));
-        }
-
-    }
-
-    public static final class InvalidResourceNameException extends IllegalArgumentException implements AdaException {
-
-        private InvalidResourceNameException(String message) {
-            super(message);
-        }
-
-        public static InvalidResourceNameException apply(String name) {
-            String message = String.format(
-                "The provided resource name '%s' is not valid and cannot be transformed to a valid resource name.",
-                name);
-
-            return new InvalidResourceNameException(message);
         }
 
     }
