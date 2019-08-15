@@ -16,7 +16,7 @@ import maquette.controller.domain.values.iam.UserId;
 @Value
 @Wither
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class VersionDetails {
+public class VersionInfo {
 
     private static final String CREATED = "created";
     private static final String CREATED_BY = "created-by";
@@ -25,15 +25,10 @@ public class VersionDetails {
     private static final String PUBLISHED = "published";
     private static final String RECORDS = "records";
     private static final String VERSION_ID = "version-id";
+    private static final String VERSION = "version";
 
     @JsonProperty(VERSION_ID)
     private final UID versionId;
-
-    @JsonProperty(CREATED)
-    private final Instant created;
-
-    @JsonProperty(CREATED_BY)
-    private final UserId createdBy;
 
     @JsonProperty(LAST_MODIFIED)
     private final Instant lastModified;
@@ -44,30 +39,28 @@ public class VersionDetails {
     @JsonProperty(RECORDS)
     private final long records;
 
-    @JsonProperty(PUBLISHED)
-    private final PublishDetails published;
+    @JsonProperty(VERSION)
+    private final Version version;
 
     @JsonCreator
-    public static VersionDetails apply(
+    public static VersionInfo apply(
         @JsonProperty(VERSION_ID) UID versionId,
-        @JsonProperty(CREATED) Instant created,
-        @JsonProperty(CREATED_BY) UserId createdBy,
         @JsonProperty(LAST_MODIFIED) Instant lastModified,
         @JsonProperty(MODIFIED_BY) UserId modifiedBy,
         @JsonProperty(RECORDS) long records,
-        @JsonProperty(PUBLISHED) PublishDetails published) {
+        @JsonProperty(VERSION) Version version) {
 
-        return new VersionDetails(versionId, created, createdBy, lastModified, modifiedBy, records, published);
+        return new VersionInfo(versionId, lastModified, modifiedBy, records, version);
     }
 
-    public static VersionDetails apply(
-        UID versionId, Instant created, UserId createdBy, Instant lastModified, UserId modifiedBy, long records) {
+    public static VersionInfo apply(
+        UID versionId, Instant lastModified, UserId modifiedBy, long records) {
 
-        return apply(versionId, created, createdBy, lastModified, modifiedBy, records, null);
+        return apply(versionId, lastModified, modifiedBy, records, null);
     }
 
-    public Optional<PublishDetails> getPublished() {
-        return Optional.ofNullable(published);
+    public Optional<Version> getVersion() {
+        return Optional.ofNullable(version);
     }
 
 }

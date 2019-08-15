@@ -20,14 +20,14 @@ import maquette.controller.domain.values.iam.UserId;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class RevokedDatasetAccess implements DatasetEvent {
 
+    private static final String DATASET = "dataset";
     private static final String REVOKED = "revoked";
     private static final String REVOKED_BY = "revoked-by";
     private static final String REVOKED_AT = "revoked-at";
     private static final String REVOKED_FROM = "revoked-from";
-    private static final String PATH = "path";
 
-    @JsonProperty(PATH)
-    private final ResourcePath path;
+    @JsonProperty(DATASET)
+    private final ResourcePath dataset;
 
     @JsonProperty(REVOKED)
     private final Set<DatasetPrivilege> granted;
@@ -43,13 +43,13 @@ public class RevokedDatasetAccess implements DatasetEvent {
 
     @JsonCreator
     public static RevokedDatasetAccess apply(
-        @JsonProperty(PATH) ResourcePath path,
+        @JsonProperty(DATASET) ResourcePath dataset,
         @JsonProperty(REVOKED) Set<DatasetPrivilege> revoked,
         @JsonProperty(REVOKED_AT) Instant revokedAt,
         @JsonProperty(REVOKED_BY) UserId revokedBy,
         @JsonProperty(REVOKED_FROM) GrantedAuthorization revokedFrom) {
 
-        return new RevokedDatasetAccess(path, ImmutableSet.copyOf(revoked), revokedAt, revokedBy, revokedFrom);
+        return new RevokedDatasetAccess(dataset, ImmutableSet.copyOf(revoked), revokedAt, revokedBy, revokedFrom);
     }
 
 }

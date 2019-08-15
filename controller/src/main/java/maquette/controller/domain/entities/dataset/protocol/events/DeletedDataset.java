@@ -16,12 +16,12 @@ import maquette.controller.domain.values.iam.UserId;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeletedDataset implements DatasetEvent {
 
-    private static final String PATH = "path";
+    private static final String DATASET = "dataset";
     private static final String DELETED_AT = "deleted-at";
     private static final String DELETED_BY = "deleted-by";
 
-    @JsonProperty(PATH)
-    private final ResourcePath path;
+    @JsonProperty(DATASET)
+    private final ResourcePath dataset;
 
     @JsonProperty(DELETED_AT)
     private final Instant deletedAt;
@@ -31,11 +31,11 @@ public class DeletedDataset implements DatasetEvent {
 
     @JsonCreator
     public static DeletedDataset apply(
-        @JsonProperty(PATH) ResourcePath path,
+        @JsonProperty(DATASET) ResourcePath dataset,
         @JsonProperty(DELETED_AT) Instant deletedAt,
         @JsonProperty(DELETED_BY) UserId deletedBy) {
 
-        return new DeletedDataset(path, deletedAt, deletedBy);
+        return new DeletedDataset(dataset, deletedAt, deletedBy);
     }
 
 }

@@ -18,10 +18,10 @@ public class CreatedDataset implements DatasetEvent {
 
     private static final String CREATED = "created";
     private static final String CREATED_BY = "created-by";
-    private static final String PATH = "path";
+    private static final String DATASET = "dataset";
 
-    @JsonProperty(PATH)
-    private final ResourcePath path;
+    @JsonProperty(DATASET)
+    private final ResourcePath dataset;
 
     @JsonProperty(CREATED_BY)
     private final UserId createdBy;
@@ -31,11 +31,11 @@ public class CreatedDataset implements DatasetEvent {
 
     @JsonCreator
     public static CreatedDataset apply(
-        @JsonProperty(PATH) ResourcePath path,
+        @JsonProperty(DATASET) ResourcePath dataset,
         @JsonProperty(CREATED_BY) UserId createdBy,
         @JsonProperty(CREATED) Instant created) {
 
-        return new CreatedDataset(path, createdBy, created);
+        return new CreatedDataset(dataset, createdBy, created);
     }
 
 }

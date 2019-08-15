@@ -12,7 +12,7 @@ import maquette.controller.domain.values.iam.UserId;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Published {
+public class PublishDetails {
 
     private static final String VERSION = "version";
     private static final String PUBLISHED_BY = "published-by";
@@ -32,13 +32,13 @@ public class Published {
     private final String message;
 
     @JsonCreator
-    public static Published apply(
+    public static PublishDetails apply(
         @JsonProperty(VERSION) Version version,
         @JsonProperty(PUBLISHED_BY) UserId publishedBy,
         @JsonProperty(PUBLISHED_AT) Instant publishedAt,
         @JsonProperty(MESSAGE) String message) {
 
-        return new Published(version, publishedBy, publishedAt, message);
+        return new PublishDetails(version, publishedBy, publishedAt, message);
     }
 
 }

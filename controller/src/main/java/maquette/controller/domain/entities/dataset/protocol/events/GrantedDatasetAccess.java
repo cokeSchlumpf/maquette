@@ -20,14 +20,14 @@ import maquette.controller.domain.values.iam.UserId;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class GrantedDatasetAccess implements DatasetEvent {
 
+    private static final String DATASET = "dataset";
     private static final String GRANTED = "granted";
     private static final String GRANTED_BY = "granted-by";
     private static final String GRANTED_AT = "granted-at";
     private static final String GRANTED_FOR = "granted-for";
-    private static final String PATH = "path";
 
-    @JsonProperty(PATH)
-    private final ResourcePath path;
+    @JsonProperty(DATASET)
+    private final ResourcePath dataset;
 
     @JsonProperty(GRANTED)
     private final Set<DatasetPrivilege> granted;
@@ -43,13 +43,13 @@ public class GrantedDatasetAccess implements DatasetEvent {
 
     @JsonCreator
     public static GrantedDatasetAccess apply(
-        @JsonProperty(PATH) ResourcePath path,
+        @JsonProperty(DATASET) ResourcePath dataset,
         @JsonProperty(GRANTED) Set<DatasetPrivilege> granted,
         @JsonProperty(GRANTED_AT) Instant grantedAt,
         @JsonProperty(GRANTED_BY) UserId grantedBy,
         @JsonProperty(GRANTED_FOR) GrantedAuthorization grantedFor) {
 
-        return new GrantedDatasetAccess(path, ImmutableSet.copyOf(granted), grantedAt, grantedBy, grantedFor);
+        return new GrantedDatasetAccess(dataset, ImmutableSet.copyOf(granted), grantedAt, grantedBy, grantedFor);
     }
 
 }

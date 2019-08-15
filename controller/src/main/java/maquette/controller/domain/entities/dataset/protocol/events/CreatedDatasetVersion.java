@@ -20,14 +20,14 @@ public class CreatedDatasetVersion implements DatasetEvent, VersionEvent {
 
     private static final String CREATED_AT = "created-at";
     private static final String CREATED_BY = "created-by";
-    private static final String ID = "id";
-    private static final String PATH = "path";
+    private static final String VERSION_ID = "version-id";
+    private static final String DATASET = "dataset";
 
-    @JsonProperty(PATH)
-    public final ResourcePath path;
+    @JsonProperty(DATASET)
+    public final ResourcePath dataset;
 
-    @JsonProperty(ID)
-    public final UID id;
+    @JsonProperty(VERSION_ID)
+    public final UID versionId;
 
     @JsonProperty(CREATED_BY)
     public final UserId createdBy;
@@ -37,12 +37,12 @@ public class CreatedDatasetVersion implements DatasetEvent, VersionEvent {
 
     @JsonCreator
     public static CreatedDatasetVersion apply(
-        @JsonProperty(PATH) ResourcePath path,
-        @JsonProperty(ID) UID id,
+        @JsonProperty(DATASET) ResourcePath dataset,
+        @JsonProperty(VERSION_ID) UID versionId,
         @JsonProperty(CREATED_BY) UserId createdBy,
         @JsonProperty(CREATED_AT) Instant createdAt) {
 
-        return new CreatedDatasetVersion(path, id, createdBy, createdAt);
+        return new CreatedDatasetVersion(dataset, versionId, createdBy, createdAt);
     }
 
 

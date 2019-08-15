@@ -10,6 +10,7 @@ import lombok.Value;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.VersionMessage;
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
+import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.iam.ErrorMessage;
 import maquette.controller.domain.values.iam.User;
 
@@ -21,9 +22,13 @@ public class PublishDatasetVersion implements DatasetMessage, VersionMessage {
     private static final String MESSAGE = "message";
     private static final String REPLY_TO = "reply-to";
     private static final String ERROR_TO = "error-to";
+    private static final String VERSION_ID = "version-id";
 
     @JsonProperty(EXECUTOR)
     public final User executor;
+
+    @JsonProperty(VERSION_ID)
+    public final UID versionId;
 
     @JsonProperty(MESSAGE)
     public final String message;
@@ -37,11 +42,12 @@ public class PublishDatasetVersion implements DatasetMessage, VersionMessage {
     @JsonCreator
     public static PublishDatasetVersion apply(
         @JsonProperty(EXECUTOR) User executor,
+        @JsonProperty(VERSION_ID) UID versionId,
         @JsonProperty(MESSAGE) String message,
         @JsonProperty(REPLY_TO) ActorRef<PublishedDatasetVersion> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 
-        return new PublishDatasetVersion(executor, message, replyTo, errorTo);
+        return new PublishDatasetVersion(executor, versionId, message, replyTo, errorTo);
     }
 
 }

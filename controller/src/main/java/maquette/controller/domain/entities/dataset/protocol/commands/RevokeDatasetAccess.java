@@ -2,6 +2,8 @@ package maquette.controller.domain.entities.dataset.protocol.commands;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 
 import akka.actor.typed.ActorRef;
@@ -19,19 +21,35 @@ import netscape.security.Privilege;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class RevokeDatasetAccess implements DatasetMessage {
 
+    private static final String EXECUTOR = "executor";
+    private static final String REVOKE = "revoke";
+    private static final String REVOKE_FROM = "revoke-from";
+    private static final String REPLY_TO = "reply-to";
+    private static final String ERROR_TO = "error-to";
+
+    @JsonProperty(EXECUTOR)
     private final User executor;
 
+    @JsonProperty(REVOKE)
     private final Set<Privilege> revoke;
 
+    @JsonProperty(REVOKE_FROM)
     private final Authorization revokeFrom;
 
+    @JsonProperty(REPLY_TO)
     private final ActorRef<RevokedDatasetAccess> replyTo;
 
+    @JsonProperty(ERROR_TO)
     private final ActorRef<ErrorMessage> errorTo;
 
+    @JsonCreator
     public static RevokeDatasetAccess apply(
-        User executor, Set<Privilege> revoke, Authorization revokeFrom,
-        ActorRef<RevokedDatasetAccess> replyTo, ActorRef<ErrorMessage> errorTo) {
+        @JsonProperty(EXECUTOR) User executor,
+        @JsonProperty(REVOKE) Set<Privilege> revoke,
+        @JsonProperty(REVOKE_FROM) Authorization revokeFrom,
+        @JsonProperty(REPLY_TO) ActorRef<RevokedDatasetAccess> replyTo,
+        @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
+
         return new RevokeDatasetAccess(executor, ImmutableSet.copyOf(revoke), revokeFrom, replyTo, errorTo);
     }
 
