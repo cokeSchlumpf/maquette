@@ -1,5 +1,6 @@
 package maquette.controller.domain.entities.namespace.protocol.commands;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import akka.actor.typed.ActorRef;
@@ -7,21 +8,19 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
-import maquette.controller.domain.entities.namespace.protocol.events.RevokedNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.ErrorMessage;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class RevokeNamespaceAccess implements NamespaceMessage {
+public class ChangeOwner implements NamespaceMessage {
 
     private static final String EXECUTOR = "executor";
-    private static final String REVOKE = "revoke";
-    private static final String REVOKE_FROM = "revoke-from";
     private static final String NAME = "name";
+    private static final String OWNER = "owner";
     private static final String REPLY_TO = "reply-to";
     private static final String ERROR_TO = "error-to";
 
@@ -31,28 +30,24 @@ public class RevokeNamespaceAccess implements NamespaceMessage {
     @JsonProperty(EXECUTOR)
     private final User executor;
 
-    @JsonProperty(REVOKE)
-    private final NamespacePrivilege revoke;
-
-    @JsonProperty(REVOKE_FROM)
-    private final Authorization revokeFrom;
+    @JsonProperty(OWNER)
+    private final Authorization owner;
 
     @JsonProperty(REPLY_TO)
-    private final ActorRef<RevokedNamespaceAccess> replyTo;
+    private final ActorRef<ChangedOwner> replyTo;
 
     @JsonProperty(ERROR_TO)
     private final ActorRef<ErrorMessage> errorTo;
 
-    public static RevokeNamespaceAccess apply(
+    @JsonCreator
+    public static ChangeOwner apply(
         @JsonProperty(NAME) ResourceName name,
         @JsonProperty(EXECUTOR) User executor,
-        @JsonProperty(REVOKE) NamespacePrivilege revoke,
-        @JsonProperty(REVOKE_FROM) Authorization revokeFrom,
-        @JsonProperty(REPLY_TO) ActorRef<RevokedNamespaceAccess> replyTo,
+        @JsonProperty(OWNER) Authorization owner,
+        @JsonProperty(REPLY_TO) ActorRef<ChangedOwner> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 
-        return new RevokeNamespaceAccess(name, executor, revoke, revokeFrom, replyTo, errorTo);
+        return new ChangeOwner(name, executor, owner, replyTo, errorTo);
     }
-
 
 }

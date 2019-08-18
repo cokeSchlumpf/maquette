@@ -1,4 +1,4 @@
-package maquette.controller.domain.ports.driving;
+package maquette.controller.domain.api;
 
 import java.util.Set;
 import java.util.concurrent.CompletionStage;

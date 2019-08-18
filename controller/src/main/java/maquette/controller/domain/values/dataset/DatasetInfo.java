@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.UserId;
 
 @Value
@@ -26,7 +27,7 @@ public class DatasetInfo {
     private final ResourcePath dataset;
 
     @JsonProperty(OWNER)
-    private final UserId owner;
+    private final Authorization owner;
 
     @JsonProperty(MODIFIED)
     private final Instant modified;
@@ -40,7 +41,7 @@ public class DatasetInfo {
     @JsonCreator
     public static DatasetInfo apply(
         @JsonProperty(DATASET) ResourcePath dataset,
-        @JsonProperty(OWNER) UserId owner,
+        @JsonProperty(OWNER) Authorization owner,
         @JsonProperty(MODIFIED) Instant modified,
         @JsonProperty(MODIFIED_BY) UserId modifiedBy,
         @JsonProperty(VERSIONS) Set<VersionInfo> versions) {

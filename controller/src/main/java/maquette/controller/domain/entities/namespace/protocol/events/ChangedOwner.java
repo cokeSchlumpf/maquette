@@ -8,32 +8,26 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
-import maquette.controller.domain.values.iam.UserId;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class GrantedNamespaceAccess {
+public class ChangedOwner {
 
     private static final String NAMESPACE = "namespace";
-    private static final String GRANTED = "granted";
-    private static final String GRANTED_FOR = "granted-for";
+    private static final String NEW_OWNER = "new-owner";
 
     @JsonProperty(NAMESPACE)
     private final ResourceName namespace;
 
-    @JsonProperty(GRANTED)
-    private final GrantedAuthorization granted;
-
-    @JsonProperty(GRANTED_FOR)
-    private final UserId grantedFor;
+    @JsonProperty(NEW_OWNER)
+    private final GrantedAuthorization newOwner;
 
     @JsonCreator
-    public static GrantedNamespaceAccess apply(
+    public static ChangedOwner apply(
         @JsonProperty(NAMESPACE) ResourceName namespace,
-        @JsonProperty(GRANTED) GrantedAuthorization granted,
-        @JsonProperty(GRANTED_FOR) UserId grantedFor) {
+        @JsonProperty(NEW_OWNER) GrantedAuthorization newOwner) {
 
-        return new GrantedNamespaceAccess(namespace, granted, grantedFor);
+        return new ChangedOwner(namespace, newOwner);
     }
 
 }
