@@ -39,7 +39,7 @@ public class CoreApplication {
         final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaceShards = sharding.init(namespaceEntity);
 
         // initialize namespace registry
-        final ActorRef<NamespacesMessage> namespacesRegistry = singleton.init(NamespacesRegistry.create());
+        final ActorRef<NamespacesMessage> namespacesRegistry = singleton.init(NamespacesRegistry.create(namespaceShards));
         final Namespaces namespaces = Namespaces.apply(namespacesRegistry, namespaceShards, patterns);
 
         // initialize application
