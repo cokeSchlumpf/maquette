@@ -1,7 +1,5 @@
 dependencies {
 
-    compile project(":api")
-
     compile libs['akka-cluster-sharding-typed']
     compile libs['akka-http']
     compile libs['akka-http-spray-json']

@@ -19,13 +19,12 @@ import maquette.controller.domain.entities.namespace.protocol.events.CreatedName
 import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.GrantedNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.events.RevokedNamespaceAccess;
-import maquette.controller.domain.entities.namespace.protocol.queries.NamespaceInfoQuery;
+import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceInfo;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.namespace.NamespaceInfo;
 import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @AllArgsConstructor(staticName = "apply")
@@ -37,7 +36,7 @@ public final class Namespaces {
 
     private final ActorPatterns patterns;
 
-    public CompletionStage<NamespaceInfo> createNamespace(User executor, ResourceName name) {
+    public CompletionStage<maquette.controller.domain.values.namespace.NamespaceInfo> createNamespace(User executor, ResourceName name) {
         return patterns
             .ask(
                 namespaces,
@@ -47,10 +46,10 @@ public final class Namespaces {
                 shards,
                 replyTo -> ShardingEnvelope.apply(
                     Namespace.createEntityId(name),
-                    NamespaceInfoQuery.apply(executor, name, replyTo))));
+                    GetNamespaceInfo.apply(executor, name, replyTo))));
     }
 
-    public CompletionStage<NamespaceInfo> changeOwner(User executor, ResourceName namespaceName, Authorization owner) {
+    public CompletionStage<maquette.controller.domain.values.namespace.NamespaceInfo> changeOwner(User executor, ResourceName namespaceName, Authorization owner) {
         return patterns
             .ask(
                 shards,
@@ -62,7 +61,7 @@ public final class Namespaces {
                 shards,
                 replyTo -> ShardingEnvelope.apply(
                     Namespace.createEntityId(namespaceName),
-                    NamespaceInfoQuery.apply(executor, namespaceName, replyTo))));
+                    GetNamespaceInfo.apply(executor, namespaceName, replyTo))));
     }
 
     public CompletionStage<Done> deleteNamespace(User executor, ResourceName namespaceName) {

@@ -1,7 +1,3 @@
-plugins {
-    id 'scala'
-}
-
 dependencies {
 
     compile libs['akka-streams']

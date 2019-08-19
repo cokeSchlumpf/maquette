@@ -11,10 +11,11 @@ import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.domain.entities.dataset.protocol.Message;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class GetDataResult {
+public class GetDataResult implements Message {
 
     private final List<GenericData.Record> records;
 
