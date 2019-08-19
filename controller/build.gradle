@@ -15,6 +15,7 @@ dependencies {
 
     compile libs['spray-json']
 
+    testCompile libs['akka-peristence-inmemory']
     testCompile libs['assertj-core']
     testCompile libs['scalatest']
 

@@ -1,14 +1,13 @@
 package maquette.controller.domain.entities.namespace;
 
 import java.time.Instant;
-import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
+import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.cluster.sharding.typed.ShardingEnvelope;
 import akka.cluster.typed.SingletonActor;
@@ -24,21 +23,26 @@ import maquette.controller.domain.entities.namespace.protocol.NamespacesEvent;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
+import maquette.controller.domain.entities.namespace.protocol.queries.ListNamespaces;
+import maquette.controller.domain.entities.namespace.services.CollectNamespaceInfos;
 import maquette.controller.domain.values.core.ResourceName;
 
 public final class NamespacesRegistry extends EventSourcedBehavior<NamespacesMessage, NamespacesEvent, NamespacesRegistry.State> {
 
     private static final String PERSISTENCE_ID = "resource-registry";
 
+    private final ActorContext<NamespacesMessage> actor;
+
     private final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaceShards;
 
-    private NamespacesRegistry(ActorRef<ShardingEnvelope<NamespaceMessage>> namespaceShards) {
+    private NamespacesRegistry(ActorContext<NamespacesMessage> actor, ActorRef<ShardingEnvelope<NamespaceMessage>> namespaceShards) {
         super(PersistenceId.apply(PERSISTENCE_ID));
+        this.actor = actor;
         this.namespaceShards = namespaceShards;
     }
 
     public static SingletonActor<NamespacesMessage> create(ActorRef<ShardingEnvelope<NamespaceMessage>> namespaceShards) {
-        Behavior<NamespacesMessage> behavior = Behaviors.setup(actor -> new NamespacesRegistry(namespaceShards));
+        Behavior<NamespacesMessage> behavior = Behaviors.setup(actor -> new NamespacesRegistry(actor, namespaceShards));
         return SingletonActor.apply(behavior, PERSISTENCE_ID);
     }
 
@@ -52,6 +56,7 @@ public final class NamespacesRegistry extends EventSourcedBehavior<NamespacesMes
         return newCommandHandlerBuilder()
             .forAnyState()
             .onCommand(CreateNamespace.class, this::onCreateNamespace)
+            .onCommand(ListNamespaces.class, this::onListNamespaces)
             .build();
     }
 
@@ -81,6 +86,11 @@ public final class NamespacesRegistry extends EventSourcedBehavior<NamespacesMes
     private State onCreatedNamespace(State state, CreatedNamespace created) {
         state.getNamespaces().add(created.getNamespace());
         return state;
+    }
+
+    private Effect<NamespacesEvent, State> onListNamespaces(State state, ListNamespaces list) {
+        actor.spawnAnonymous(CollectNamespaceInfos.create(state.getNamespaces(), namespaceShards, list));
+        return Effect().none();
     }
 
     @Getter

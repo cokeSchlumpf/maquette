@@ -2,6 +2,7 @@ package maquette.controller.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
@@ -23,16 +24,45 @@ public class NamespaceITest {
 
         NamespaceInfo namespaceInfo = app
             .namespaces()
-            .createNamespace(AnonymousUser.apply(), namespaceName)
+            .createNamespace(user, namespaceName)
             .toCompletableFuture()
             .get();
 
         assertThat(namespaceInfo).isNotNull();
         assertThat(namespaceInfo.getName()).isEqualTo(namespaceName);
 
-        System.out.println(namespaceInfo);
+        app.terminate();
+    }
+
+    @Test
+    public void testCreateAndList() throws ExecutionException, InterruptedException {
+        CoreApplication app = CoreApplication.apply();
+
+        ResourceName ns01 = ResourceName.apply("my-namespace");
+        ResourceName ns02 = ResourceName.apply("other-namespace");
+        User user = AuthenticatedUser.apply("mw", "mw");
+
+        app
+            .namespaces()
+            .createNamespace(user, ns01)
+            .toCompletableFuture()
+            .get();
+
+        app
+            .namespaces()
+            .createNamespace(user, ns02)
+            .toCompletableFuture()
+            .get();
+
+        Set<NamespaceInfo> namespaceInfos = app
+            .namespaces()
+            .listNamespaces(user)
+            .toCompletableFuture()
+            .get();
 
         app.terminate();
+
+        assertThat(namespaceInfos).hasSize(2);
     }
 
 }

@@ -1,5 +1,6 @@
 package maquette.controller.domain.api;
 
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 import akka.Done;
@@ -20,12 +21,15 @@ import maquette.controller.domain.entities.namespace.protocol.events.DeletedName
 import maquette.controller.domain.entities.namespace.protocol.events.GrantedNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.events.RevokedNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceInfo;
+import maquette.controller.domain.entities.namespace.protocol.queries.ListNamespaces;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceInfoResult;
+import maquette.controller.domain.entities.namespace.protocol.results.ListNamespacesResult;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.namespace.NamespaceInfo;
 import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @AllArgsConstructor(staticName = "apply")
@@ -47,7 +51,7 @@ public final class Namespaces {
                 shards,
                 replyTo -> ShardingEnvelope.apply(
                     Namespace.createEntityId(name),
-                    GetNamespaceInfo.apply(executor, name, replyTo)),
+                    GetNamespaceInfo.apply(name, replyTo)),
                 GetNamespaceInfoResult.class))
             .thenApply(GetNamespaceInfoResult::getNamespaceInfo);
     }
@@ -64,7 +68,7 @@ public final class Namespaces {
                 shards,
                 replyTo -> ShardingEnvelope.apply(
                     Namespace.createEntityId(namespaceName),
-                    GetNamespaceInfo.apply(executor, namespaceName, replyTo)),
+                    GetNamespaceInfo.apply(namespaceName, replyTo)),
                 GetNamespaceInfoResult.class))
             .thenApply(GetNamespaceInfoResult::getNamespaceInfo);
     }
@@ -89,6 +93,16 @@ public final class Namespaces {
                     GrantNamespaceAccess.apply(namespaceName, executor, grant, grantFor, replyTo, errorTo)),
                 GrantedNamespaceAccess.class)
             .thenApply(GrantedNamespaceAccess::getGranted);
+    }
+
+    public CompletionStage<Set<NamespaceInfo>> listNamespaces(User executor) {
+
+        return patterns
+            .ask(
+                namespaces,
+                ListNamespaces::apply,
+                ListNamespacesResult.class)
+            .thenApply(ListNamespacesResult::getNamespaces);
     }
 
     public CompletionStage<GrantedAuthorization> revokeNamespaceAccess(

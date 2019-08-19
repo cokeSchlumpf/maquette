@@ -21,7 +21,7 @@ import maquette.controller.domain.values.iam.ErrorMessage;
 @AllArgsConstructor(staticName = "apply")
 public final class ActorPatterns {
 
-    private static final long DEFAULT_TIMEOUT = 3;
+    private static final long DEFAULT_TIMEOUT = 15;
 
     private final ActorSystem system;
 
