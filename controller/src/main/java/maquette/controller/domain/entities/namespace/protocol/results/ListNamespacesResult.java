@@ -1,4 +1,6 @@
 package maquette.controller.domain.entities.namespace.protocol.results;
 
-public class ListNamespacesResult {
+import maquette.controller.domain.entities.namespace.protocol.Message;
+
+public class ListNamespacesResult implements Message {
 }

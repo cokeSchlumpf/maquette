@@ -5,14 +5,13 @@ dependencies {
     compile libs['akka-http-spray-json']
     compile libs['akka-persistence-typed']
     compile libs['akka-streams']
-
     compile libs['avro']
-
     compile libs['jackson-annotations']
     compile libs['jackson-databind']
     compile libs['jackson-datatype-guava']
     compile libs['jackson-datatype-jdk8']
     compile libs['jackson-datatype-sr310']
+    compile libs['leveldbjni-all']
 
     compile libs['spray-json']
 

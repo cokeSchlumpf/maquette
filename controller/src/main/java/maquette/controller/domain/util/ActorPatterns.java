@@ -37,6 +37,12 @@ public final class ActorPatterns {
         return ask(actorRef, (a1, ignore) -> message.apply(a1), durationInSeconds);
     }
 
+    public <T, U> CompletionStage<U> ask(
+        RecipientRef<T> actorRef, Function<ActorRef<U>, T> message, Class<U> typeHint) {
+
+        return ask(actorRef, (a1, ignore) -> message.apply(a1));
+    }
+
     public <T, U, E extends ErrorMessage> CompletionStage<U> ask(
         RecipientRef<T> actorRef, Function2<ActorRef<U>, ActorRef<E>, T> message) {
 

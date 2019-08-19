@@ -20,6 +20,7 @@ import maquette.controller.domain.entities.namespace.protocol.events.DeletedName
 import maquette.controller.domain.entities.namespace.protocol.events.GrantedNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.events.RevokedNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceInfo;
+import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceInfoResult;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.Authorization;
@@ -46,7 +47,9 @@ public final class Namespaces {
                 shards,
                 replyTo -> ShardingEnvelope.apply(
                     Namespace.createEntityId(name),
-                    GetNamespaceInfo.apply(executor, name, replyTo))));
+                    GetNamespaceInfo.apply(executor, name, replyTo)),
+                GetNamespaceInfoResult.class))
+            .thenApply(GetNamespaceInfoResult::getNamespaceInfo);
     }
 
     public CompletionStage<maquette.controller.domain.values.namespace.NamespaceInfo> changeOwner(User executor, ResourceName namespaceName, Authorization owner) {
@@ -61,7 +64,9 @@ public final class Namespaces {
                 shards,
                 replyTo -> ShardingEnvelope.apply(
                     Namespace.createEntityId(namespaceName),
-                    GetNamespaceInfo.apply(executor, namespaceName, replyTo))));
+                    GetNamespaceInfo.apply(executor, namespaceName, replyTo)),
+                GetNamespaceInfoResult.class))
+            .thenApply(GetNamespaceInfoResult::getNamespaceInfo);
     }
 
     public CompletionStage<Done> deleteNamespace(User executor, ResourceName namespaceName) {

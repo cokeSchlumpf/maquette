@@ -26,7 +26,7 @@ public class CoreApplication {
     private final Namespaces namespaces;
 
     public static CoreApplication apply() {
-        final ActorSystem system = ActorSystem.apply("marquette-controller");
+        final ActorSystem system = ActorSystem.apply("maquette");
         final ClusterSharding sharding = ClusterSharding.get(Adapter.toTyped(system));
         final ClusterSingleton singleton = ClusterSingleton.createExtension(Adapter.toTyped(system));
         final ActorPatterns patterns = ActorPatterns.apply(system);
@@ -48,6 +48,10 @@ public class CoreApplication {
 
     public Namespaces namespaces() {
         return namespaces;
+    }
+
+    public void terminate() {
+        system.terminate();
     }
 
 }
