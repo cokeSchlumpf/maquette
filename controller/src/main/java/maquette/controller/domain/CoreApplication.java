@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
 import maquette.controller.domain.api.Namespaces;
+import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.NamespacesRegistry;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
@@ -31,6 +32,8 @@ public class CoreApplication {
         final ClusterSingleton singleton = ClusterSingleton.createExtension(Adapter.toTyped(system));
         final ActorPatterns patterns = ActorPatterns.apply(system);
 
+        final Entity<DatasetMessage, ShardingEnvelope<DatasetMessage>> datasetEntity = null;
+
         // initialize namespace shards
         final Entity<NamespaceMessage, ShardingEnvelope<NamespaceMessage>> namespaceEntity = Entity
             .ofPersistentEntity(
@@ -39,7 +42,7 @@ public class CoreApplication {
         final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaceShards = sharding.init(namespaceEntity);
 
         // initialize namespace registry
-        final ActorRef<NamespacesMessage> namespacesRegistry = singleton.init(NamespacesRegistry.create(namespaceShards));
+        final ActorRef<NamespacesMessage> namespacesRegistry = singleton.init(NamespacesRegistry.create());
         final Namespaces namespaces = Namespaces.apply(namespacesRegistry, namespaceShards, patterns);
 
         // initialize application

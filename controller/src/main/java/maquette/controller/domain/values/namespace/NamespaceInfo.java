@@ -23,12 +23,12 @@ public class NamespaceInfo {
     private final ResourceName name;
 
     @JsonProperty(DATASETS)
-    private final Set<DatasetInfo> datasets;
+    private final Set<ResourceName> datasets;
 
     @JsonCreator
     public static NamespaceInfo apply(
         @JsonProperty(NAME) ResourceName name,
-        @JsonProperty(DATASETS) Set<DatasetInfo> datasets) {
+        @JsonProperty(DATASETS) Set<ResourceName> datasets) {
 
         return new NamespaceInfo(name, ImmutableSet.copyOf(datasets));
     }

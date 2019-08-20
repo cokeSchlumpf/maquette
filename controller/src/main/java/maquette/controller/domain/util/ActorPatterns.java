@@ -102,4 +102,26 @@ public final class ActorPatterns {
         return result;
     }
 
+    public <T> CompletionStage<T> process(Function<CompletableFuture<T>, Behavior<?>> processor) {
+        return process(processor, DEFAULT_TIMEOUT);
+    }
+
+    public <T> CompletionStage<T> process(Function<CompletableFuture<T>, Behavior<?>> processor, long durationInSeconds) {
+        CompletableFuture<T> result = new CompletableFuture<>();
+
+        Behavior<?> behavior = Operators.suppressExceptions(() -> processor.apply(result));
+        Adapter.spawnAnonymous(system, behavior);
+
+        system.scheduler().scheduleOnce(
+            Duration.ofSeconds(durationInSeconds),
+            () -> {
+                if (!result.isDone() && !result.isCancelled()) {
+                    result.completeExceptionally(AskTimeoutException.apply());
+                }
+            },
+            system.dispatcher());
+
+        return result;
+    }
+
 }

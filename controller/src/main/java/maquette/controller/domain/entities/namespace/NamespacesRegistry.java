@@ -5,11 +5,8 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
-import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
-import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
-import akka.cluster.sharding.typed.ShardingEnvelope;
 import akka.cluster.typed.SingletonActor;
 import akka.persistence.typed.PersistenceId;
 import akka.persistence.typed.javadsl.CommandHandler;
@@ -18,7 +15,6 @@ import akka.persistence.typed.javadsl.EventHandler;
 import akka.persistence.typed.javadsl.EventSourcedBehavior;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesEvent;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
@@ -26,25 +22,19 @@ import maquette.controller.domain.entities.namespace.protocol.commands.DeleteNam
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.queries.ListNamespaces;
-import maquette.controller.domain.entities.namespace.services.CollectNamespaceInfos;
+import maquette.controller.domain.entities.namespace.protocol.results.ListNamespacesResult;
 import maquette.controller.domain.values.core.ResourceName;
 
 public final class NamespacesRegistry extends EventSourcedBehavior<NamespacesMessage, NamespacesEvent, NamespacesRegistry.State> {
 
     private static final String PERSISTENCE_ID = "resource-registry";
 
-    private final ActorContext<NamespacesMessage> actor;
-
-    private final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaceShards;
-
-    private NamespacesRegistry(ActorContext<NamespacesMessage> actor, ActorRef<ShardingEnvelope<NamespaceMessage>> namespaceShards) {
+    private NamespacesRegistry() {
         super(PersistenceId.apply(PERSISTENCE_ID));
-        this.actor = actor;
-        this.namespaceShards = namespaceShards;
     }
 
-    public static SingletonActor<NamespacesMessage> create(ActorRef<ShardingEnvelope<NamespaceMessage>> namespaceShards) {
-        Behavior<NamespacesMessage> behavior = Behaviors.setup(actor -> new NamespacesRegistry(actor, namespaceShards));
+    public static SingletonActor<NamespacesMessage> create() {
+        Behavior<NamespacesMessage> behavior = Behaviors.setup(actor -> new NamespacesRegistry());
         return SingletonActor.apply(behavior, PERSISTENCE_ID);
     }
 
@@ -73,17 +63,15 @@ public final class NamespacesRegistry extends EventSourcedBehavior<NamespacesMes
     }
 
     private Effect<NamespacesEvent, State> onCreateNamespace(State state, CreateNamespace create) {
-        ShardingEnvelope<NamespaceMessage> forwardMessage = ShardingEnvelope.apply(Namespace.createEntityId(create.getName()), create);
+        CreatedNamespace created = CreatedNamespace.apply(create.getName(), create.getExecutor().getUserId(), Instant.now());
 
         if (state.getNamespaces().contains(create.getName())) {
-            namespaceShards.tell(forwardMessage);
+            create.getReplyTo().tell(created);
             return Effect().none();
         } else {
-            CreatedNamespace created = CreatedNamespace.apply(create.getName(), create.getExecutor().getUserId(), Instant.now());
-
             return Effect()
                 .persist(created)
-                .thenRun(() -> namespaceShards.tell(forwardMessage));
+                .thenRun(() -> create.getReplyTo().tell(created));
         }
     }
 
@@ -92,6 +80,7 @@ public final class NamespacesRegistry extends EventSourcedBehavior<NamespacesMes
         return state;
     }
 
+    @SuppressWarnings("unused")
     private Effect<NamespacesEvent, State> onDeleteNamespace(State state, DeleteNamespace deleteNamespace) {
         DeletedNamespace deleted = DeletedNamespace.apply(
             deleteNamespace.getName(),
@@ -109,7 +98,7 @@ public final class NamespacesRegistry extends EventSourcedBehavior<NamespacesMes
     }
 
     private Effect<NamespacesEvent, State> onListNamespaces(State state, ListNamespaces list) {
-        actor.spawnAnonymous(CollectNamespaceInfos.create(state.getNamespaces(), namespaceShards, list));
+        list.getReplyTo().tell(ListNamespacesResult.apply(state.getNamespaces()));
         return Effect().none();
     }
 

@@ -21,9 +21,8 @@ import maquette.controller.domain.entities.namespace.protocol.events.DeletedName
 import maquette.controller.domain.entities.namespace.protocol.events.GrantedNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.events.RevokedNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceInfo;
-import maquette.controller.domain.entities.namespace.protocol.queries.ListNamespaces;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceInfoResult;
-import maquette.controller.domain.entities.namespace.protocol.results.ListNamespacesResult;
+import maquette.controller.domain.services.CollectNamespaceInfos;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.Authorization;
@@ -48,6 +47,12 @@ public final class Namespaces {
                 namespaces,
                 (replyTo, errorTo) -> CreateNamespace.apply(name, executor, replyTo, errorTo),
                 CreatedNamespace.class)
+            .thenCompose(createdNamespace -> patterns.ask(
+                shards,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Namespace.createEntityId(name),
+                    CreateNamespace.apply(name, executor, replyTo, errorTo)),
+                CreatedNamespace.class))
             .thenCompose(createdNamespace -> patterns.ask(
                 shards,
                 replyTo -> ShardingEnvelope.apply(
@@ -106,13 +111,7 @@ public final class Namespaces {
     }
 
     public CompletionStage<Set<NamespaceInfo>> listNamespaces(User executor) {
-
-        return patterns
-            .ask(
-                namespaces,
-                ListNamespaces::apply,
-                ListNamespacesResult.class)
-            .thenApply(ListNamespacesResult::getNamespaces);
+        return patterns.process(result -> CollectNamespaceInfos.create(namespaces, shards, result));
     }
 
     public CompletionStage<GrantedAuthorization> revokeNamespaceAccess(
