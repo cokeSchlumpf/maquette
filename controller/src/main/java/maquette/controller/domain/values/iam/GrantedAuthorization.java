@@ -1,6 +1,6 @@
 package maquette.controller.domain.values.iam;
 
-import java.util.Date;
+import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,16 +13,16 @@ import lombok.Value;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class GrantedAuthorization {
 
-    User by;
+    UserId by;
 
-    Date at;
+    Instant at;
 
     Authorization authorization;
 
     @JsonCreator
     public static GrantedAuthorization apply(
-        @JsonProperty("by") User by,
-        @JsonProperty("at") Date at,
+        @JsonProperty("by") UserId by,
+        @JsonProperty("at") Instant at,
         @JsonProperty("authorization") Authorization authorization) {
 
         return new GrantedAuthorization(by, at, authorization);

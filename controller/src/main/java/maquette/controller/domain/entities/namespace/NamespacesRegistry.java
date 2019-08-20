@@ -22,7 +22,9 @@ import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesEvent;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
+import maquette.controller.domain.entities.namespace.protocol.commands.DeleteNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
+import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.queries.ListNamespaces;
 import maquette.controller.domain.entities.namespace.services.CollectNamespaceInfos;
 import maquette.controller.domain.values.core.ResourceName;
@@ -56,6 +58,7 @@ public final class NamespacesRegistry extends EventSourcedBehavior<NamespacesMes
         return newCommandHandlerBuilder()
             .forAnyState()
             .onCommand(CreateNamespace.class, this::onCreateNamespace)
+            .onCommand(DeleteNamespace.class, this::onDeleteNamespace)
             .onCommand(ListNamespaces.class, this::onListNamespaces)
             .build();
     }
@@ -65,6 +68,7 @@ public final class NamespacesRegistry extends EventSourcedBehavior<NamespacesMes
         return newEventHandlerBuilder()
             .forAnyState()
             .onEvent(CreatedNamespace.class, this::onCreatedNamespace)
+            .onEvent(DeletedNamespace.class, this::onDeletedNamespace)
             .build();
     }
 
@@ -85,6 +89,22 @@ public final class NamespacesRegistry extends EventSourcedBehavior<NamespacesMes
 
     private State onCreatedNamespace(State state, CreatedNamespace created) {
         state.getNamespaces().add(created.getNamespace());
+        return state;
+    }
+
+    private Effect<NamespacesEvent, State> onDeleteNamespace(State state, DeleteNamespace deleteNamespace) {
+        DeletedNamespace deleted = DeletedNamespace.apply(
+            deleteNamespace.getName(),
+            deleteNamespace.getExecutor().getUserId(),
+            Instant.now());
+
+        return Effect()
+            .persist(deleted)
+            .thenRun(() -> deleteNamespace.getReplyTo().tell(deleted));
+    }
+
+    private State onDeletedNamespace(State state, DeletedNamespace deletedNamespace) {
+        state.getNamespaces().remove(deletedNamespace.getNamespace());
         return state;
     }
 

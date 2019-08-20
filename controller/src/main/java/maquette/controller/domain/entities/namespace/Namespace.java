@@ -4,18 +4,26 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.cluster.sharding.typed.javadsl.EntityTypeKey;
 import akka.cluster.sharding.typed.javadsl.EventSourcedEntity;
 import akka.persistence.typed.javadsl.CommandHandler;
-import akka.persistence.typed.javadsl.Effect;
 import akka.persistence.typed.javadsl.EventHandler;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceEvent;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
+import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
+import maquette.controller.domain.entities.namespace.protocol.commands.DeleteNamespace;
+import maquette.controller.domain.entities.namespace.protocol.commands.GrantNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.commands.RevokeNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
+import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
+import maquette.controller.domain.entities.namespace.protocol.events.GrantedNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.events.RevokedNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceDetails;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceInfo;
 import maquette.controller.domain.entities.namespace.states.State;
 import maquette.controller.domain.entities.namespace.states.UninitializedNamespace;
 import maquette.controller.domain.values.core.ResourceName;
 
-public class Namespace extends EventSourcedEntity<NamespaceMessage, NamespaceEvent, State> {
+public final class Namespace extends EventSourcedEntity<NamespaceMessage, NamespaceEvent, State> {
 
     public static EntityTypeKey<NamespaceMessage> ENTITY_KEY = EntityTypeKey.create(NamespaceMessage.class, "namespace");
 
@@ -46,8 +54,13 @@ public class Namespace extends EventSourcedEntity<NamespaceMessage, NamespaceEve
     public CommandHandler<NamespaceMessage, NamespaceEvent, State> commandHandler() {
         return newCommandHandlerBuilder()
             .forAnyState()
+            .onCommand(ChangeOwner.class, State::onChangeOwner)
             .onCommand(CreateNamespace.class, State::onCreateNamespace)
+            .onCommand(DeleteNamespace.class, State::onDeleteNamespace)
+            .onCommand(GetNamespaceDetails.class, State::onGetNamespaceDetails)
             .onCommand(GetNamespaceInfo.class, State::onGetNamespaceInfo)
+            .onCommand(GrantNamespaceAccess.class, State::onGrantNamespaceAccess)
+            .onCommand(RevokeNamespaceAccess.class, State::onRevokeNamespaceAccess)
             .build();
     }
 
@@ -55,7 +68,11 @@ public class Namespace extends EventSourcedEntity<NamespaceMessage, NamespaceEve
     public EventHandler<State, NamespaceEvent> eventHandler() {
         return newEventHandlerBuilder()
             .forAnyState()
+            .onEvent(ChangedOwner.class, State::onChangedOwner)
             .onEvent(CreatedNamespace.class, State::onCreatedNamespace)
+            .onEvent(DeletedNamespace.class, State::onDeletedNamespace)
+            .onEvent(GrantedNamespaceAccess.class, State::onGrantedNamespaceAccess)
+            .onEvent(RevokedNamespaceAccess.class, State::onRevokedNamespaceAccess)
             .build();
     }
 

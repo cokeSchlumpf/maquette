@@ -1,20 +1,19 @@
 package maquette.controller.domain.entities.namespace.protocol.events;
 
-import java.time.Instant;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.domain.entities.namespace.protocol.NamespaceEvent;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
-import maquette.controller.domain.values.iam.UserId;
+import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class RevokedNamespaceAccess {
+public class RevokedNamespaceAccess implements NamespaceEvent {
 
     private static final String NAMESPACE = "namespace";
     private static final String REVOKED = "revoked";
@@ -25,22 +24,18 @@ public class RevokedNamespaceAccess {
     private final ResourceName namespace;
 
     @JsonProperty(REVOKED)
-    private final GrantedAuthorization revoked;
+    private final NamespacePrivilege revoked;
 
     @JsonProperty(REVOKED_FROM)
-    private final UserId revokedFrom;
-
-    @JsonProperty(REVOKED_AT)
-    private final Instant revokedAt;
+    private final GrantedAuthorization revokedFrom;
 
     @JsonCreator
     public static RevokedNamespaceAccess apply(
         @JsonProperty(NAMESPACE) ResourceName namespace,
-        @JsonProperty(REVOKED) GrantedAuthorization revoked,
-        @JsonProperty(REVOKED_FROM) UserId revokedFrom,
-        @JsonProperty(REVOKED_AT) Instant revokedAt) {
+        @JsonProperty(REVOKED) NamespacePrivilege revoked,
+        @JsonProperty(REVOKED_FROM) GrantedAuthorization revokedFrom) {
 
-        return new RevokedNamespaceAccess(namespace, revoked, revokedFrom, revokedAt);
+        return new RevokedNamespaceAccess(namespace, revoked, revokedFrom);
     }
 
 }

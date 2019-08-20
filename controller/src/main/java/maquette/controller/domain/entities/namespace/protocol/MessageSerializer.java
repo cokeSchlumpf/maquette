@@ -15,8 +15,10 @@ import maquette.controller.domain.entities.namespace.protocol.events.CreatedName
 import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.GrantedNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.events.RevokedNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceDetails;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceInfo;
 import maquette.controller.domain.entities.namespace.protocol.queries.ListNamespaces;
+import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceDetailsResult;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceInfoResult;
 import maquette.controller.domain.entities.namespace.protocol.results.ListNamespacesResult;
 import maquette.controller.domain.util.databind.AbstractMessageSerializer;
@@ -43,9 +45,11 @@ public final class MessageSerializer extends AbstractMessageSerializer {
         m.put("namespace/events/granted-namespace-access/v1", GrantedNamespaceAccess.class);
         m.put("namespace/events/revoked-namespace-access/v1", RevokedNamespaceAccess.class);
 
+        m.put("namespace/queries/get-namespace-details/v1", GetNamespaceDetails.class);
         m.put("namespace/queries/get-namespace-info/v1", GetNamespaceInfo.class);
         m.put("namespace/queries/list-namespaces/v1", ListNamespaces.class);
 
+        m.put("namespaces/results/get-namespace-details/v1", GetNamespaceDetailsResult.class);
         m.put("namespaces/results/get-namespaces-info/v1", GetNamespaceInfoResult.class);
         m.put("namespaces/results/list-namespaces/v1", ListNamespacesResult.class);
 

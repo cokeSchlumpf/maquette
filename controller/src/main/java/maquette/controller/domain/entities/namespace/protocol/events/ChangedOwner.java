@@ -6,12 +6,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.domain.entities.namespace.protocol.NamespaceEvent;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ChangedOwner {
+public class ChangedOwner implements NamespaceEvent {
 
     private static final String NAMESPACE = "namespace";
     private static final String NEW_OWNER = "new-owner";

@@ -41,7 +41,8 @@ public final class Namespaces {
 
     private final ActorPatterns patterns;
 
-    public CompletionStage<maquette.controller.domain.values.namespace.NamespaceInfo> createNamespace(User executor, ResourceName name) {
+    public CompletionStage<maquette.controller.domain.values.namespace.NamespaceInfo> createNamespace(User executor,
+                                                                                                      ResourceName name) {
         return patterns
             .ask(
                 namespaces,
@@ -56,7 +57,9 @@ public final class Namespaces {
             .thenApply(GetNamespaceInfoResult::getNamespaceInfo);
     }
 
-    public CompletionStage<maquette.controller.domain.values.namespace.NamespaceInfo> changeOwner(User executor, ResourceName namespaceName, Authorization owner) {
+    public CompletionStage<maquette.controller.domain.values.namespace.NamespaceInfo> changeOwner(User executor,
+                                                                                                  ResourceName namespaceName,
+                                                                                                  Authorization owner) {
         return patterns
             .ask(
                 shards,
@@ -76,9 +79,16 @@ public final class Namespaces {
     public CompletionStage<Done> deleteNamespace(User executor, ResourceName namespaceName) {
         return patterns
             .ask(
-                namespaces,
-                (replyTo, errorTo) -> DeleteNamespace.apply(namespaceName, executor, replyTo, errorTo),
+                shards,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Namespace.createEntityId(namespaceName),
+                    DeleteNamespace.apply(namespaceName, executor, replyTo, errorTo)),
                 DeletedNamespace.class)
+            .thenCompose(deleted -> patterns
+                .ask(
+                    namespaces,
+                    (replyTo, errorTo) -> DeleteNamespace.apply(namespaceName, executor, replyTo, errorTo),
+                    DeletedNamespace.class))
             .thenApply(deleted -> Done.getInstance());
     }
 
@@ -92,7 +102,7 @@ public final class Namespaces {
                     Namespace.createEntityId(namespaceName),
                     GrantNamespaceAccess.apply(namespaceName, executor, grant, grantFor, replyTo, errorTo)),
                 GrantedNamespaceAccess.class)
-            .thenApply(GrantedNamespaceAccess::getGranted);
+            .thenApply(GrantedNamespaceAccess::getGrantedFor);
     }
 
     public CompletionStage<Set<NamespaceInfo>> listNamespaces(User executor) {
@@ -115,7 +125,7 @@ public final class Namespaces {
                     Namespace.createEntityId(namespaceName),
                     RevokeNamespaceAccess.apply(namespaceName, executor, revoke, revokeFrom, replyTo, errorTo)),
                 RevokedNamespaceAccess.class)
-            .thenApply(RevokedNamespaceAccess::getRevoked);
+            .thenApply(RevokedNamespaceAccess::getRevokedFrom);
     }
 
 }
