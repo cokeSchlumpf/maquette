@@ -38,7 +38,6 @@ public final class MessageSerializer extends AbstractMessageSerializer {
     protected Map<String, Class<?>> getManifestToClass() {
         Map<String, Class<?>> m = Maps.newHashMap();
 
-        m.put("dataset/commands/change-owner/v1", ChangeOwner.class);
         m.put("dataset/commands/create-dataset/v1", CreateDataset.class);
         m.put("dataset/commands/create-dataset-version/v1", CreateDatasetVersion.class);
         m.put("dataset/commands/delete-dataset/v1", DeleteDataset.class);
@@ -47,7 +46,6 @@ public final class MessageSerializer extends AbstractMessageSerializer {
         m.put("dataset/commands/push-data/v1", PushData.class);
         m.put("dataset/commands/revoke-dataset-access/v1", RevokeDatasetAccess.class);
 
-        m.put("dataset/events/changed-owner/v1", ChangedOwner.class);
         m.put("dataset/events/created-dataset/v1", CreatedDataset.class);
         m.put("dataset/events/created-dataset-version/v1", CreatedDatasetVersion.class);
         m.put("dataset/events/deleted-dataset/v1", DeletedDataset.class);

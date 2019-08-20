@@ -1,11 +1,9 @@
 package maquette.controller.domain.entities.dataset.protocol.events;
 
 import java.time.Instant;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableSet;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -30,7 +28,7 @@ public class RevokedDatasetAccess implements DatasetEvent {
     private final ResourcePath dataset;
 
     @JsonProperty(REVOKED)
-    private final Set<DatasetPrivilege> granted;
+    private final DatasetPrivilege revoked;
 
     @JsonProperty(REVOKED_AT)
     private final Instant grantedAt;
@@ -44,12 +42,12 @@ public class RevokedDatasetAccess implements DatasetEvent {
     @JsonCreator
     public static RevokedDatasetAccess apply(
         @JsonProperty(DATASET) ResourcePath dataset,
-        @JsonProperty(REVOKED) Set<DatasetPrivilege> revoked,
+        @JsonProperty(REVOKED) DatasetPrivilege revoked,
         @JsonProperty(REVOKED_AT) Instant revokedAt,
         @JsonProperty(REVOKED_BY) UserId revokedBy,
         @JsonProperty(REVOKED_FROM) GrantedAuthorization revokedFrom) {
 
-        return new RevokedDatasetAccess(dataset, ImmutableSet.copyOf(revoked), revokedAt, revokedBy, revokedFrom);
+        return new RevokedDatasetAccess(dataset, revoked, revokedAt, revokedBy, revokedFrom);
     }
 
 }

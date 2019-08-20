@@ -2,8 +2,7 @@ package maquette.controller.domain.entities.namespace.states;
 
 import java.time.Instant;
 import java.util.Optional;
-
-import com.google.common.collect.Sets;
+import java.util.Set;
 
 import akka.actor.typed.javadsl.ActorContext;
 import akka.persistence.typed.javadsl.Effect;
@@ -15,16 +14,21 @@ import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwn
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.DeleteNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.GrantNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.commands.RegisterDataset;
+import maquette.controller.domain.entities.namespace.protocol.commands.RemoveDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RevokeNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.GrantedNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.events.RegisteredDataset;
+import maquette.controller.domain.entities.namespace.protocol.events.RemovedDataset;
 import maquette.controller.domain.entities.namespace.protocol.events.RevokedNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceDetails;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceInfo;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceDetailsResult;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceInfoResult;
+import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.namespace.NamespaceACL;
 import maquette.controller.domain.values.namespace.NamespaceDetails;
@@ -39,6 +43,8 @@ public class ActiveNamespace implements State {
     private final EffectFactories<NamespaceEvent, State> effect;
 
     private NamespaceDetails details;
+
+    private Set<ResourceName> datasets;
 
     @Override
     public Effect<NamespaceEvent, State> onChangeOwner(ChangeOwner change) {
@@ -62,7 +68,11 @@ public class ActiveNamespace implements State {
 
     @Override
     public State onChangedOwner(ChangedOwner changed) {
-        this.details = this.details.withAcl(this.details.getAcl().withOwner(changed.getNewOwner()));
+        this.details = this.details
+            .withAcl(this.details.getAcl().withOwner(changed.getNewOwner()))
+            .withModified(changed.getNewOwner().getAt())
+            .withModifiedBy(changed.getNewOwner().getBy());
+
         return this;
     }
 
@@ -106,7 +116,7 @@ public class ActiveNamespace implements State {
 
     @Override
     public Effect<NamespaceEvent, State> onGetNamespaceInfo(GetNamespaceInfo get) {
-        NamespaceInfo info = NamespaceInfo.apply(details.getName(), Sets.newHashSet());
+        NamespaceInfo info = NamespaceInfo.apply(details.getName(), datasets);
         GetNamespaceInfoResult result = GetNamespaceInfoResult.apply(info);
         get.getReplyTo().tell(result);
 
@@ -145,8 +155,51 @@ public class ActiveNamespace implements State {
             .getAcl()
             .withGrant(granted.getGrantedFor(), granted.getGranted());
 
-        this.details = this.details.withAcl(acl);
+        this.details = this.details
+            .withAcl(acl)
+            .withModifiedBy(granted.getGrantedFor().getBy())
+            .withModified(granted.getGrantedFor().getAt());
 
+        return this;
+    }
+
+    @Override
+    public Effect<NamespaceEvent, State> onRegisterDataset(RegisterDataset register) {
+        RegisteredDataset registered = RegisteredDataset.apply(register.getDataset());
+
+        if (datasets.contains(register.getDataset())) {
+            register.getReplyTo().tell(registered);
+            return effect.none();
+        } else {
+            return effect
+                .persist(registered)
+                .thenRun(() -> register.getReplyTo().tell(registered));
+        }
+    }
+
+    @Override
+    public State onRegisteredDataset(RegisteredDataset registered) {
+        this.datasets.add(registered.getDataset());
+        return this;
+    }
+
+    @Override
+    public Effect<NamespaceEvent, State> onRemoveDataset(RemoveDataset remove) {
+        RemovedDataset removed = RemovedDataset.apply(remove.getDataset());
+
+        if (datasets.contains(remove.getDataset())) {
+            return effect
+                .persist(removed)
+                .thenRun(() -> remove.getReplyTo().tell(removed));
+        } else {
+            remove.getReplyTo().tell(removed);
+            return effect.none();
+        }
+    }
+
+    @Override
+    public State onRemovedDataset(RemovedDataset removed) {
+        datasets.remove(removed.getDataset());
         return this;
     }
 
@@ -187,7 +240,10 @@ public class ActiveNamespace implements State {
             .getAcl()
             .withoutGrant(revoked.getRevokedFrom().getAuthorization(), revoked.getRevoked());
 
-        details = details.withAcl(acl);
+        details = details
+            .withAcl(acl)
+            .withModifiedBy(revoked.getRevokedFrom().getBy())
+            .withModified(revoked.getRevokedFrom().getAt());
 
         return this;
     }

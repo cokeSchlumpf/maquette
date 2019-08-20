@@ -10,7 +10,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.values.core.ResourceName;
-import maquette.controller.domain.values.dataset.DatasetInfo;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

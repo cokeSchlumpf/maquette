@@ -11,11 +11,15 @@ import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwn
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.DeleteNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.GrantNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.commands.RegisterDataset;
+import maquette.controller.domain.entities.namespace.protocol.commands.RemoveDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RevokeNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.GrantedNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.events.RegisteredDataset;
+import maquette.controller.domain.entities.namespace.protocol.events.RemovedDataset;
 import maquette.controller.domain.entities.namespace.protocol.events.RevokedNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceDetails;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceInfo;
@@ -60,6 +64,8 @@ public final class Namespace extends EventSourcedEntity<NamespaceMessage, Namesp
             .onCommand(GetNamespaceDetails.class, State::onGetNamespaceDetails)
             .onCommand(GetNamespaceInfo.class, State::onGetNamespaceInfo)
             .onCommand(GrantNamespaceAccess.class, State::onGrantNamespaceAccess)
+            .onCommand(RegisterDataset.class, State::onRegisterDataset)
+            .onCommand(RemoveDataset.class, State::onRemoveDataset)
             .onCommand(RevokeNamespaceAccess.class, State::onRevokeNamespaceAccess)
             .build();
     }
@@ -72,6 +78,8 @@ public final class Namespace extends EventSourcedEntity<NamespaceMessage, Namesp
             .onEvent(CreatedNamespace.class, State::onCreatedNamespace)
             .onEvent(DeletedNamespace.class, State::onDeletedNamespace)
             .onEvent(GrantedNamespaceAccess.class, State::onGrantedNamespaceAccess)
+            .onEvent(RegisteredDataset.class, State::onRegisteredDataset)
+            .onEvent(RemovedDataset.class, State::onRemovedDataset)
             .onEvent(RevokedNamespaceAccess.class, State::onRevokedNamespaceAccess)
             .build();
     }

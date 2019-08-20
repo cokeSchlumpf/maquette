@@ -22,21 +22,13 @@ public class GrantedDatasetAccess implements DatasetEvent {
 
     private static final String DATASET = "dataset";
     private static final String GRANTED = "granted";
-    private static final String GRANTED_BY = "granted-by";
-    private static final String GRANTED_AT = "granted-at";
     private static final String GRANTED_FOR = "granted-for";
 
     @JsonProperty(DATASET)
     private final ResourcePath dataset;
 
     @JsonProperty(GRANTED)
-    private final Set<DatasetPrivilege> granted;
-
-    @JsonProperty(GRANTED_AT)
-    private final Instant grantedAt;
-
-    @JsonProperty(GRANTED_BY)
-    private final UserId grantedBy;
+    private final DatasetPrivilege granted;
 
     @JsonProperty(GRANTED_FOR)
     private final GrantedAuthorization grantedFor;
@@ -44,12 +36,10 @@ public class GrantedDatasetAccess implements DatasetEvent {
     @JsonCreator
     public static GrantedDatasetAccess apply(
         @JsonProperty(DATASET) ResourcePath dataset,
-        @JsonProperty(GRANTED) Set<DatasetPrivilege> granted,
-        @JsonProperty(GRANTED_AT) Instant grantedAt,
-        @JsonProperty(GRANTED_BY) UserId grantedBy,
+        @JsonProperty(GRANTED) DatasetPrivilege granted,
         @JsonProperty(GRANTED_FOR) GrantedAuthorization grantedFor) {
 
-        return new GrantedDatasetAccess(dataset, ImmutableSet.copyOf(granted), grantedAt, grantedBy, grantedFor);
+        return new GrantedDatasetAccess(dataset, granted, grantedFor);
     }
 
 }

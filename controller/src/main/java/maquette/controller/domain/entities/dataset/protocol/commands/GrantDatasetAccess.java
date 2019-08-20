@@ -31,7 +31,7 @@ public class GrantDatasetAccess implements DatasetMessage {
     private final User executor;
 
     @JsonProperty(GRANT)
-    private final Set<DatasetPrivilege> grant;
+    private final DatasetPrivilege grant;
 
     @JsonProperty(GRANT_FOR)
     private final Authorization grantFor;
@@ -45,12 +45,12 @@ public class GrantDatasetAccess implements DatasetMessage {
     @JsonCreator
     public static GrantDatasetAccess apply(
         @JsonProperty(EXECUTOR) User executor,
-        @JsonProperty(GRANT) Set<DatasetPrivilege> grant,
+        @JsonProperty(GRANT) DatasetPrivilege grant,
         @JsonProperty(GRANT_FOR) Authorization grantFor,
         @JsonProperty(REPLY_TO) ActorRef<GrantedDatasetAccess> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 
-        return new GrantDatasetAccess(executor, ImmutableSet.copyOf(grant), grantFor, replyTo, errorTo);
+        return new GrantDatasetAccess(executor, grant, grantFor, replyTo, errorTo);
     }
 
 }

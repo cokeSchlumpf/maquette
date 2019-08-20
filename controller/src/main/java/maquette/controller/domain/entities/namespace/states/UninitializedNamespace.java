@@ -14,11 +14,15 @@ import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwn
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.DeleteNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.GrantNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.commands.RegisterDataset;
+import maquette.controller.domain.entities.namespace.protocol.commands.RemoveDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RevokeNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.GrantedNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.events.RegisteredDataset;
+import maquette.controller.domain.entities.namespace.protocol.events.RemovedDataset;
 import maquette.controller.domain.entities.namespace.protocol.events.RevokedNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceDetails;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceInfo;
@@ -96,7 +100,7 @@ public class UninitializedNamespace implements State {
             created.getCreatedAt(),
             NamespaceACL.apply(owner, Sets.newHashSet()));
 
-        return ActiveNamespace.apply(actor, effect, details);
+        return ActiveNamespace.apply(actor, effect, details, Sets.newHashSet());
     }
 
     @Override
@@ -116,6 +120,26 @@ public class UninitializedNamespace implements State {
 
     @Override
     public State onGrantedNamespaceAccess(GrantedNamespaceAccess granted) {
+        return this;
+    }
+
+    @Override
+    public Effect<NamespaceEvent, State> onRegisterDataset(RegisterDataset register) {
+        return effect.none();
+    }
+
+    @Override
+    public State onRegisteredDataset(RegisteredDataset registered) {
+        return this;
+    }
+
+    @Override
+    public Effect<NamespaceEvent, State> onRemoveDataset(RemoveDataset remove) {
+        return effect.none();
+    }
+
+    @Override
+    public State onRemovedDataset(RemovedDataset removed) {
         return this;
     }
 
