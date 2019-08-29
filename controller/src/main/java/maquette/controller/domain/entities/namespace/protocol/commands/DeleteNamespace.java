@@ -11,7 +11,7 @@ import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
 import maquette.controller.domain.values.core.ResourceName;
-import maquette.controller.domain.values.iam.ErrorMessage;
+import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.iam.User;
 
 @Value

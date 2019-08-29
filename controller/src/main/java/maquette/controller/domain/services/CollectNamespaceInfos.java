@@ -20,6 +20,7 @@ import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespa
 import maquette.controller.domain.entities.namespace.protocol.queries.ListNamespaces;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceInfoResult;
 import maquette.controller.domain.entities.namespace.protocol.results.ListNamespacesResult;
+import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.namespace.NamespaceInfo;
 
@@ -33,8 +34,11 @@ public final class CollectNamespaceInfos {
             final ActorRef<ListNamespacesResult> listNamespacesResultAdapter =
                 actor.messageAdapter(ListNamespacesResult.class, ListNamespacesResultWrapper::new);
 
+            final ActorRef<ErrorMessage> errorMessageAdapter =
+                actor.messageAdapter(ErrorMessage.class, ErrorMessageWrapper::new);
+
             final ListNamespaces request =
-                ListNamespaces.apply(listNamespacesResultAdapter);
+                ListNamespaces.apply(listNamespacesResultAdapter, errorMessageAdapter);
 
             namespacesRegistry.tell(request);
 
@@ -67,10 +71,12 @@ public final class CollectNamespaceInfos {
         } else {
             final ActorRef<GetNamespaceInfoResult> resultAdapter =
                 actor.messageAdapter(GetNamespaceInfoResult.class, GetNamespaceInfoResultWrapper::apply);
+            final ActorRef<ErrorMessage> errorMessageAdapter =
+                actor.messageAdapter(ErrorMessage.class, ErrorMessageWrapper::new);
 
             namespaces.forEach(name -> {
                 final String entityId = Namespace.createEntityId(name);
-                final GetNamespaceInfo msg = GetNamespaceInfo.apply(name, resultAdapter);
+                final GetNamespaceInfo msg = GetNamespaceInfo.apply(name, resultAdapter, errorMessageAdapter);
                 sharding.tell(ShardingEnvelope.apply(entityId, msg));
             });
 
@@ -119,6 +125,13 @@ public final class CollectNamespaceInfos {
     private static class ListNamespacesResultWrapper implements Message {
 
         private final ListNamespacesResult result;
+
+    }
+
+    @AllArgsConstructor(staticName = "apply")
+    private static class ErrorMessageWrapper implements Message {
+
+        private final ErrorMessage message;
 
     }
 

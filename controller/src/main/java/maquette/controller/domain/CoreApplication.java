@@ -1,5 +1,7 @@
 package maquette.controller.domain;
 
+import java.util.concurrent.ExecutionException;
+
 import akka.actor.ActorSystem;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.javadsl.Adapter;
@@ -10,7 +12,9 @@ import akka.cluster.typed.ClusterSingleton;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
+import maquette.controller.domain.api.Datasets;
 import maquette.controller.domain.api.Namespaces;
+import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.NamespacesRegistry;
@@ -18,6 +22,8 @@ import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
+import maquette.controller.domain.values.core.ResourcePath;
+import scala.compat.java8.FutureConverters;
 
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
 public class CoreApplication {
@@ -26,13 +32,19 @@ public class CoreApplication {
 
     private final Namespaces namespaces;
 
+    private final Datasets datasets;
+
     public static CoreApplication apply() {
         final ActorSystem system = ActorSystem.apply("maquette");
         final ClusterSharding sharding = ClusterSharding.get(Adapter.toTyped(system));
         final ClusterSingleton singleton = ClusterSingleton.createExtension(Adapter.toTyped(system));
         final ActorPatterns patterns = ActorPatterns.apply(system);
 
-        final Entity<DatasetMessage, ShardingEnvelope<DatasetMessage>> datasetEntity = null;
+        final Entity<DatasetMessage, ShardingEnvelope<DatasetMessage>> datasetEntity = Entity
+            .ofPersistentEntity(
+                Dataset.ENTITY_KEY,
+                ctx -> Dataset.create(ctx.getActorContext(), ResourcePath.apply(ctx.getEntityId())));
+        final ActorRef<ShardingEnvelope<DatasetMessage>> datasetShards = sharding.init(datasetEntity);
 
         // initialize namespace shards
         final Entity<NamespaceMessage, ShardingEnvelope<NamespaceMessage>> namespaceEntity = Entity
@@ -44,9 +56,14 @@ public class CoreApplication {
         // initialize namespace registry
         final ActorRef<NamespacesMessage> namespacesRegistry = singleton.init(NamespacesRegistry.create());
         final Namespaces namespaces = Namespaces.apply(namespacesRegistry, namespaceShards, patterns);
+        final Datasets datasets = Datasets.apply(namespaceShards, datasetShards, patterns);
 
         // initialize application
-        return CoreApplication.apply(system, namespaces);
+        return CoreApplication.apply(system, namespaces, datasets);
+    }
+
+    public Datasets datasets() {
+        return datasets;
     }
 
     public Namespaces namespaces() {
@@ -54,7 +71,14 @@ public class CoreApplication {
     }
 
     public void terminate() {
-        system.terminate();
+        try {
+            FutureConverters
+                .toJava(system.terminate())
+                .toCompletableFuture()
+                .get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
 }

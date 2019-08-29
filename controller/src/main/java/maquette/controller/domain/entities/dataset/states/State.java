@@ -10,6 +10,7 @@ import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
 
 public interface State {
 
@@ -20,6 +21,8 @@ public interface State {
     Effect<DatasetEvent, State> onDeleteDataset(DeleteDataset delete);
 
     State onDeletedDataset(DeletedDataset deleted);
+
+    Effect<DatasetEvent, State> onGetDetails(GetDetails get);
 
     Effect<DatasetEvent, State> onGrantDatasetAccess(GrantDatasetAccess grant);
 

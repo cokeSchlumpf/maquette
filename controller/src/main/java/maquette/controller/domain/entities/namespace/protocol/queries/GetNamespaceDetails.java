@@ -9,12 +9,14 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceDetailsResult;
+import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.core.ResourceName;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class GetNamespaceDetails implements NamespaceMessage {
 
+    public static final String ERROR_TO = "error-to";
     public static final String REPLY_TO = "reply-to";
     public static final String NAMESPACE = "namespace";
 
@@ -24,12 +26,16 @@ public class GetNamespaceDetails implements NamespaceMessage {
     @JsonProperty(REPLY_TO)
     private final ActorRef<GetNamespaceDetailsResult> replyTo;
 
+    @JsonProperty(ERROR_TO)
+    private final ActorRef<ErrorMessage> errorTo;
+
     @JsonCreator
     public static GetNamespaceDetails apply(
         @JsonProperty(NAMESPACE) ResourceName namespace,
-        @JsonProperty(REPLY_TO) ActorRef<GetNamespaceDetailsResult> replyTo) {
+        @JsonProperty(REPLY_TO) ActorRef<GetNamespaceDetailsResult> replyTo,
+        @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 
-        return new GetNamespaceDetails(namespace, replyTo);
+        return new GetNamespaceDetails(namespace, replyTo, errorTo);
     }
 
 }

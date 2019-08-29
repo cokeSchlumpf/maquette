@@ -1,6 +1,6 @@
 package maquette.controller.domain.exceptions;
 
-import maquette.controller.domain.values.iam.ErrorMessage;
+import maquette.controller.domain.values.core.ErrorMessage;
 
 public final class AskCompletionException extends RuntimeException {
 

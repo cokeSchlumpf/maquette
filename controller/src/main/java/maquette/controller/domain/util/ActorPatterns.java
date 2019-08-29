@@ -16,7 +16,7 @@ import akka.japi.function.Function2;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.exceptions.AskCompletionException;
 import maquette.controller.domain.exceptions.AskTimeoutException;
-import maquette.controller.domain.values.iam.ErrorMessage;
+import maquette.controller.domain.values.core.ErrorMessage;
 
 @AllArgsConstructor(staticName = "apply")
 public final class ActorPatterns {

@@ -30,6 +30,7 @@ import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.UserAuthorization;
 import maquette.controller.domain.values.namespace.NamespaceACL;
 import maquette.controller.domain.values.namespace.NamespaceDetails;
+import maquette.controller.domain.values.namespace.NamespaceDoesNotExist;
 
 @AllArgsConstructor(staticName = "apply")
 public class UninitializedNamespace implements State {
@@ -49,6 +50,7 @@ public class UninitializedNamespace implements State {
 
     @Override
     public Effect<NamespaceEvent, State> onChangeOwner(ChangeOwner change) {
+        change.getErrorTo().tell(NamespaceDoesNotExist.apply(change.getName()));
         return effect.none();
     }
 
@@ -105,16 +107,19 @@ public class UninitializedNamespace implements State {
 
     @Override
     public Effect<NamespaceEvent, State> onGetNamespaceDetails(GetNamespaceDetails get) {
+        get.getErrorTo().tell(NamespaceDoesNotExist.apply(get.getNamespace()));
         return effect.none();
     }
 
     @Override
     public Effect<NamespaceEvent, State> onGetNamespaceInfo(GetNamespaceInfo get) {
+        get.getErrorTo().tell(NamespaceDoesNotExist.apply(get.getNamespace()));
         return effect.none();
     }
 
     @Override
     public Effect<NamespaceEvent, State> onGrantNamespaceAccess(GrantNamespaceAccess grant) {
+        grant.getErrorTo().tell(NamespaceDoesNotExist.apply(grant.getName()));
         return effect.none();
     }
 
@@ -125,6 +130,7 @@ public class UninitializedNamespace implements State {
 
     @Override
     public Effect<NamespaceEvent, State> onRegisterDataset(RegisterDataset register) {
+        register.getErrorTo().tell(NamespaceDoesNotExist.apply(register.getNamespace()));
         return effect.none();
     }
 
@@ -135,6 +141,7 @@ public class UninitializedNamespace implements State {
 
     @Override
     public Effect<NamespaceEvent, State> onRemoveDataset(RemoveDataset remove) {
+        remove.getErrorTo().tell(NamespaceDoesNotExist.apply(remove.getName()));
         return effect.none();
     }
 
@@ -145,6 +152,7 @@ public class UninitializedNamespace implements State {
 
     @Override
     public Effect<NamespaceEvent, State> onRevokeNamespaceAccess(RevokeNamespaceAccess revoke) {
+        revoke.getErrorTo().tell(NamespaceDoesNotExist.apply(revoke.getName()));
         return effect.none();
     }
 

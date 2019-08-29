@@ -11,8 +11,9 @@ import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.namespace.NamespaceInfo;
+import maquette.util.TestSetup;
 
-public class NamespaceITest {
+public class NamespacesITest {
 
     @Test
     public void testCreateNamespace() throws ExecutionException, InterruptedException {
@@ -35,63 +36,48 @@ public class NamespaceITest {
 
     @Test
     public void testCreateListAndDelete() throws ExecutionException, InterruptedException {
-        CoreApplication app = CoreApplication.apply();
+        TestSetup setup = TestSetup
+            .apply()
+            .withNamespace("my-namespace")
+            .withNamespace("other-namespace")
+            .withNamespace("some-namespace");
 
-        ResourceName ns01 = ResourceName.apply("my-namespace");
-        ResourceName ns02 = ResourceName.apply("other-namespace");
-        ResourceName ns03 = ResourceName.apply("some-namespace");
-        User user = AuthenticatedUser.apply("mw", "mw");
-
-        app
+        /*
+         * List namespaces
+         */
+        Set<NamespaceInfo> namespaceInfos01 = setup
+            .getApp()
             .namespaces()
-            .createNamespace(user, ns01)
-            .toCompletableFuture()
-            .get();
-
-        app
-            .namespaces()
-            .createNamespace(user, ns02)
-            .toCompletableFuture()
-            .get();
-
-        app
-            .namespaces()
-            .createNamespace(user, ns03)
-            .toCompletableFuture()
-            .get();
-
-        Set<NamespaceInfo> namespaceInfos01 = app
-            .namespaces()
-            .listNamespaces(user)
+            .listNamespaces(setup.getDefaultUser())
             .toCompletableFuture()
             .get();
 
         assertThat(namespaceInfos01).hasSize(3);
 
         /*
-         * Delete a namespace and get list of namespaces.
+         * Delete a namespaces and get list of namespaces.
          */
-        app
+        setup.getApp()
             .namespaces()
-            .deleteNamespace(user, ns01)
+            .deleteNamespace(setup.getDefaultUser(), ResourceName.apply("my-namespace"))
             .toCompletableFuture()
             .get();
 
-        app
+        setup.getApp()
             .namespaces()
-            .deleteNamespace(user, ns02)
+            .deleteNamespace(setup.getDefaultUser(), ResourceName.apply("other-namespace"))
             .toCompletableFuture()
             .get();
 
-        Set<NamespaceInfo> namespaceInfos02 = app
+        Set<NamespaceInfo> namespaceInfos02 = setup.getApp()
             .namespaces()
-            .listNamespaces(user)
+            .listNamespaces(setup.getDefaultUser())
             .toCompletableFuture()
             .get();
 
         assertThat(namespaceInfos02).hasSize(1);
 
-        app.terminate();
+        setup.getApp().terminate();
 
     }
 

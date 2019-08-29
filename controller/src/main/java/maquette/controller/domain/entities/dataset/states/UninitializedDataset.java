@@ -18,8 +18,10 @@ import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
 import maquette.controller.domain.values.dataset.DatasetACL;
 import maquette.controller.domain.values.dataset.DatasetDetails;
+import maquette.controller.domain.values.dataset.DatasetDoesNotExistError;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.UserAuthorization;
 
@@ -89,7 +91,14 @@ public class UninitializedDataset implements State {
     }
 
     @Override
+    public Effect<DatasetEvent, State> onGetDetails(GetDetails get) {
+        get.getErrorTo().tell(DatasetDoesNotExistError.apply(get.getDataset()));
+        return effect.none();
+    }
+
+    @Override
     public Effect<DatasetEvent, State> onGrantDatasetAccess(GrantDatasetAccess grant) {
+        grant.getErrorTo().tell(DatasetDoesNotExistError.apply(grant.getDataset()));
         return effect.none();
     }
 
@@ -100,6 +109,7 @@ public class UninitializedDataset implements State {
 
     @Override
     public Effect<DatasetEvent, State> onRevokeDatasetAccess(RevokeDatasetAccess revoke) {
+        revoke.getErrorTo().tell(DatasetDoesNotExistError.apply(revoke.getDataset()));
         return effect.none();
     }
 

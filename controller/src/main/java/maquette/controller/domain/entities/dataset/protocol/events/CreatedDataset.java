@@ -2,8 +2,8 @@ package maquette.controller.domain.entities.dataset.protocol.events;
 
 import java.time.Instant;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ import maquette.controller.domain.values.iam.UserId;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreatedDataset implements DatasetEvent {
 
-    private static final String CREATED = "created";
+    private static final String CREATED_AT = "created-at";
     private static final String CREATED_BY = "created-by";
     private static final String DATASET = "dataset";
 
@@ -26,16 +26,16 @@ public class CreatedDataset implements DatasetEvent {
     @JsonProperty(CREATED_BY)
     private final UserId createdBy;
 
-    @JsonProperty(CREATED)
-    private final Instant created;
+    @JsonProperty(CREATED_AT)
+    private final Instant createdAt;
 
     @JsonCreator
     public static CreatedDataset apply(
         @JsonProperty(DATASET) ResourcePath dataset,
         @JsonProperty(CREATED_BY) UserId createdBy,
-        @JsonProperty(CREATED) Instant created) {
+        @JsonProperty(CREATED_AT) Instant createdAt) {
 
-        return new CreatedDataset(dataset, createdBy, created);
+        return new CreatedDataset(dataset, createdBy, createdAt);
     }
 
 }

@@ -30,7 +30,7 @@ import maquette.controller.domain.util.databind.AbstractMessageSerializer;
 public final class MessageSerializer extends AbstractMessageSerializer {
 
     protected MessageSerializer(ExtendedActorSystem actorSystem) {
-        super(actorSystem, 2403);
+        super(actorSystem, 2403 + 1);
     }
 
     @Override

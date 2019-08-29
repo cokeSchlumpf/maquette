@@ -11,7 +11,7 @@ import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.VersionMessage;
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
 import maquette.controller.domain.values.core.UID;
-import maquette.controller.domain.values.iam.ErrorMessage;
+import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.iam.User;
 
 @Value

@@ -55,9 +55,9 @@ public final class Namespaces {
                 CreatedNamespace.class))
             .thenCompose(createdNamespace -> patterns.ask(
                 shards,
-                replyTo -> ShardingEnvelope.apply(
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
                     Namespace.createEntityId(name),
-                    GetNamespaceInfo.apply(name, replyTo)),
+                    GetNamespaceInfo.apply(name, replyTo, errorTo)),
                 GetNamespaceInfoResult.class))
             .thenApply(GetNamespaceInfoResult::getNamespaceInfo);
     }
@@ -74,9 +74,9 @@ public final class Namespaces {
                 ChangedOwner.class)
             .thenCompose(changedOwner -> patterns.ask(
                 shards,
-                replyTo -> ShardingEnvelope.apply(
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
                     Namespace.createEntityId(namespaceName),
-                    GetNamespaceInfo.apply(namespaceName, replyTo)),
+                    GetNamespaceInfo.apply(namespaceName, replyTo, errorTo)),
                 GetNamespaceInfoResult.class))
             .thenApply(GetNamespaceInfoResult::getNamespaceInfo);
     }
