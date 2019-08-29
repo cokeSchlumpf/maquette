@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
+
 import akka.actor.typed.javadsl.ActorContext;
 import akka.persistence.typed.javadsl.Effect;
 import akka.persistence.typed.javadsl.EffectFactories;
@@ -44,8 +46,6 @@ public class ActiveNamespace implements State {
 
     private NamespaceDetails details;
 
-    private Set<ResourceName> datasets;
-
     @Override
     public Effect<NamespaceEvent, State> onChangeOwner(ChangeOwner change) {
         if (change.getOwner().equals(details.getAcl().getOwner().getAuthorization())) {
@@ -78,7 +78,6 @@ public class ActiveNamespace implements State {
 
     @Override
     public Effect<NamespaceEvent, State> onDeleteNamespace(DeleteNamespace deleteNamespace) {
-        // TODO: Is user authorized to delete?
         // TODO: Remove actual data?
 
         DeletedNamespace deleted = DeletedNamespace.apply(
@@ -116,7 +115,12 @@ public class ActiveNamespace implements State {
 
     @Override
     public Effect<NamespaceEvent, State> onGetNamespaceInfo(GetNamespaceInfo get) {
-        NamespaceInfo info = NamespaceInfo.apply(details.getName(), datasets);
+        NamespaceInfo info = NamespaceInfo.apply(
+            details.getName(),
+            details.getModified(),
+            details.getAcl(),
+            details.getDatasets());
+
         GetNamespaceInfoResult result = GetNamespaceInfoResult.apply(info);
         get.getReplyTo().tell(result);
 
@@ -167,7 +171,7 @@ public class ActiveNamespace implements State {
     public Effect<NamespaceEvent, State> onRegisterDataset(RegisterDataset register) {
         RegisteredDataset registered = RegisteredDataset.apply(register.getDataset());
 
-        if (datasets.contains(register.getDataset())) {
+        if (details.getDatasets().contains(register.getDataset())) {
             register.getReplyTo().tell(registered);
             return effect.none();
         } else {
@@ -179,7 +183,10 @@ public class ActiveNamespace implements State {
 
     @Override
     public State onRegisteredDataset(RegisteredDataset registered) {
-        this.datasets.add(registered.getDataset());
+        Set<ResourceName> datasets = Sets.newHashSet(this.details.getDatasets());
+        datasets.add(registered.getDataset());
+
+        this.details = details.withDatasets(datasets);
         return this;
     }
 
@@ -187,7 +194,7 @@ public class ActiveNamespace implements State {
     public Effect<NamespaceEvent, State> onRemoveDataset(RemoveDataset remove) {
         RemovedDataset removed = RemovedDataset.apply(remove.getDataset());
 
-        if (datasets.contains(remove.getDataset())) {
+        if (this.details.getDatasets().contains(remove.getDataset())) {
             return effect
                 .persist(removed)
                 .thenRun(() -> remove.getReplyTo().tell(removed));
@@ -199,7 +206,10 @@ public class ActiveNamespace implements State {
 
     @Override
     public State onRemovedDataset(RemovedDataset removed) {
+        Set<ResourceName> datasets = Sets.newHashSet(this.details.getDatasets());
         datasets.remove(removed.getDataset());
+
+        this.details = details.withDatasets(datasets);
         return this;
     }
 

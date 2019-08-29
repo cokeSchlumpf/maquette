@@ -2,7 +2,7 @@ package maquette.controller.domain.exceptions;
 
 import maquette.controller.domain.values.core.ErrorMessage;
 
-public final class AskCompletionException extends RuntimeException {
+public final class AskCompletionException extends RuntimeException implements DomainException {
 
     private final ErrorMessage error;
 

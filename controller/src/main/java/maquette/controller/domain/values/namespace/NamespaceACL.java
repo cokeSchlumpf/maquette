@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
+import maquette.controller.domain.values.iam.User;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -30,6 +31,34 @@ public class NamespaceACL {
         return new NamespaceACL(owner, ImmutableSet.copyOf(grants));
     }
 
+    public boolean canChangeOwner(User user) {
+        return isOwner(user) || isAdmin(user);
+    }
+
+    public boolean canDeleteNamespace(User user) {
+        return isOwner(user) || isAdmin(user);
+    }
+
+    public boolean canGrantNamespaceAccess(User user) {
+        return isOwner(user) || isAdmin(user);
+    }
+
+    public boolean canReadDetails(User user) {
+        return isOwner(user) || isAdmin(user) || isProducer(user) || isConsumer(user) || isMember(user);
+    }
+
+    public boolean canRevokeNamespaceAccess(User user) {
+        return isOwner(user) || isAdmin(user);
+    }
+
+    public Optional<NamespaceGrant> findGrant(User user, NamespacePrivilege privilege) {
+        return this.grants
+            .stream()
+            .filter(grant -> grant.getAuthorization().getAuthorization().hasAuthorization(user) &&
+                grant.getPrivilege().equals(privilege))
+            .findFirst();
+    }
+
     public Optional<NamespaceGrant> findGrant(Authorization authorization, NamespacePrivilege privilege) {
         return this.grants
             .stream()
@@ -38,6 +67,24 @@ public class NamespaceACL {
                     grant.getAuthorization().getAuthorization().equals(authorization) &&
                     grant.getPrivilege().equals(privilege))
             .findAny();
+    }
+
+    private boolean isAdmin(User user) {
+        return findGrant(user, NamespacePrivilege.ADMIN).isPresent();
+    }
+
+    private boolean isConsumer(User user) {
+        return findGrant(user, NamespacePrivilege.CONSUMER).isPresent();
+    }
+
+    private boolean isMember(User user) { return findGrant(user, NamespacePrivilege.MEMBER).isPresent(); }
+
+    private boolean isOwner(User user) {
+        return owner.getAuthorization().hasAuthorization(user);
+    }
+
+    private boolean isProducer(User user) {
+        return findGrant(user, NamespacePrivilege.PRODUCER).isPresent();
     }
 
     public NamespaceACL withGrant(GrantedAuthorization authorization, NamespacePrivilege privilege) {

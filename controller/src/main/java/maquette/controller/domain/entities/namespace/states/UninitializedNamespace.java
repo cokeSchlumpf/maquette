@@ -92,7 +92,7 @@ public class UninitializedNamespace implements State {
         final GrantedAuthorization owner = GrantedAuthorization.apply(
             created.getCreatedBy(),
             created.getCreatedAt(),
-            UserAuthorization.apply(created.getCreatedBy().getName()));
+            UserAuthorization.apply(created.getCreatedBy()));
 
         NamespaceDetails details = NamespaceDetails.apply(
             created.getNamespace(),
@@ -100,9 +100,10 @@ public class UninitializedNamespace implements State {
             created.getCreatedAt(),
             created.getCreatedBy(),
             created.getCreatedAt(),
-            NamespaceACL.apply(owner, Sets.newHashSet()));
+            NamespaceACL.apply(owner, Sets.newHashSet()),
+            Sets.newHashSet());
 
-        return ActiveNamespace.apply(actor, effect, details, Sets.newHashSet());
+        return ActiveNamespace.apply(actor, effect, details);
     }
 
     @Override

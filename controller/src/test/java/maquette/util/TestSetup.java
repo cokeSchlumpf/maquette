@@ -13,20 +13,27 @@ public class TestSetup {
 
     private final CoreApplication app;
 
-    private final User defaultUser;
+    private final AuthenticatedUser defaultUser;
+
+    private final AuthenticatedUser otherUser;
 
     public static TestSetup apply() {
         CoreApplication app = CoreApplication.apply();
-        User defaultUser = AuthenticatedUser.apply("hippo", "Hippo Ewen-Wellner");
-        return TestSetup.apply(app, defaultUser);
+        AuthenticatedUser defaultUser = AuthenticatedUser.apply("hippo", "Hippo Ewen-Wellner");
+        AuthenticatedUser otherUser = AuthenticatedUser.apply("egon", "Egon Olsen");
+        return TestSetup.apply(app, defaultUser, otherUser);
     }
 
     public CoreApplication getApp() {
         return app;
     }
 
-    public User getDefaultUser() {
+    public AuthenticatedUser getDefaultUser() {
         return defaultUser;
+    }
+
+    public AuthenticatedUser getOtherUser() {
+        return otherUser;
     }
 
     public TestSetup withDataset(String namespace, String name) {

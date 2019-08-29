@@ -58,7 +58,7 @@ public class UninitializedDataset implements State {
         final GrantedAuthorization granted = GrantedAuthorization.apply(
             created.getCreatedBy(),
             Instant.now(),
-            UserAuthorization.apply(created.getCreatedBy().getName()));
+            UserAuthorization.apply(created.getCreatedBy()));
 
         final DatasetDetails details = DatasetDetails.apply(
             created.getDataset(),

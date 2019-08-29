@@ -13,7 +13,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
 import maquette.controller.domain.api.Datasets;
+import maquette.controller.domain.api.DatasetsImpl;
 import maquette.controller.domain.api.Namespaces;
+import maquette.controller.domain.api.NamespacesFactory;
+import maquette.controller.domain.api.NamespacesImpl;
+import maquette.controller.domain.api.NamespacesSecured;
 import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.namespace.Namespace;
@@ -55,8 +59,11 @@ public class CoreApplication {
 
         // initialize namespace registry
         final ActorRef<NamespacesMessage> namespacesRegistry = singleton.init(NamespacesRegistry.create());
-        final Namespaces namespaces = Namespaces.apply(namespacesRegistry, namespaceShards, patterns);
-        final Datasets datasets = Datasets.apply(namespaceShards, datasetShards, patterns);
+        final Namespaces namespaces = NamespacesFactory
+            .apply(namespacesRegistry, namespaceShards, patterns)
+            .create();
+
+        final DatasetsImpl datasets = DatasetsImpl.apply(namespaceShards, datasetShards, patterns);
 
         // initialize application
         return CoreApplication.apply(system, namespaces, datasets);

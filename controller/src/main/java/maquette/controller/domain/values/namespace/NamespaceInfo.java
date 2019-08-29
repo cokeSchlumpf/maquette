@@ -1,5 +1,6 @@
 package maquette.controller.domain.values.namespace;
 
+import java.time.Instant;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -15,11 +16,19 @@ import maquette.controller.domain.values.core.ResourceName;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class NamespaceInfo {
 
+    private static final String ACL = "acl";
+    private static final String MODIFIED = "modified";
     private static final String NAME = "name";
     private static final String DATASETS = "datasets";
 
     @JsonProperty(NAME)
     private final ResourceName name;
+
+    @JsonProperty(MODIFIED)
+    private final Instant modified;
+
+    @JsonProperty(ACL)
+    private final NamespaceACL acl;
 
     @JsonProperty(DATASETS)
     private final Set<ResourceName> datasets;
@@ -27,9 +36,11 @@ public class NamespaceInfo {
     @JsonCreator
     public static NamespaceInfo apply(
         @JsonProperty(NAME) ResourceName name,
+        @JsonProperty(MODIFIED) Instant modified,
+        @JsonProperty(ACL) NamespaceACL acl,
         @JsonProperty(DATASETS) Set<ResourceName> datasets) {
 
-        return new NamespaceInfo(name, ImmutableSet.copyOf(datasets));
+        return new NamespaceInfo(name, modified, acl, ImmutableSet.copyOf(datasets));
     }
 
 }

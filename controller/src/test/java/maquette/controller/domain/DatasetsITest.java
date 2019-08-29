@@ -13,6 +13,7 @@ import maquette.controller.domain.values.dataset.DatasetGrant;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.iam.RoleAuthorization;
 import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.namespace.NamespaceDetails;
 import maquette.util.TestSetup;
 
 public class DatasetsITest {
@@ -35,6 +36,34 @@ public class DatasetsITest {
 
         assertThat(datasetDetails.getDataset()).isEqualTo(dataset01name);
         assertThat(datasetDetails.getCreatedBy().getName()).isEqualTo(setup.getDefaultUser().getDisplayName());
+
+        final NamespaceDetails namespaceDetails01 = setup
+            .getApp()
+            .namespaces()
+            .getNamespaceDetails(setup.getDefaultUser(), dataset01name.getNamespace())
+            .toCompletableFuture()
+            .get();
+
+        assertThat(namespaceDetails01.getDatasets()).hasSize(1);
+        assertThat(namespaceDetails01.getDatasets()).contains(dataset01name.getName());
+
+        setup
+            .getApp()
+            .datasets()
+            .deleteDataset(setup.getDefaultUser(), dataset01name)
+            .toCompletableFuture()
+            .get();
+
+        final NamespaceDetails namespaceDetails02 = setup
+            .getApp()
+            .namespaces()
+            .getNamespaceDetails(setup.getDefaultUser(), dataset01name.getNamespace())
+            .toCompletableFuture()
+            .get();
+
+        assertThat(namespaceDetails02.getDatasets()).hasSize(0);
+
+        setup.getApp().terminate();
     }
 
     @Test
@@ -118,9 +147,7 @@ public class DatasetsITest {
 
         assertThat(details06.getAcl().getGrants().size()).isEqualTo(2);
 
-        setup
-            .getApp()
-            .datasets();
+        setup.getApp().terminate();
     }
 
 }
