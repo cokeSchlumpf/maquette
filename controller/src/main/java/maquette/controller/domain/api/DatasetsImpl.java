@@ -8,10 +8,12 @@ import akka.cluster.sharding.typed.ShardingEnvelope;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.DeleteDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
@@ -40,6 +42,29 @@ public final class DatasetsImpl implements Datasets {
 
     private final ActorPatterns patterns;
 
+    private CompletionStage<DatasetDetails> getDetails(ResourcePath dataset) {
+        return patterns
+            .ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    GetDetails.apply(dataset, replyTo, errorTo)),
+                GetDetailsResult.class)
+            .thenApply(GetDetailsResult::getDetails);
+    }
+
+    @Override
+    public CompletionStage<DatasetDetails> changeOwner(User executor, ResourcePath dataset, Authorization owner) {
+        return patterns
+            .ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    ChangeOwner.apply(executor, dataset, owner, replyTo, errorTo)),
+                ChangedOwner.class)
+            .thenCompose(result -> getDetails(dataset));
+    }
+
     @Override
     public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name) {
         return patterns
@@ -55,13 +80,7 @@ public final class DatasetsImpl implements Datasets {
                     Dataset.createEntityId(name),
                     CreateDataset.apply(name, executor, replyTo, errorTo)),
                 CreatedDataset.class))
-            .thenCompose(result -> patterns.ask(
-                datasets,
-                (replyTo, errorTo) -> ShardingEnvelope.apply(
-                    Dataset.createEntityId(name),
-                    GetDetails.apply(name, replyTo, errorTo)),
-                GetDetailsResult.class))
-            .thenApply(GetDetailsResult::getDetails);
+            .thenCompose(result -> getDetails(name));
     }
 
     @Override
@@ -93,13 +112,7 @@ public final class DatasetsImpl implements Datasets {
                     Dataset.createEntityId(datasetName),
                     GrantDatasetAccess.apply(datasetName, executor, grant, grantFor, replyTo, errorTo)),
                 GrantedDatasetAccess.class)
-            .thenCompose(result -> patterns.ask(
-                datasets,
-                (replyTo, errorTo) -> ShardingEnvelope.apply(
-                    Dataset.createEntityId(datasetName),
-                    GetDetails.apply(datasetName, replyTo, errorTo)),
-                GetDetailsResult.class))
-            .thenApply(GetDetailsResult::getDetails);
+            .thenCompose(result -> getDetails(datasetName));
     }
 
     @Override
@@ -112,14 +125,8 @@ public final class DatasetsImpl implements Datasets {
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
                     Dataset.createEntityId(datasetName),
                     RevokeDatasetAccess.apply(datasetName, executor, revoke, revokeFrom, replyTo, errorTo)),
-                    RevokedDatasetAccess.class)
-            .thenCompose(result -> patterns.ask(
-                datasets,
-                (replyTo, errorTo) -> ShardingEnvelope.apply(
-                    Dataset.createEntityId(datasetName),
-                    GetDetails.apply(datasetName, replyTo, errorTo)),
-                GetDetailsResult.class))
-            .thenApply(GetDetailsResult::getDetails);
+                RevokedDatasetAccess.class)
+            .thenCompose(result -> getDetails(datasetName));
     }
 
 }

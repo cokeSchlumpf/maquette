@@ -11,6 +11,8 @@ import maquette.controller.domain.values.iam.User;
 
 public interface Datasets {
 
+    CompletionStage<DatasetDetails> changeOwner(User executor, ResourcePath dataset, Authorization owner);
+
     CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name);
 
     CompletionStage<Done> deleteDataset(User executor, ResourcePath datasetName);

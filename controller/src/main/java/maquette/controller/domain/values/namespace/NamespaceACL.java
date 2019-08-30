@@ -35,6 +35,14 @@ public class NamespaceACL {
         return isOwner(user) || isAdmin(user);
     }
 
+    public boolean canCreatedDataset(User user) {
+        return isOwner(user) || isAdmin(user) || isMember(user);
+    }
+
+    public boolean canDeleteDataset(User user) {
+        return isOwner(user) || isAdmin(user) || isMember(user);
+    }
+
     public boolean canDeleteNamespace(User user) {
         return isOwner(user) || isAdmin(user);
     }

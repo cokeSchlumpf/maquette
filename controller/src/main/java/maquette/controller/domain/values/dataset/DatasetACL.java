@@ -13,6 +13,9 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
+import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.namespace.NamespaceGrant;
+import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -30,6 +33,26 @@ public class DatasetACL {
         return new DatasetACL(owner, ImmutableSet.copyOf(grants));
     }
 
+    public boolean canChangeOwner(User user) {
+        return isAdmin(user) || isOwner(user);
+    }
+
+    public boolean canGrantDatasetAccess(User user) {
+        return isAdmin(user) || isOwner(user);
+    }
+
+    public boolean canRevokeDatasetAccess(User user) {
+        return isAdmin(user) || isOwner(user);
+    }
+
+    public Optional<DatasetGrant> findGrant(User user, DatasetPrivilege privilege) {
+        return this.grants
+            .stream()
+            .filter(grant -> grant.getAuthorization().getAuthorization().hasAuthorization(user) &&
+                             grant.getPrivilege().equals(privilege))
+            .findFirst();
+    }
+
     public Optional<DatasetGrant> findGrant(Authorization authorization, DatasetPrivilege privilege) {
         return this.grants
             .stream()
@@ -38,6 +61,22 @@ public class DatasetACL {
                     grant.getAuthorization().getAuthorization().equals(authorization) &&
                     grant.getPrivilege().equals(privilege))
             .findAny();
+    }
+
+    private boolean isAdmin(User user) {
+        return findGrant(user, DatasetPrivilege.ADMIN).isPresent();
+    }
+
+    private boolean isConsumer(User user) {
+        return findGrant(user, DatasetPrivilege.CONSUMER).isPresent();
+    }
+
+    private boolean isOwner(User user) {
+        return owner.getAuthorization().hasAuthorization(user);
+    }
+
+    private boolean isProducer(User user) {
+        return findGrant(user, DatasetPrivilege.PRODUCER).isPresent();
     }
 
     public DatasetACL withGrant(GrantedAuthorization authorization, DatasetPrivilege privilege) {
