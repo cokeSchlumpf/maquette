@@ -1,6 +1,7 @@
 package maquette.util;
 
 import lombok.AllArgsConstructor;
+import lombok.Value;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.core.ResourceName;
@@ -8,10 +9,13 @@ import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
 import maquette.controller.domain.values.iam.User;
 
+@Value
 @AllArgsConstructor(staticName = "apply")
 public class TestSetup {
 
     private final CoreApplication app;
+
+    private final String commonRole;
 
     private final AuthenticatedUser defaultUser;
 
@@ -19,21 +23,11 @@ public class TestSetup {
 
     public static TestSetup apply() {
         CoreApplication app = CoreApplication.apply();
-        AuthenticatedUser defaultUser = AuthenticatedUser.apply("hippo", "Hippo Ewen-Wellner");
-        AuthenticatedUser otherUser = AuthenticatedUser.apply("egon", "Egon Olsen");
-        return TestSetup.apply(app, defaultUser, otherUser);
-    }
+        String commonRole = "common-role";
+        AuthenticatedUser defaultUser = AuthenticatedUser.apply("hippo", "Hippo Ewen-Wellner", commonRole);
+        AuthenticatedUser otherUser = AuthenticatedUser.apply("egon", "Egon Olsen", commonRole);
 
-    public CoreApplication getApp() {
-        return app;
-    }
-
-    public AuthenticatedUser getDefaultUser() {
-        return defaultUser;
-    }
-
-    public AuthenticatedUser getOtherUser() {
-        return otherUser;
+        return TestSetup.apply(app, commonRole, defaultUser, otherUser);
     }
 
     public TestSetup withDataset(String namespace, String name) {

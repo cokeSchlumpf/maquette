@@ -1,16 +1,17 @@
 package maquette.controller.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.setAllowComparingPrivateFields;
 
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 
-import maquette.controller.domain.util.databind.ObjectMapperFactory;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
-import maquette.controller.domain.values.iam.GrantedAuthorization;
+import maquette.controller.domain.values.iam.RoleAuthorization;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserAuthorization;
 import maquette.controller.domain.values.namespace.NamespaceInfo;
@@ -160,6 +161,109 @@ public class NamespacesITest {
 
 
         assertThat(namespaces04).hasSize(0);
+
+        setup.getApp().terminate();
+    }
+
+    @Test
+    public void testAccess() throws Exception {
+        final String namespace = "my-namespace";
+
+        // Given an existing namespace owned by some user
+        final TestSetup setup = TestSetup
+            .apply()
+            .withNamespace(namespace);
+        final AuthenticatedUser someUser = setup.getDefaultUser();
+
+        // ... and another user
+        final AuthenticatedUser otherUser = setup.getOtherUser();
+
+        ResourceName namespaceResource = ResourceName.apply(namespace);
+        assertThatThrownBy(() -> setup
+            .getApp()
+            .namespaces()
+            .getNamespaceDetails(otherUser, namespaceResource)
+            .toCompletableFuture()
+            .get())
+            .hasMessageContaining("not authorized");
+
+        // When the first user grants access to the repository to the other user
+        setup
+            .getApp()
+            .namespaces()
+            .grantNamespaceAccess(
+                someUser, namespaceResource,
+                NamespacePrivilege.MEMBER, UserAuthorization.apply(otherUser))
+            .toCompletableFuture()
+            .get();
+
+        // Then the action shouldn't throw an exception
+        setup
+            .getApp()
+            .namespaces()
+            .getNamespaceDetails(otherUser, namespaceResource)
+            .toCompletableFuture()
+            .get();
+
+        // When the first user revokes access to the repository from the other user
+        setup
+            .getApp()
+            .namespaces()
+            .revokeNamespaceAccess(
+                someUser, namespaceResource,
+                NamespacePrivilege.MEMBER, UserAuthorization.apply(otherUser))
+            .toCompletableFuture()
+            .get();
+
+        // Then the exception should be thrown again
+        assertThatThrownBy(() -> setup
+            .getApp()
+            .namespaces()
+            .getNamespaceDetails(otherUser, namespaceResource)
+            .toCompletableFuture()
+            .get())
+            .hasMessageContaining("not authorized");
+
+        // The owner also may give the ownership to a role
+        setup
+            .getApp()
+            .namespaces()
+            .changeOwner(someUser, namespaceResource, RoleAuthorization.apply(setup.getCommonRole()))
+            .toCompletableFuture()
+            .get();
+
+        // Then the other user also has the right to do admin actions and see details as well
+        setup
+            .getApp()
+            .namespaces()
+            .getNamespaceDetails(otherUser, namespaceResource)
+            .toCompletableFuture()
+            .get();
+
+        setup
+            .getApp()
+            .namespaces()
+            .grantNamespaceAccess(otherUser, namespaceResource, NamespacePrivilege.PRODUCER, RoleAuthorization.apply("foo"))
+            .toCompletableFuture()
+            .get();
+
+        setup.getApp().terminate();
+    }
+
+    @Test
+    public void testAccessToNonExistingNamespace() throws ExecutionException, InterruptedException {
+        // Given an empty app
+        final TestSetup setup = TestSetup.apply();
+
+        // Then requests to a non-existing namespace should fail
+        assertThatThrownBy(() -> {
+            setup
+                .getApp()
+                .namespaces()
+                .getNamespaceDetails(setup.getDefaultUser(), ResourceName.apply("foo"))
+                .toCompletableFuture()
+                .get();
+        }).hasMessageContaining("does not exist");
 
         setup.getApp().terminate();
     }
