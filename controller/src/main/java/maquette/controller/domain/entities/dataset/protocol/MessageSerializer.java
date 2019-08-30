@@ -5,6 +5,7 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 
 import akka.actor.ExtendedActorSystem;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.DeleteDataset;
@@ -12,6 +13,7 @@ import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatase
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
@@ -24,8 +26,6 @@ import maquette.controller.domain.entities.dataset.protocol.queries.IsAllowedToC
 import maquette.controller.domain.entities.dataset.protocol.queries.IsAllowedToProduce;
 import maquette.controller.domain.entities.dataset.protocol.results.BooleanResult;
 import maquette.controller.domain.entities.dataset.protocol.results.GetDataResult;
-import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwner;
-import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.util.databind.AbstractMessageSerializer;
 
 public final class MessageSerializer extends AbstractMessageSerializer {
@@ -38,6 +38,7 @@ public final class MessageSerializer extends AbstractMessageSerializer {
     protected Map<String, Class<?>> getManifestToClass() {
         Map<String, Class<?>> m = Maps.newHashMap();
 
+        m.put("dataset/commands/change-owner/v1", ChangeOwner.class);
         m.put("dataset/commands/create-dataset/v1", CreateDataset.class);
         m.put("dataset/commands/create-dataset-version/v1", CreateDatasetVersion.class);
         m.put("dataset/commands/delete-dataset/v1", DeleteDataset.class);
@@ -46,6 +47,7 @@ public final class MessageSerializer extends AbstractMessageSerializer {
         m.put("dataset/commands/push-data/v1", PushData.class);
         m.put("dataset/commands/revoke-dataset-access/v1", RevokeDatasetAccess.class);
 
+        m.put("dataset/events/changed-owner/v1", ChangedOwner.class);
         m.put("dataset/events/created-dataset/v1", CreatedDataset.class);
         m.put("dataset/events/created-dataset-version/v1", CreatedDatasetVersion.class);
         m.put("dataset/events/deleted-dataset/v1", DeletedDataset.class);

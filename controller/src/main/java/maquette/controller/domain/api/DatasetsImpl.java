@@ -102,6 +102,11 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
+    public CompletionStage<DatasetDetails> getDetails(User executor, ResourcePath dataset) {
+        return getDetails(dataset);
+    }
+
+    @Override
     public CompletionStage<DatasetDetails> grantDatasetAccess(
         User executor, ResourcePath datasetName, DatasetPrivilege grant, Authorization grantFor) {
 

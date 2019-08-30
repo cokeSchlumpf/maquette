@@ -17,6 +17,8 @@ public interface Datasets {
 
     CompletionStage<Done> deleteDataset(User executor, ResourcePath datasetName);
 
+    CompletionStage<DatasetDetails> getDetails(User executor, ResourcePath dataset);
+
     CompletionStage<DatasetDetails> grantDatasetAccess(
         User executor, ResourcePath datasetName, DatasetPrivilege grant, Authorization grantFor);
 

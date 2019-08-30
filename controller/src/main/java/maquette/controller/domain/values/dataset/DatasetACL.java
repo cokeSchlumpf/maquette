@@ -41,6 +41,10 @@ public class DatasetACL {
         return isAdmin(user) || isOwner(user);
     }
 
+    public boolean canReadDetails(User user) {
+        return isAdmin(user) || isConsumer(user) || isProducer(user) || isOwner(user);
+    }
+
     public boolean canRevokeDatasetAccess(User user) {
         return isAdmin(user) || isOwner(user);
     }

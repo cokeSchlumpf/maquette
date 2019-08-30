@@ -26,9 +26,8 @@ import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.namespace.NamespaceDetails;
 
-@Value
 @AllArgsConstructor(staticName = "apply")
-public class DatasetsSecured implements Datasets {
+public final class DatasetsSecured implements Datasets {
 
     private final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaces;
 
@@ -105,6 +104,26 @@ public class DatasetsSecured implements Datasets {
             .thenCompose(details -> {
                 if (details.getAcl().canDeleteNamespace(executor)) {
                     return delegate.deleteDataset(executor, datasetName);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
+    }
+
+    @Override
+    public CompletionStage<DatasetDetails> getDetails(User executor, ResourcePath dataset) {
+        return getDatasetDetails(dataset)
+            .thenCompose(dsDetails -> {
+                if (dsDetails.getAcl().canReadDetails(executor)) {
+                    return CompletableFuture.completedFuture(true);
+                } else {
+                    return getNamespaceDetails(dataset.getNamespace())
+                        .thenApply(nsDetails -> nsDetails.getAcl().canReadDetails(executor));
+                }
+            })
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.getDetails(executor, dataset);
                 } else {
                     throw NotAuthorizedException.apply(executor);
                 }

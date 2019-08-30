@@ -7,6 +7,7 @@ import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
+import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.User;
 
 @Value
@@ -66,6 +67,22 @@ public class TestSetup {
 
     public TestSetup withNamespace(String name) {
         withNamespace(name, defaultUser);
+        return this;
+    }
+
+    public TestSetup withNamespaceOwner(String namespace, Authorization owner) {
+        return withNamespaceOwner(namespace, owner, getDefaultUser());
+    }
+
+    public TestSetup withNamespaceOwner(String namespace, Authorization owner, User executor) {
+        Operators.suppressExceptions(() -> {
+            app
+                .namespaces()
+                .changeOwner(executor, ResourceName.apply(namespace), owner)
+                .toCompletableFuture()
+                .get();
+        });
+
         return this;
     }
 
