@@ -7,10 +7,12 @@ import akka.persistence.typed.javadsl.CommandHandler;
 import akka.persistence.typed.javadsl.EventHandler;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.DeleteDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
@@ -55,6 +57,7 @@ public class Dataset extends EventSourcedEntity<DatasetMessage, DatasetEvent, St
     public CommandHandler<DatasetMessage, DatasetEvent, State> commandHandler() {
         return newCommandHandlerBuilder()
             .forAnyState()
+            .onCommand(ChangeOwner.class, State::onChangeOwner)
             .onCommand(CreateDataset.class, State::onCreateDataset)
             .onCommand(DeleteDataset.class, State::onDeleteDataset)
             .onCommand(GetDetails.class, State::onGetDetails)
@@ -67,6 +70,7 @@ public class Dataset extends EventSourcedEntity<DatasetMessage, DatasetEvent, St
     public EventHandler<State, DatasetEvent> eventHandler() {
         return newEventHandlerBuilder()
             .forAnyState()
+            .onEvent(ChangedOwner.class, State::onChangedOwner)
             .onEvent(CreatedDataset.class, State::onCreatedDataset)
             .onEvent(DeletedDataset.class, State::onDeletedDataset)
             .onEvent(GrantedDatasetAccess.class, State::onGrantedDatasetAccess)

@@ -9,10 +9,12 @@ import akka.persistence.typed.javadsl.EffectFactories;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.DeleteDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
@@ -32,6 +34,37 @@ public class ActiveDataset implements State {
     private final EffectFactories<DatasetEvent, State> effect;
 
     private DatasetDetails details;
+
+    @Override
+    public Effect<DatasetEvent, State> onChangeOwner(ChangeOwner change) {
+        if (change.getOwner().equals(details.getAcl().getOwner().getAuthorization())) {
+            ChangedOwner changed = ChangedOwner.apply(details.getDataset(), details.getAcl().getOwner());
+            change.getReplyTo().tell(changed);
+            return effect.none();
+        } else {
+            GrantedAuthorization granted = GrantedAuthorization.apply(
+                change.getExecutor().getUserId(),
+                Instant.now(),
+                change.getOwner());
+
+            ChangedOwner
+                changedOwner = ChangedOwner.apply(details.getDataset(), granted);
+
+            return effect
+                .persist(changedOwner)
+                .thenRun(() -> change.getReplyTo().tell(changedOwner));
+        }
+    }
+
+    @Override
+    public State onChangedOwner(ChangedOwner changed) {
+        this.details = this.details
+            .withAcl(this.details.getAcl().withOwner(changed.getNewOwner()))
+            .withModified(changed.getNewOwner().getAt())
+            .withModifiedBy(changed.getNewOwner().getBy());
+
+        return this;
+    }
 
     @Override
     public Effect<DatasetEvent, State> onCreateDataset(CreateDataset create) {
