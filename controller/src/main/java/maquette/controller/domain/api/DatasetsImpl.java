@@ -1,6 +1,11 @@
 package maquette.controller.domain.api;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
+
+import javax.xml.validation.Schema;
+
+import org.apache.avro.generic.GenericData;
 
 import akka.Done;
 import akka.actor.typed.ActorRef;
@@ -28,8 +33,10 @@ import maquette.controller.domain.entities.namespace.protocol.events.RegisteredD
 import maquette.controller.domain.entities.namespace.protocol.events.RemovedDataset;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
+import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.User;
 
@@ -84,6 +91,11 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
+    public CompletionStage<VersionDetails> createDatasetVersion(User executor, ResourcePath dataset, Schema schema) {
+        return null;
+    }
+
+    @Override
     public CompletionStage<Done> deleteDataset(User executor, ResourcePath datasetName) {
         return patterns
             .ask(
@@ -118,6 +130,18 @@ public final class DatasetsImpl implements Datasets {
                     GrantDatasetAccess.apply(datasetName, executor, grant, grantFor, replyTo, errorTo)),
                 GrantedDatasetAccess.class)
             .thenCompose(result -> getDetails(datasetName));
+    }
+
+    @Override
+    public CompletionStage<VersionDetails> pushData(User executor, ResourcePath dataset, UID versionId,
+                                                    List<GenericData.Record> records) {
+        return null;
+    }
+
+    @Override
+    public CompletionStage<VersionDetails> publishDatasetVersion(User executor, ResourcePath dataset, UID versionId,
+                                                                 String message) {
+        return null;
     }
 
     @Override

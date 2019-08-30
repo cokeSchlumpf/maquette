@@ -20,7 +20,7 @@ public class PublishDetails {
     private static final String MESSAGE = "message";
 
     @JsonProperty(VERSION)
-    private final Version version;
+    private final VersionNumber version;
 
     @JsonProperty(PUBLISHED_BY)
     private final UserId publishedBy;
@@ -33,7 +33,7 @@ public class PublishDetails {
 
     @JsonCreator
     public static PublishDetails apply(
-        @JsonProperty(VERSION) Version version,
+        @JsonProperty(VERSION) VersionNumber version,
         @JsonProperty(PUBLISHED_BY) UserId publishedBy,
         @JsonProperty(PUBLISHED_AT) Instant publishedAt,
         @JsonProperty(MESSAGE) String message) {

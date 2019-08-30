@@ -5,7 +5,7 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class Version {
+public class VersionNumber {
 
     private final int major;
 

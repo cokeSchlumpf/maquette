@@ -22,10 +22,11 @@ import maquette.controller.domain.entities.dataset.protocol.events.PublishedData
 import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
-import maquette.controller.domain.entities.dataset.protocol.queries.IsAllowedToConsume;
-import maquette.controller.domain.entities.dataset.protocol.queries.IsAllowedToProduce;
-import maquette.controller.domain.entities.dataset.protocol.results.BooleanResult;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
 import maquette.controller.domain.entities.dataset.protocol.results.GetDataResult;
+import maquette.controller.domain.entities.dataset.protocol.results.GetDetailsResult;
+import maquette.controller.domain.entities.dataset.protocol.results.GetVersionDetailsResult;
 import maquette.controller.domain.util.databind.AbstractMessageSerializer;
 
 public final class MessageSerializer extends AbstractMessageSerializer {
@@ -57,11 +58,12 @@ public final class MessageSerializer extends AbstractMessageSerializer {
         m.put("dataset/events/revoked-dataset-access/v1", RevokedDatasetAccess.class);
 
         m.put("dataset/queries/get-data/v1", GetData.class);
-        m.put("dataset/queries/is-allowed-to-consume/v1", IsAllowedToConsume.class);
-        m.put("dataset/queries/is-allowed-to-produce/v1", IsAllowedToProduce.class);
+        m.put("dataset/queries/get-details/v1", GetDetails.class);
+        m.put("dataset/queries/get-version-details/v1", GetVersionDetails.class);
 
         m.put("dataset/results/get-data/v1", GetDataResult.class);
-        m.put("dataset/results/boolean/v1", BooleanResult.class);
+        m.put("dataset/results/get-details/v1", GetDetailsResult.class);
+        m.put("dataset/results/get-version-details/v1", GetVersionDetailsResult.class);
 
         return m;
     }
