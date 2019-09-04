@@ -7,10 +7,12 @@ import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatas
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.DeleteDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.commands.PublishCommittedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
+import maquette.controller.domain.entities.dataset.protocol.events.CommittedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
@@ -43,6 +45,8 @@ public interface State {
     Effect<DatasetEvent, State> onGrantDatasetAccess(GrantDatasetAccess grant);
 
     State onGrantedDatasetAccess(GrantedDatasetAccess granted);
+
+    Effect<DatasetEvent, State> onPublishCommittedDatasetVersion(PublishCommittedDatasetVersion publish);
 
     Effect<DatasetEvent, State> onPublishDatasetVersion(PublishDatasetVersion publish);
 

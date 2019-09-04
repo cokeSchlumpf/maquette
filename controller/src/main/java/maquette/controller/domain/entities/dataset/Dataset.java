@@ -12,6 +12,7 @@ import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatas
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.DeleteDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.commands.PublishCommittedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
@@ -26,6 +27,7 @@ import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatase
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.dataset.states.State;
 import maquette.controller.domain.entities.dataset.states.UninitializedDataset;
+import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.values.core.ResourcePath;
 
 public class Dataset extends EventSourcedEntity<DatasetMessage, DatasetEvent, State> {
@@ -34,20 +36,25 @@ public class Dataset extends EventSourcedEntity<DatasetMessage, DatasetEvent, St
 
     private final ActorContext<DatasetMessage> actor;
 
+    private final DataStorageAdapter store;
+
     private Dataset(
         ActorContext<DatasetMessage> actor,
+        DataStorageAdapter store,
         String entityId) {
 
         super(ENTITY_KEY, entityId);
         this.actor = actor;
+        this.store = store;
     }
 
     public static EventSourcedEntity<DatasetMessage, DatasetEvent, State> create(
         ActorContext<DatasetMessage> actor,
+        DataStorageAdapter store,
         ResourcePath id) {
 
         String entityId = createEntityId(id);
-        return new Dataset(actor, entityId);
+        return new Dataset(actor, store, entityId);
     }
 
     public static String createEntityId(ResourcePath dataset) {
@@ -56,7 +63,7 @@ public class Dataset extends EventSourcedEntity<DatasetMessage, DatasetEvent, St
 
     @Override
     public State emptyState() {
-        return UninitializedDataset.apply(actor, Effect());
+        return UninitializedDataset.apply(actor, Effect(), store);
     }
 
     @Override
@@ -69,6 +76,7 @@ public class Dataset extends EventSourcedEntity<DatasetMessage, DatasetEvent, St
             .onCommand(DeleteDataset.class, State::onDeleteDataset)
             .onCommand(GetDetails.class, State::onGetDetails)
             .onCommand(GrantDatasetAccess.class, State::onGrantDatasetAccess)
+            .onCommand(PublishCommittedDatasetVersion.class, State::onPublishCommittedDatasetVersion)
             .onCommand(PublishDatasetVersion.class, State::onPublishDatasetVersion)
             .onCommand(PushData.class, State::onPushData)
             .onCommand(RevokeDatasetAccess.class, State::onRevokeDatasetAccess)

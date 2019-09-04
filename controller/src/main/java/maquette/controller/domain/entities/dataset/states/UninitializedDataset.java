@@ -15,6 +15,7 @@ import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatas
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.DeleteDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.commands.PublishCommittedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
@@ -27,6 +28,7 @@ import maquette.controller.domain.entities.dataset.protocol.events.PublishedData
 import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
+import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.values.dataset.DatasetACL;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetDoesNotExistError;
@@ -40,13 +42,16 @@ public final class UninitializedDataset implements State {
 
     private final EffectFactories<DatasetEvent, State> effect;
 
+    private final DataStorageAdapter store;
+
     private final DeletedDataset deleted;
 
     public static UninitializedDataset apply(
         ActorContext<DatasetMessage> actor,
-        EffectFactories<DatasetEvent, State> effect) {
+        EffectFactories<DatasetEvent, State> effect,
+        DataStorageAdapter store) {
 
-        return apply(actor, effect, null);
+        return apply(actor, effect, store,null);
     }
 
     @Override
@@ -88,7 +93,7 @@ public final class UninitializedDataset implements State {
             Sets.newHashSet(),
             DatasetACL.apply(granted, Sets.newHashSet()));
 
-        return ActiveDataset.apply(actor, effect, details);
+        return ActiveDataset.apply(actor, effect, store, details);
     }
 
     @Override
@@ -134,6 +139,12 @@ public final class UninitializedDataset implements State {
     @Override
     public State onGrantedDatasetAccess(GrantedDatasetAccess granted) {
         return this;
+    }
+
+    @Override
+    public Effect<DatasetEvent, State> onPublishCommittedDatasetVersion(PublishCommittedDatasetVersion publish) {
+        publish.getErrorTo().tell(DatasetDoesNotExistError.apply(publish.getDataset()));
+        return effect.none();
     }
 
     @Override

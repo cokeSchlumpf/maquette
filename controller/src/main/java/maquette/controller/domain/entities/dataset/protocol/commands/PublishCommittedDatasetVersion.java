@@ -12,15 +12,16 @@ import maquette.controller.domain.entities.dataset.protocol.events.PublishedData
 import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.dataset.Commit;
 import maquette.controller.domain.values.iam.User;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class PublishDatasetVersion implements DatasetMessage {
+public class PublishCommittedDatasetVersion implements DatasetMessage {
 
+    private static final String COMMIT = "commit";
     private static final String DATASET = "dataset";
     private static final String EXECUTOR = "executor";
-    private static final String MESSAGE = "message";
     private static final String REPLY_TO = "reply-to";
     private static final String ERROR_TO = "error-to";
     private static final String VERSION_ID = "version-id";
@@ -34,8 +35,8 @@ public class PublishDatasetVersion implements DatasetMessage {
     @JsonProperty(VERSION_ID)
     private final UID versionId;
 
-    @JsonProperty(MESSAGE)
-    private final String message;
+    @JsonProperty(COMMIT)
+    private final Commit commit;
 
     @JsonProperty(REPLY_TO)
     private final ActorRef<PublishedDatasetVersion> replyTo;
@@ -44,15 +45,15 @@ public class PublishDatasetVersion implements DatasetMessage {
     private final ActorRef<ErrorMessage> errorTo;
 
     @JsonCreator
-    public static PublishDatasetVersion apply(
+    public static PublishCommittedDatasetVersion apply(
         @JsonProperty(EXECUTOR) User executor,
         @JsonProperty(DATASET) ResourcePath dataset,
         @JsonProperty(VERSION_ID) UID versionId,
-        @JsonProperty(MESSAGE) String message,
+        @JsonProperty(COMMIT) Commit commit,
         @JsonProperty(REPLY_TO) ActorRef<PublishedDatasetVersion> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 
-        return new PublishDatasetVersion(executor, dataset, versionId, message, replyTo, errorTo);
+        return new PublishCommittedDatasetVersion(executor, dataset, versionId, commit, replyTo, errorTo);
     }
 
 }

@@ -21,6 +21,7 @@ import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.NamespacesRegistry;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
+import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
@@ -35,7 +36,9 @@ public class CoreApplication {
 
     private final Datasets datasets;
 
-    public static CoreApplication apply() {
+    public static CoreApplication apply(
+        DataStorageAdapter storageAdapter) {
+
         final ActorSystem system = ActorSystem.apply("maquette");
         final ClusterSharding sharding = ClusterSharding.get(Adapter.toTyped(system));
         final ClusterSingleton singleton = ClusterSingleton.createExtension(Adapter.toTyped(system));
@@ -44,7 +47,7 @@ public class CoreApplication {
         final Entity<DatasetMessage, ShardingEnvelope<DatasetMessage>> datasetEntity = Entity
             .ofPersistentEntity(
                 Dataset.ENTITY_KEY,
-                ctx -> Dataset.create(ctx.getActorContext(), ResourcePath.apply(ctx.getEntityId())));
+                ctx -> Dataset.create(ctx.getActorContext(), storageAdapter, ResourcePath.apply(ctx.getEntityId())));
         final ActorRef<ShardingEnvelope<DatasetMessage>> datasetShards = sharding.init(datasetEntity);
 
         // initialize namespace shards

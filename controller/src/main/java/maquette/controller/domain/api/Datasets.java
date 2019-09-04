@@ -6,6 +6,7 @@ import java.util.concurrent.CompletionStage;
 import javax.xml.validation.Schema;
 
 import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 
 import akka.Done;
 import maquette.controller.domain.values.core.ResourcePath;
@@ -13,6 +14,7 @@ import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
+import maquette.controller.domain.values.dataset.VersionNumber;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.User;
 
@@ -26,7 +28,15 @@ public interface Datasets {
 
     CompletionStage<Done> deleteDataset(User executor, ResourcePath datasetName);
 
+    CompletionStage<List<GenericData.Record>> getData(User executor);
+
+    CompletionStage<List<GenericData.Record>> getData(User executor, VersionNumber version);
+
     CompletionStage<DatasetDetails> getDetails(User executor, ResourcePath dataset);
+
+    CompletionStage<VersionDetails> getVersionDetails(User executor);
+
+    CompletionStage<VersionDetails> getVersionDetails(User executor, VersionNumber version);
 
     CompletionStage<DatasetDetails> grantDatasetAccess(
         User executor, ResourcePath datasetName, DatasetPrivilege grant, Authorization grantFor);

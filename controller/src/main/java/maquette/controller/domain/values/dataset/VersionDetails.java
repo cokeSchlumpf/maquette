@@ -22,7 +22,7 @@ public class VersionDetails {
     private static final String CREATED_BY = "created-by";
     private static final String LAST_MODIFIED = "last-modified";
     private static final String MODIFIED_BY = "modified-by";
-    private static final String PUBLISHED = "published";
+    private static final String COMMIT = "commit";
     private static final String RECORDS = "records";
     private static final String VERSION_ID = "version-id";
 
@@ -44,8 +44,8 @@ public class VersionDetails {
     @JsonProperty(RECORDS)
     private final long records;
 
-    @JsonProperty(PUBLISHED)
-    private final PublishDetails published;
+    @JsonProperty(COMMIT)
+    private final Commit commit;
 
     @JsonCreator
     public static VersionDetails apply(
@@ -55,9 +55,9 @@ public class VersionDetails {
         @JsonProperty(LAST_MODIFIED) Instant lastModified,
         @JsonProperty(MODIFIED_BY) UserId modifiedBy,
         @JsonProperty(RECORDS) long records,
-        @JsonProperty(PUBLISHED) PublishDetails published) {
+        @JsonProperty(COMMIT) Commit commit) {
 
-        return new VersionDetails(versionId, created, createdBy, lastModified, modifiedBy, records, published);
+        return new VersionDetails(versionId, created, createdBy, lastModified, modifiedBy, records, commit);
     }
 
     public static VersionDetails apply(
@@ -66,8 +66,8 @@ public class VersionDetails {
         return apply(versionId, created, createdBy, lastModified, modifiedBy, records, null);
     }
 
-    public Optional<PublishDetails> getPublished() {
-        return Optional.ofNullable(published);
+    public Optional<Commit> getCommit() {
+        return Optional.ofNullable(commit);
     }
 
 }

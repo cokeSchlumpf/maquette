@@ -2,7 +2,9 @@ package maquette.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.adapters.InMemoryDataStorageAdapter;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
@@ -22,13 +24,17 @@ public class TestSetup {
 
     private final AuthenticatedUser otherUser;
 
-    public static TestSetup apply() {
-        CoreApplication app = CoreApplication.apply();
+    public static TestSetup apply(DataStorageAdapter storageAdapter) {
+        CoreApplication app = CoreApplication.apply(storageAdapter);
         String commonRole = "common-role";
         AuthenticatedUser defaultUser = AuthenticatedUser.apply("hippo", "Hippo Ewen-Wellner", commonRole);
         AuthenticatedUser otherUser = AuthenticatedUser.apply("egon", "Egon Olsen", commonRole);
 
         return TestSetup.apply(app, commonRole, defaultUser, otherUser);
+    }
+
+    public static TestSetup apply() {
+        return apply(InMemoryDataStorageAdapter.apply());
     }
 
     public TestSetup withDataset(String namespace, String name) {

@@ -2,13 +2,13 @@ package maquette.controller.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.setAllowComparingPrivateFields;
 
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 
+import maquette.controller.adapters.InMemoryDataStorageAdapter;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
 import maquette.controller.domain.values.iam.RoleAuthorization;
@@ -22,7 +22,7 @@ public class NamespacesITest {
 
     @Test
     public void testCreateNamespace() throws ExecutionException, InterruptedException {
-        CoreApplication app = CoreApplication.apply();
+        CoreApplication app = CoreApplication.apply(InMemoryDataStorageAdapter.apply());
 
         ResourceName namespaceName = ResourceName.apply("my-namespace");
         User user = AuthenticatedUser.apply("mw", "mw");
