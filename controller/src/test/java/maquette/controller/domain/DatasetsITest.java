@@ -214,7 +214,7 @@ public class DatasetsITest {
             .get();
 
         assertThatThrownBy(someAction)
-            .hasMessageContaining("not is authorized");
+            .hasMessageContaining("not authorized");
 
         /*
          * When the owner grants access to the whole namespace, the user also has access to the dataset
