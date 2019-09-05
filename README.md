@@ -1,4 +1,4 @@
-# Maquette
+# Maquette [![Actions Status](https://github.com/cokeSchlumpf/maquette/workflows/maquette-build/badge.svg)](https://github.com/cokeSchlumpf/maquette/actions)
 
 ## Concepts
 
