@@ -1,4 +1,4 @@
-# Maquette [![Actions Status](https://github.com/cokeSchlumpf/maquette/workflows/ci/badge.svg)](https://github.com/cokeSchlumpf/maquette/actions)
+# Maquette [![Actions Status](https://github.com/cokeSchlumpf/maquette/workflows/Gradle%20Build/badge.svg)](https://github.com/cokeSchlumpf/maquette/actions)
 
 ## Concepts
 
