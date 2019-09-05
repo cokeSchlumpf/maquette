@@ -3,8 +3,7 @@ package maquette.controller.domain.api.datasets;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
-import javax.xml.validation.Schema;
-
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
 import akka.Done;
@@ -15,16 +14,26 @@ import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
+import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.DeleteDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
+import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
+import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
+import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
+import maquette.controller.domain.entities.dataset.protocol.results.GetDataResult;
 import maquette.controller.domain.entities.dataset.protocol.results.GetDetailsResult;
+import maquette.controller.domain.entities.dataset.protocol.results.GetVersionDetailsResult;
 import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.commands.RegisterDataset;
@@ -92,8 +101,15 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
-    public CompletionStage<VersionDetails> createDatasetVersion(User executor, ResourcePath dataset, Schema schema) {
-        return null;
+    public CompletionStage<UID> createDatasetVersion(User executor, ResourcePath dataset, Schema schema) {
+        return patterns
+            .ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    CreateDatasetVersion.apply(executor, dataset, schema, replyTo, errorTo)),
+                CreatedDatasetVersion.class)
+            .thenApply(CreatedDatasetVersion::getVersionId);
     }
 
     @Override
@@ -115,13 +131,29 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
-    public CompletionStage<List<GenericData.Record>> getData(User executor) {
-        return null;
+    public CompletionStage<List<GenericData.Record>> getData(User executor, ResourcePath dataset) {
+        return getDetails(dataset)
+            .thenApply(DatasetDetails::findLatestVersion)
+            .thenCompose(uid -> patterns.ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    GetData.apply(executor, dataset, uid, replyTo, errorTo)),
+                GetDataResult.class))
+            .thenApply(GetDataResult::getRecords);
     }
 
     @Override
-    public CompletionStage<List<GenericData.Record>> getData(User executor, VersionTag version) {
-        return null;
+    public CompletionStage<List<GenericData.Record>> getData(User executor, ResourcePath dataset, VersionTag version) {
+        return getDetails(dataset)
+            .thenApply(details -> details.findVersionId(version))
+            .thenCompose(uid -> patterns.ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    GetData.apply(executor, dataset, uid, replyTo, errorTo)),
+                GetDataResult.class))
+            .thenApply(GetDataResult::getRecords);
     }
 
     @Override
@@ -130,13 +162,29 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
-    public CompletionStage<VersionDetails> getVersionDetails(User executor) {
-        return null;
+    public CompletionStage<VersionDetails> getVersionDetails(User executor, ResourcePath dataset) {
+        return getDetails(dataset)
+            .thenApply(DatasetDetails::findLatestVersion)
+            .thenCompose(uid -> patterns.ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    GetVersionDetails.apply(dataset, uid, replyTo, errorTo)),
+                GetVersionDetailsResult.class))
+            .thenApply(GetVersionDetailsResult::getDetails);
     }
 
     @Override
-    public CompletionStage<VersionDetails> getVersionDetails(User executor, VersionTag version) {
-        return null;
+    public CompletionStage<VersionDetails> getVersionDetails(User executor, ResourcePath dataset, VersionTag version) {
+        return getDetails(dataset)
+            .thenApply(details -> details.findVersionId(version))
+            .thenCompose(uid -> patterns.ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    GetVersionDetails.apply(dataset, uid, replyTo, errorTo)),
+                GetVersionDetailsResult.class))
+            .thenApply(GetVersionDetailsResult::getDetails);
     }
 
     @Override
@@ -156,13 +204,27 @@ public final class DatasetsImpl implements Datasets {
     @Override
     public CompletionStage<VersionDetails> pushData(User executor, ResourcePath dataset, UID versionId,
                                                     List<GenericData.Record> records) {
-        return null;
+        return patterns
+            .ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    PushData.apply(executor, dataset, versionId, records, replyTo, errorTo)),
+                PushedData.class)
+            .thenApply(PushedData::getDetails);
     }
 
     @Override
-    public CompletionStage<VersionDetails> publishDatasetVersion(User executor, ResourcePath dataset, UID versionId,
+    public CompletionStage<VersionTag> publishDatasetVersion(User executor, ResourcePath dataset, UID versionId,
                                                                  String message) {
-        return null;
+        return patterns
+            .ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    PublishDatasetVersion.apply(executor, dataset, versionId, message, replyTo, errorTo)),
+                PublishedDatasetVersion.class)
+            .thenApply(published -> published.getVersion().getVersion());
     }
 
     @Override

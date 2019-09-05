@@ -13,12 +13,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.exceptions.InvalidVersionException;
 
 @Value
-@AllArgsConstructor(staticName = "apply")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @JsonSerialize(using = VersionTag.Serializer.class)
 @JsonDeserialize(using = VersionTag.Deserializer.class)
 public class VersionTag implements Comparable<VersionTag> {
@@ -32,6 +33,14 @@ public class VersionTag implements Comparable<VersionTag> {
     private final int minor;
 
     private final int patch;
+
+    public static VersionTag apply(int major, int minor, int patch) {
+        if (major < 1 || minor < 0 || patch < 0) {
+            throw InvalidVersionException.apply(String.format("%d.%d.%d", major, minor, patch));
+        }
+
+        return new VersionTag(major, minor, patch);
+    }
 
     public static VersionTag apply(String s) {
         final Matcher patchMatcher = PATCH_VERSION_PATTERN.matcher(s);

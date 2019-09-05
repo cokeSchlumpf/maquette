@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import javax.xml.validation.Schema;
-
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
 import akka.Done;
@@ -106,7 +105,7 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
-    public CompletionStage<VersionDetails> createDatasetVersion(User executor, ResourcePath dataset, Schema schema) {
+    public CompletionStage<UID> createDatasetVersion(User executor, ResourcePath dataset, Schema schema) {
         return null;
     }
 
@@ -123,12 +122,12 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
-    public CompletionStage<List<GenericData.Record>> getData(User executor) {
+    public CompletionStage<List<GenericData.Record>> getData(User executor, ResourcePath dataset) {
         return null;
     }
 
     @Override
-    public CompletionStage<List<GenericData.Record>> getData(User executor, VersionTag version) {
+    public CompletionStage<List<GenericData.Record>> getData(User executor, ResourcePath dataset, VersionTag version) {
         return null;
     }
 
@@ -153,12 +152,12 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
-    public CompletionStage<VersionDetails> getVersionDetails(User executor) {
+    public CompletionStage<VersionDetails> getVersionDetails(User executor, ResourcePath dataset) {
         return null;
     }
 
     @Override
-    public CompletionStage<VersionDetails> getVersionDetails(User executor, VersionTag version) {
+    public CompletionStage<VersionDetails> getVersionDetails(User executor, ResourcePath dataset, VersionTag version) {
         return null;
     }
 
@@ -190,8 +189,7 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
-    public CompletionStage<VersionDetails> publishDatasetVersion(User executor, ResourcePath dataset, UID versionId,
-                                                                 String message) {
+    public CompletionStage<VersionTag> publishDatasetVersion(User executor, ResourcePath dataset, UID versionId, String message) {
         return null;
     }
 

@@ -1,6 +1,7 @@
 package maquette.controller.domain.values.dataset;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -10,7 +11,10 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Wither;
+import maquette.controller.domain.exceptions.NoVersionException;
+import maquette.controller.domain.exceptions.UnknownVersionException;
 import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.iam.UserId;
 
 @Value
@@ -58,6 +62,27 @@ public class DatasetDetails {
         @JsonProperty(ACL) DatasetACL acl) {
 
         return new DatasetDetails(dataset, created, createdBy, modified, modifiedBy, versions, acl);
+    }
+
+    public UID findVersionId(VersionTag tag) {
+        return versions
+            .stream()
+            .filter(info -> {
+                VersionTag itag = info.getVersion().orElse(null);
+                return itag != null && itag.equals(tag);
+            })
+            .map(VersionInfo::getVersionId)
+            .findAny()
+            .orElseThrow(() -> UnknownVersionException.apply(tag));
+    }
+
+    public UID findLatestVersion() {
+        return versions
+            .stream()
+            .filter(info -> info.getVersion().isPresent())
+            .max(Comparator.comparing(info -> info.getVersion().get()))
+            .map(VersionInfo::getVersionId)
+            .orElseThrow(NoVersionException::apply);
     }
 
 }
