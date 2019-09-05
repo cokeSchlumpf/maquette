@@ -1,4 +1,4 @@
-name: ci
+name: Gradle Build
 
 on: [push]
 
