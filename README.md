@@ -1,4 +1,4 @@
-# Maquette [![Actions Status](https://shields-staging-pr-3898.herokuapp.com/github/actions/cokeSchlumpf/maquette/ci)](https://github.com/cokeSchlumpf/maquette/actions)
+# Maquette [![Actions Status](https://github.com/cokeSchlumpf/maquette/workflows/ci/badge.svg)](https://github.com/cokeSchlumpf/maquette/actions)
 
 ## Concepts
 
