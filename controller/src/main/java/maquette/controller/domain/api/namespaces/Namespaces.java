@@ -1,4 +1,4 @@
-package maquette.controller.domain.api;
+package maquette.controller.domain.api.namespaces;
 
 import java.util.Set;
 import java.util.concurrent.CompletionStage;

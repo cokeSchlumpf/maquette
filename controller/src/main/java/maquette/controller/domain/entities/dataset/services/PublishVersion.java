@@ -14,7 +14,11 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishData
 import maquette.controller.domain.entities.dataset.protocol.events.CommittedDatasetVersion;
 import maquette.controller.domain.values.core.ErrorMessage;
 
-public class PublishVersion {
+public final class PublishVersion {
+
+    private PublishVersion() {
+
+    }
 
     public static Behavior<Message> create(
         ActorRef<DatasetMessage> dataset, ActorRef<VersionMessage> version, PublishDatasetVersion request) {
@@ -46,6 +50,7 @@ public class PublishVersion {
                             request.getDataset(),
                             request.getVersionId(),
                             wrapper.getCommitted().getCommit(),
+                            wrapper.getCommitted().getSchema(),
                             request.getReplyTo(),
                             request.getErrorTo());
 

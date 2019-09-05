@@ -1,5 +1,7 @@
 package maquette.controller.domain.entities.dataset.protocol.commands;
 
+import org.apache.avro.Schema;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -24,6 +26,7 @@ public class PublishCommittedDatasetVersion implements DatasetMessage {
     private static final String EXECUTOR = "executor";
     private static final String REPLY_TO = "reply-to";
     private static final String ERROR_TO = "error-to";
+    private static final String SCHEMA = "schema";
     private static final String VERSION_ID = "version-id";
 
     @JsonProperty(EXECUTOR)
@@ -38,6 +41,9 @@ public class PublishCommittedDatasetVersion implements DatasetMessage {
     @JsonProperty(COMMIT)
     private final Commit commit;
 
+    @JsonProperty(SCHEMA)
+    private final Schema schema;
+
     @JsonProperty(REPLY_TO)
     private final ActorRef<PublishedDatasetVersion> replyTo;
 
@@ -50,10 +56,11 @@ public class PublishCommittedDatasetVersion implements DatasetMessage {
         @JsonProperty(DATASET) ResourcePath dataset,
         @JsonProperty(VERSION_ID) UID versionId,
         @JsonProperty(COMMIT) Commit commit,
+        @JsonProperty(SCHEMA) Schema schema,
         @JsonProperty(REPLY_TO) ActorRef<PublishedDatasetVersion> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 
-        return new PublishCommittedDatasetVersion(executor, dataset, versionId, commit, replyTo, errorTo);
+        return new PublishCommittedDatasetVersion(executor, dataset, versionId, commit, schema, replyTo, errorTo);
     }
 
 }

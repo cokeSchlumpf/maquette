@@ -13,7 +13,9 @@ import maquette.controller.domain.entities.dataset.protocol.events.CommittedData
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
 import maquette.controller.domain.entities.dataset.protocol.results.GetDataResult;
+import maquette.controller.domain.entities.dataset.protocol.results.GetVersionDetailsResult;
 import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.Commit;
@@ -33,7 +35,7 @@ public final class WorkingVersion implements VersionState {
     @Override
     public Effect<VersionEvent, VersionState> onCommitDatasetVersion(CommitDatasetVersion commit) {
         Commit c = Commit.apply(commit.getExecutor().getUserId(), Instant.now(), commit.getMessage());
-        CommittedDatasetVersion committed = CommittedDatasetVersion.apply(details.getVersionId(), c);
+        CommittedDatasetVersion committed = CommittedDatasetVersion.apply(details.getVersionId(), c, details.getSchema());
 
         return effect
             .persist(committed)
@@ -48,7 +50,9 @@ public final class WorkingVersion implements VersionState {
     @Override
     public Effect<VersionEvent, VersionState> onCreateDatasetVersion(CreateDatasetVersion create) {
         CreatedDatasetVersion created =
-            CreatedDatasetVersion.apply(dataset, details.getVersionId(), details.getCreatedBy(), details.getCreated());
+            CreatedDatasetVersion.apply(
+                dataset, details.getVersionId(), details.getCreatedBy(),
+                details.getCreated(), create.getSchema());
 
         create.getReplyTo().tell(created);
         return effect.none();
@@ -62,6 +66,13 @@ public final class WorkingVersion implements VersionState {
     @Override
     public Effect<VersionEvent, VersionState> onGetData(GetData get) {
         GetDataResult result = GetDataResult.apply(store.get(details.getVersionId()));
+        get.getReplyTo().tell(result);
+        return effect.none();
+    }
+
+    @Override
+    public Effect<VersionEvent, VersionState> onGetVersionDetails(GetVersionDetails get) {
+        GetVersionDetailsResult result = GetVersionDetailsResult.apply(details);
         get.getReplyTo().tell(result);
         return effect.none();
     }

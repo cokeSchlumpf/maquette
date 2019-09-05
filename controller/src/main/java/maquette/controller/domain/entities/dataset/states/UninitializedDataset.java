@@ -25,9 +25,10 @@ import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
-import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
 import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.values.dataset.DatasetACL;
 import maquette.controller.domain.values.dataset.DatasetDetails;
@@ -125,7 +126,19 @@ public final class UninitializedDataset implements State {
     }
 
     @Override
+    public Effect<DatasetEvent, State> onGetData(GetData get) {
+        get.getErrorTo().tell(DatasetDoesNotExistError.apply(get.getDataset()));
+        return effect.none();
+    }
+
+    @Override
     public Effect<DatasetEvent, State> onGetDetails(GetDetails get) {
+        get.getErrorTo().tell(DatasetDoesNotExistError.apply(get.getDataset()));
+        return effect.none();
+    }
+
+    @Override
+    public Effect<DatasetEvent, State> onGetVersionDetails(GetVersionDetails get) {
         get.getErrorTo().tell(DatasetDoesNotExistError.apply(get.getDataset()));
         return effect.none();
     }
@@ -154,16 +167,11 @@ public final class UninitializedDataset implements State {
 
     @Override
     public State onPublishedDatasetVersion(PublishedDatasetVersion published) {
-        return null;
+        return this;
     }
 
     @Override
     public Effect<DatasetEvent, State> onPushData(PushData push) {
-        return null;
-    }
-
-    @Override
-    public State onPushedData(PushedData pushed) {
         return null;
     }
 

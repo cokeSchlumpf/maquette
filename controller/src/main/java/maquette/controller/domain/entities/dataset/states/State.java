@@ -20,7 +20,9 @@ import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
 
 public interface State {
 
@@ -40,7 +42,11 @@ public interface State {
 
     State onDeletedDataset(DeletedDataset deleted);
 
+    Effect<DatasetEvent, State> onGetData(GetData get);
+
     Effect<DatasetEvent, State> onGetDetails(GetDetails get);
+
+    Effect<DatasetEvent, State> onGetVersionDetails(GetVersionDetails get);
 
     Effect<DatasetEvent, State> onGrantDatasetAccess(GrantDatasetAccess grant);
 
@@ -53,8 +59,6 @@ public interface State {
     State onPublishedDatasetVersion(PublishedDatasetVersion published);
 
     Effect<DatasetEvent, State> onPushData(PushData push);
-
-    State onPushedData(PushedData pushed);
 
     Effect<DatasetEvent, State> onRevokeDatasetAccess(RevokeDatasetAccess revoke);
 

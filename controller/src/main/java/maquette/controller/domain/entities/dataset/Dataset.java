@@ -21,8 +21,6 @@ import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
-import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
-import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.dataset.states.State;
@@ -92,8 +90,6 @@ public class Dataset extends EventSourcedEntity<DatasetMessage, DatasetEvent, St
             .onEvent(CreatedDatasetVersion.class, State::onCreatedDatasetVersion)
             .onEvent(DeletedDataset.class, State::onDeletedDataset)
             .onEvent(GrantedDatasetAccess.class, State::onGrantedDatasetAccess)
-            .onEvent(PublishedDatasetVersion.class, State::onPublishedDatasetVersion)
-            .onEvent(PushedData.class, State::onPushedData)
             .onEvent(RevokedDatasetAccess.class, State::onRevokedDatasetAccess)
             .build();
     }

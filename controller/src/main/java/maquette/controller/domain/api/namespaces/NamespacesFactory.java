@@ -1,4 +1,4 @@
-package maquette.controller.domain.api;
+package maquette.controller.domain.api.namespaces;
 
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;

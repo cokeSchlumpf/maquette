@@ -1,4 +1,4 @@
-package maquette.controller.domain.api;
+package maquette.controller.domain.api.datasets;
 
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -37,6 +37,7 @@ import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
+import maquette.controller.domain.values.dataset.VersionTag;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.User;
 
@@ -114,8 +115,28 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
+    public CompletionStage<List<GenericData.Record>> getData(User executor) {
+        return null;
+    }
+
+    @Override
+    public CompletionStage<List<GenericData.Record>> getData(User executor, VersionTag version) {
+        return null;
+    }
+
+    @Override
     public CompletionStage<DatasetDetails> getDetails(User executor, ResourcePath dataset) {
         return getDetails(dataset);
+    }
+
+    @Override
+    public CompletionStage<VersionDetails> getVersionDetails(User executor) {
+        return null;
+    }
+
+    @Override
+    public CompletionStage<VersionDetails> getVersionDetails(User executor, VersionTag version) {
+        return null;
     }
 
     @Override

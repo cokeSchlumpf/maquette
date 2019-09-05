@@ -9,6 +9,7 @@ import maquette.controller.domain.entities.dataset.protocol.events.CommittedData
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
 
 public interface VersionState {
 
@@ -21,6 +22,8 @@ public interface VersionState {
     VersionState onCreatedDatasetVersion(CreatedDatasetVersion created);
 
     Effect<VersionEvent, VersionState> onGetData(GetData get);
+
+    Effect<VersionEvent, VersionState> onGetVersionDetails(GetVersionDetails get);
 
     Effect<VersionEvent, VersionState> onPushData(PushData push);
 

@@ -40,7 +40,7 @@ public class VersionInfo {
     private final long records;
 
     @JsonProperty(VERSION)
-    private final VersionNumber version;
+    private final VersionTag version;
 
     @JsonCreator
     public static VersionInfo apply(
@@ -48,7 +48,7 @@ public class VersionInfo {
         @JsonProperty(LAST_MODIFIED) Instant lastModified,
         @JsonProperty(MODIFIED_BY) UserId modifiedBy,
         @JsonProperty(RECORDS) long records,
-        @JsonProperty(VERSION) VersionNumber version) {
+        @JsonProperty(VERSION) VersionTag version) {
 
         return new VersionInfo(versionId, lastModified, modifiedBy, records, version);
     }
@@ -59,7 +59,7 @@ public class VersionInfo {
         return apply(versionId, lastModified, modifiedBy, records, null);
     }
 
-    public Optional<VersionNumber> getVersion() {
+    public Optional<VersionTag> getVersion() {
         return Optional.ofNullable(version);
     }
 

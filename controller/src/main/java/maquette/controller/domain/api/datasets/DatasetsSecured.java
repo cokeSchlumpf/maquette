@@ -1,13 +1,17 @@
-package maquette.controller.domain.api;
+package maquette.controller.domain.api.datasets;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+
+import javax.xml.validation.Schema;
+
+import org.apache.avro.generic.GenericData;
 
 import akka.Done;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
 import lombok.AllArgsConstructor;
-import lombok.Value;
 import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
@@ -20,8 +24,11 @@ import maquette.controller.domain.exceptions.NotAuthorizedException;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
+import maquette.controller.domain.values.dataset.VersionDetails;
+import maquette.controller.domain.values.dataset.VersionTag;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.namespace.NamespaceDetails;
@@ -99,6 +106,11 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
+    public CompletionStage<VersionDetails> createDatasetVersion(User executor, ResourcePath dataset, Schema schema) {
+        return null;
+    }
+
+    @Override
     public CompletionStage<Done> deleteDataset(User executor, ResourcePath datasetName) {
         return getNamespaceDetails(datasetName.getNamespace())
             .thenCompose(details -> {
@@ -108,6 +120,16 @@ public final class DatasetsSecured implements Datasets {
                     throw NotAuthorizedException.apply(executor);
                 }
             });
+    }
+
+    @Override
+    public CompletionStage<List<GenericData.Record>> getData(User executor) {
+        return null;
+    }
+
+    @Override
+    public CompletionStage<List<GenericData.Record>> getData(User executor, VersionTag version) {
+        return null;
     }
 
     @Override
@@ -131,6 +153,16 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
+    public CompletionStage<VersionDetails> getVersionDetails(User executor) {
+        return null;
+    }
+
+    @Override
+    public CompletionStage<VersionDetails> getVersionDetails(User executor, VersionTag version) {
+        return null;
+    }
+
+    @Override
     public CompletionStage<DatasetDetails> grantDatasetAccess(User executor, ResourcePath datasetName, DatasetPrivilege grant,
                                                               Authorization grantFor) {
         return getDatasetDetails(datasetName)
@@ -149,6 +181,18 @@ public final class DatasetsSecured implements Datasets {
                     throw NotAuthorizedException.apply(executor);
                 }
             });
+    }
+
+    @Override
+    public CompletionStage<VersionDetails> pushData(User executor, ResourcePath dataset, UID versionId,
+                                                    List<GenericData.Record> records) {
+        return null;
+    }
+
+    @Override
+    public CompletionStage<VersionDetails> publishDatasetVersion(User executor, ResourcePath dataset, UID versionId,
+                                                                 String message) {
+        return null;
     }
 
     @Override

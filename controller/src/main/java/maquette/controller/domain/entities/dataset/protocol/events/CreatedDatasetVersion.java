@@ -2,6 +2,8 @@ package maquette.controller.domain.entities.dataset.protocol.events;
 
 import java.time.Instant;
 
+import org.apache.avro.Schema;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -22,6 +24,7 @@ public class CreatedDatasetVersion implements DatasetEvent, VersionEvent {
     private static final String CREATED_BY = "created-by";
     private static final String VERSION_ID = "version-id";
     private static final String DATASET = "dataset";
+    private static final String SCHEMA = "schema";
 
     @JsonProperty(DATASET)
     public final ResourcePath dataset;
@@ -35,14 +38,18 @@ public class CreatedDatasetVersion implements DatasetEvent, VersionEvent {
     @JsonProperty(CREATED_AT)
     public final Instant createdAt;
 
+    @JsonProperty(SCHEMA)
+    public final Schema schema;
+
     @JsonCreator
     public static CreatedDatasetVersion apply(
         @JsonProperty(DATASET) ResourcePath dataset,
         @JsonProperty(VERSION_ID) UID versionId,
         @JsonProperty(CREATED_BY) UserId createdBy,
-        @JsonProperty(CREATED_AT) Instant createdAt) {
+        @JsonProperty(CREATED_AT) Instant createdAt,
+        @JsonProperty(SCHEMA) Schema schema) {
 
-        return new CreatedDatasetVersion(dataset, versionId, createdBy, createdAt);
+        return new CreatedDatasetVersion(dataset, versionId, createdBy, createdAt, schema);
     }
 
 

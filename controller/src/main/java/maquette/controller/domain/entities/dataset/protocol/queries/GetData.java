@@ -10,9 +10,9 @@ import lombok.Value;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.VersionMessage;
 import maquette.controller.domain.entities.dataset.protocol.results.GetDataResult;
+import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
-import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.iam.User;
 
 @Value
@@ -29,7 +29,7 @@ public class GetData implements DatasetMessage, VersionMessage {
     private final User executor;
 
     @JsonProperty(DATASET)
-    private final ResourcePath datase;
+    private final ResourcePath dataset;
 
     @JsonProperty(VERSION_ID)
     private final UID versionId;

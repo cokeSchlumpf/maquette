@@ -1,5 +1,7 @@
 package maquette.controller.domain.entities.dataset.protocol.events;
 
+import org.apache.avro.Schema;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -18,6 +20,7 @@ public class CommittedDatasetVersion implements VersionEvent {
 
     private static final String COMMIT = "commit";
     private static final String DATASET = "dataset";
+    private static final String SCHEMA = "schema";
     private static final String VERSION_ID = "version-id";
 
     @JsonProperty(VERSION_ID)
@@ -26,12 +29,16 @@ public class CommittedDatasetVersion implements VersionEvent {
     @JsonProperty(COMMIT)
     private final Commit commit;
 
+    @JsonProperty(SCHEMA)
+    private final Schema schema;
+
     @JsonCreator
     public static CommittedDatasetVersion apply(
         @JsonProperty(VERSION_ID) UID id,
-        @JsonProperty(COMMIT) Commit commit) {
+        @JsonProperty(COMMIT) Commit commit,
+        @JsonProperty(SCHEMA) Schema schema) {
 
-        return new CommittedDatasetVersion(id, commit);
+        return new CommittedDatasetVersion(id, commit, schema);
     }
 
 }

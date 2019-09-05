@@ -15,6 +15,7 @@ import maquette.controller.domain.entities.dataset.protocol.events.CommittedData
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
 import maquette.controller.domain.entities.dataset.states.VersionState;
 import maquette.controller.domain.entities.dataset.states.WorkingVersion;
 import maquette.controller.domain.ports.DataStorageAdapter;
@@ -48,6 +49,7 @@ public class Version extends EventSourcedBehavior<VersionMessage, VersionEvent, 
             created.createdBy,
             created.createdAt,
             created.createdBy,
+            created.schema,
             0L);
 
         PersistenceId id = PersistenceId.apply(versionid.getValue());
@@ -67,6 +69,7 @@ public class Version extends EventSourcedBehavior<VersionMessage, VersionEvent, 
             .onCommand(CommitDatasetVersion.class, VersionState::onCommitDatasetVersion)
             .onCommand(CreateDatasetVersion.class, VersionState::onCreateDatasetVersion)
             .onCommand(GetData.class, VersionState::onGetData)
+            .onCommand(GetVersionDetails.class, VersionState::onGetVersionDetails)
             .onCommand(PushData.class, VersionState::onPushData)
             .build();
     }
