@@ -1,4 +1,4 @@
-# Maquette [![Actions Status](https://shields-staging-pr-3898.herokuapp.com/github/actions/cokeSchlumpf/maquette/Java%20Build)](https://github.com/cokeSchlumpf/maquette/actions)
+# Maquette [![Actions Status](https://shields-staging-pr-3898.herokuapp.com/github/actions/cokeSchlumpf/maquette/cigit )](https://github.com/cokeSchlumpf/maquette/actions)
 
 ## Concepts
 
