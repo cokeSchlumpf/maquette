@@ -338,6 +338,8 @@ public class DatasetsITest {
                     .getDetails(user, datasetResource)
                     .toCompletableFuture()
                     .get()).hasMessageContaining("does not exist");
+
+        setup.getApp().terminate();
     }
 
 }
