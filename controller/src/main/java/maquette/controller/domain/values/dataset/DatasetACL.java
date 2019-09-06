@@ -37,12 +37,20 @@ public class DatasetACL {
         return isAdmin(user) || isOwner(user);
     }
 
+    public boolean canConsume(User user) {
+        return isConsumer(user) || isOwner(user);
+    }
+
     public boolean canGrantDatasetAccess(User user) {
         return isAdmin(user) || isOwner(user);
     }
 
     public boolean canReadDetails(User user) {
         return isAdmin(user) || isConsumer(user) || isProducer(user) || isOwner(user);
+    }
+
+    public boolean canProduce(User user) {
+        return isProducer(user) ||isOwner(user);
     }
 
     public boolean canRevokeDatasetAccess(User user) {

@@ -21,8 +21,11 @@ import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
 import maquette.controller.domain.entities.dataset.states.State;
 import maquette.controller.domain.entities.dataset.states.UninitializedDataset;
 import maquette.controller.domain.ports.DataStorageAdapter;
@@ -72,7 +75,9 @@ public class Dataset extends EventSourcedEntity<DatasetMessage, DatasetEvent, St
             .onCommand(CreateDataset.class, State::onCreateDataset)
             .onCommand(CreateDatasetVersion.class, State::onCreateDatasetVersion)
             .onCommand(DeleteDataset.class, State::onDeleteDataset)
+            .onCommand(GetData.class, State::onGetData)
             .onCommand(GetDetails.class, State::onGetDetails)
+            .onCommand(GetVersionDetails.class, State::onGetVersionDetails)
             .onCommand(GrantDatasetAccess.class, State::onGrantDatasetAccess)
             .onCommand(PublishCommittedDatasetVersion.class, State::onPublishCommittedDatasetVersion)
             .onCommand(PublishDatasetVersion.class, State::onPublishDatasetVersion)
@@ -90,6 +95,7 @@ public class Dataset extends EventSourcedEntity<DatasetMessage, DatasetEvent, St
             .onEvent(CreatedDatasetVersion.class, State::onCreatedDatasetVersion)
             .onEvent(DeletedDataset.class, State::onDeletedDataset)
             .onEvent(GrantedDatasetAccess.class, State::onGrantedDatasetAccess)
+            .onEvent(PublishedDatasetVersion.class, State::onPublishedDatasetVersion)
             .onEvent(RevokedDatasetAccess.class, State::onRevokedDatasetAccess)
             .build();
     }

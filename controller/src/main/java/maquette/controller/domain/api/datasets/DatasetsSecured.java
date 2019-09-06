@@ -43,6 +43,30 @@ public final class DatasetsSecured implements Datasets {
 
     private final Datasets delegate;
 
+    private CompletionStage<Boolean> canConsume(ResourcePath dataset, User executor) {
+        return getDatasetDetails(dataset)
+            .thenCompose(dsDetails -> {
+                if (dsDetails.getAcl().canConsume(executor)) {
+                    return CompletableFuture.completedFuture(true);
+                } else {
+                    return getNamespaceDetails(dataset.getNamespace())
+                        .thenApply(nsDetails -> nsDetails.getAcl().canConsume(executor));
+                }
+            });
+    }
+
+    private CompletionStage<Boolean> canProduce(ResourcePath dataset, User executor) {
+        return getDatasetDetails(dataset)
+            .thenCompose(dsDetails -> {
+                if (dsDetails.getAcl().canProduce(executor)) {
+                    return CompletableFuture.completedFuture(true);
+                } else {
+                    return getNamespaceDetails(dataset.getNamespace())
+                        .thenApply(nsDetails -> nsDetails.getAcl().canProduce(executor));
+                }
+            });
+    }
+
     private CompletionStage<DatasetDetails> getDatasetDetails(ResourcePath dataset) {
         return patterns
             .ask(
@@ -106,7 +130,14 @@ public final class DatasetsSecured implements Datasets {
 
     @Override
     public CompletionStage<UID> createDatasetVersion(User executor, ResourcePath dataset, Schema schema) {
-        return null;
+        return canProduce(dataset, executor)
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.createDatasetVersion(executor, dataset, schema);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
     }
 
     @Override
@@ -123,12 +154,26 @@ public final class DatasetsSecured implements Datasets {
 
     @Override
     public CompletionStage<List<GenericData.Record>> getData(User executor, ResourcePath dataset) {
-        return null;
+        return canConsume(dataset, executor)
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.getData(executor, dataset);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
     }
 
     @Override
     public CompletionStage<List<GenericData.Record>> getData(User executor, ResourcePath dataset, VersionTag version) {
-        return null;
+        return canConsume(dataset, executor)
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.getData(executor, dataset, version);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
     }
 
     @Override
@@ -153,12 +198,42 @@ public final class DatasetsSecured implements Datasets {
 
     @Override
     public CompletionStage<VersionDetails> getVersionDetails(User executor, ResourcePath dataset) {
-        return null;
+        return getDatasetDetails(dataset)
+            .thenCompose(dsDetails -> {
+                if (dsDetails.getAcl().canReadDetails(executor)) {
+                    return CompletableFuture.completedFuture(true);
+                } else {
+                    return getNamespaceDetails(dataset.getNamespace())
+                        .thenApply(nsDetails -> nsDetails.getAcl().canReadDetails(executor));
+                }
+            })
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.getVersionDetails(executor, dataset);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
     }
 
     @Override
     public CompletionStage<VersionDetails> getVersionDetails(User executor, ResourcePath dataset, VersionTag version) {
-        return null;
+        return getDatasetDetails(dataset)
+            .thenCompose(dsDetails -> {
+                if (dsDetails.getAcl().canReadDetails(executor)) {
+                    return CompletableFuture.completedFuture(true);
+                } else {
+                    return getNamespaceDetails(dataset.getNamespace())
+                        .thenApply(nsDetails -> nsDetails.getAcl().canReadDetails(executor));
+                }
+            })
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.getVersionDetails(executor, dataset, version);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
     }
 
     @Override
@@ -185,12 +260,26 @@ public final class DatasetsSecured implements Datasets {
     @Override
     public CompletionStage<VersionDetails> pushData(User executor, ResourcePath dataset, UID versionId,
                                                     List<GenericData.Record> records) {
-        return null;
+        return canProduce(dataset, executor)
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.pushData(executor, dataset, versionId, records);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
     }
 
     @Override
     public CompletionStage<VersionTag> publishDatasetVersion(User executor, ResourcePath dataset, UID versionId, String message) {
-        return null;
+        return canProduce(dataset, executor)
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.publishDatasetVersion(executor, dataset, versionId, message);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
     }
 
     @Override

@@ -35,6 +35,10 @@ public class NamespaceACL {
         return isOwner(user) || isAdmin(user);
     }
 
+    public boolean canConsume(User user) {
+        return isConsumer(user) || isOwner(user) || isMember(user);
+    }
+
     public boolean canCreatedDataset(User user) {
         return isOwner(user) || isAdmin(user) || isMember(user);
     }
@@ -49,6 +53,10 @@ public class NamespaceACL {
 
     public boolean canGrantNamespaceAccess(User user) {
         return isOwner(user) || isAdmin(user);
+    }
+
+    public boolean canProduce(User user) {
+        return isProducer(user) || isOwner(user) || isMember(user);
     }
 
     public boolean canReadDetails(User user) {

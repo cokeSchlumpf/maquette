@@ -132,11 +132,14 @@ public final class ActiveDataset implements State {
 
     @Override
     public State onCreatedDatasetVersion(CreatedDatasetVersion created) {
-        ActorRef<VersionMessage> version = actor.spawn(
-            Version.create(created, created.versionId, store),
-            created.versionId.getValue());
+        if (!actor.getChild(created.versionId.getValue()).isPresent()) {
+            ActorRef<VersionMessage> version = actor.spawn(
+                Version.create(created, created.versionId, store),
+                created.versionId.getValue());
 
-        versions.put(created.versionId, version);
+            versions.put(created.versionId, version);
+        }
+
         return this;
     }
 
@@ -169,7 +172,7 @@ public final class ActiveDataset implements State {
     @Override
     public Effect<DatasetEvent, State> onGetDetails(GetDetails get) {
         actor.spawnAnonymous(CollectDetails.create(
-            Lists.newArrayList(),
+            Lists.newArrayList(this.publishedVersions.values()),
             ImmutableMap.copyOf(versions),
             get,
             details));

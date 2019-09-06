@@ -6,14 +6,17 @@ import com.google.common.collect.Maps;
 
 import akka.actor.ExtendedActorSystem;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
+import maquette.controller.domain.entities.dataset.protocol.commands.CommitDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.DeleteDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.commands.PublishCommittedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
+import maquette.controller.domain.entities.dataset.protocol.events.CommittedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
@@ -40,15 +43,18 @@ public final class MessageSerializer extends AbstractMessageSerializer {
         Map<String, Class<?>> m = Maps.newHashMap();
 
         m.put("dataset/commands/change-owner/v1", ChangeOwner.class);
+        m.put("dataset/commands/commit-dataset-version/v1", CommitDatasetVersion.class);
         m.put("dataset/commands/create-dataset/v1", CreateDataset.class);
         m.put("dataset/commands/create-dataset-version/v1", CreateDatasetVersion.class);
         m.put("dataset/commands/delete-dataset/v1", DeleteDataset.class);
         m.put("dataset/commands/grant-dataset-access/v1", GrantDatasetAccess.class);
+        m.put("dataset/commands/publish-committed-dataset-version/v1", PublishCommittedDatasetVersion.class);
         m.put("dataset/commands/publish-dataset-version/v1", PublishDatasetVersion.class);
         m.put("dataset/commands/push-data/v1", PushData.class);
         m.put("dataset/commands/revoke-dataset-access/v1", RevokeDatasetAccess.class);
 
         m.put("dataset/events/changed-owner/v1", ChangedOwner.class);
+        m.put("dataset/events/committed-dataset-version/v1", CommittedDatasetVersion.class);
         m.put("dataset/events/created-dataset/v1", CreatedDataset.class);
         m.put("dataset/events/created-dataset-version/v1", CreatedDatasetVersion.class);
         m.put("dataset/events/deleted-dataset/v1", DeletedDataset.class);

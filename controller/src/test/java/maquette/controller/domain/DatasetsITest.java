@@ -3,22 +3,32 @@ package maquette.controller.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
+
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetGrant;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
+import maquette.controller.domain.values.dataset.VersionDetails;
+import maquette.controller.domain.values.dataset.VersionInfo;
+import maquette.controller.domain.values.dataset.VersionTag;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
 import maquette.controller.domain.values.iam.RoleAuthorization;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserAuthorization;
 import maquette.controller.domain.values.namespace.NamespaceDetails;
 import maquette.controller.domain.values.namespace.NamespacePrivilege;
+import maquette.util.CountryTestData;
 import maquette.util.TestSetup;
 
 public class DatasetsITest {
@@ -338,6 +348,181 @@ public class DatasetsITest {
                     .getDetails(user, datasetResource)
                     .toCompletableFuture()
                     .get()).hasMessageContaining("does not exist");
+
+        setup.getApp().terminate();
+    }
+
+    @Test
+    public void testData() throws ExecutionException, InterruptedException {
+        final String namespace = "namespace";
+        final String dataset = "ds";
+        final ResourcePath datasetResource = ResourcePath.apply(namespace, dataset);
+
+        final Schema schema = CountryTestData.getSchema();
+        final List<GenericData.Record> records = CountryTestData.getRecords();
+
+        TestSetup setup = TestSetup
+            .apply()
+            .withNamespace(namespace)
+            .withDataset(namespace, dataset);
+
+        User user = setup.getDefaultUser();
+
+        /*
+         * Create a new version in the dataset
+         */
+        UID uid1 = setup
+            .getApp()
+            .datasets()
+            .createDatasetVersion(user, datasetResource, schema)
+            .toCompletableFuture()
+            .get();
+
+        /*
+         * Details should reflect that ...
+         */
+        DatasetDetails d01 = setup
+            .getApp()
+            .datasets()
+            .getDetails(user, datasetResource)
+            .toCompletableFuture()
+            .get();
+
+        assertThat(d01.getVersions()).hasSize(1);
+
+        VersionInfo v01 = Lists.newArrayList(d01.getVersions()).get(0);
+        assertThat(v01.getVersionId()).isEqualTo(uid1);
+        assertThat(v01.getRecords()).isEqualTo(0);
+
+        /*
+         * Inserting Data into the Dataset ...
+         */
+        VersionDetails v02 = setup
+            .getApp()
+            .datasets()
+            .pushData(user, datasetResource, uid1, records)
+            .toCompletableFuture()
+            .get();
+
+        assertThat(v02.getVersionId()).isEqualTo(uid1);
+        assertThat(v02.getRecords()).isEqualTo(records.size());
+
+        /*
+         * Committing and publishing the dataset.
+         */
+        VersionTag vt01 = setup
+            .getApp()
+            .datasets()
+            .publishDatasetVersion(user, datasetResource, uid1, "Some nice commit")
+            .toCompletableFuture()
+            .get();
+
+        assertThat(vt01).isEqualTo(VersionTag.apply(1, 0, 0));
+
+        /*
+         * Now we can download the data from the dataset
+         */
+        List<GenericData.Record> d1 = setup
+            .getApp()
+            .datasets()
+            .getData(user, datasetResource)
+            .toCompletableFuture()
+            .get();
+
+        assertThat(d1)
+            .hasSize(records.size())
+            .containsAll(records);
+
+        /*
+         * Adding new data to a committed dataset should not be possible.
+         */
+        assertThatThrownBy(() -> setup
+            .getApp()
+            .datasets()
+            .pushData(user, datasetResource, uid1, records)
+            .toCompletableFuture()
+            .get()).hasMessageContaining("already committed");
+
+        /*
+         * No we create another version.
+         */
+        UID uid2 = setup
+            .getApp()
+            .datasets()
+            .createDatasetVersion(user, datasetResource, schema)
+            .toCompletableFuture()
+            .get();
+
+        setup
+            .getApp()
+            .datasets()
+            .pushData(user, datasetResource, uid2, records)
+            .toCompletableFuture()
+            .get();
+
+        setup
+            .getApp()
+            .datasets()
+            .pushData(user, datasetResource, uid2, records)
+            .toCompletableFuture()
+            .get();
+
+        DatasetDetails v03 = setup
+            .getApp()
+            .datasets()
+            .getDetails(user, datasetResource)
+            .toCompletableFuture()
+            .get();
+
+        assertThat(v03.getVersions()).hasSize(2);
+
+        /*
+         * Commit and fetch data of latest version
+         */
+        setup
+            .getApp()
+            .datasets()
+            .publishDatasetVersion(user, datasetResource, uid2, "Some new data")
+            .toCompletableFuture()
+            .get();
+
+        List<GenericData.Record> d2 = setup
+            .getApp()
+            .datasets()
+            .getData(user, datasetResource)
+            .toCompletableFuture()
+            .get();
+
+        assertThat(d2).hasSize(records.size() * 2);
+
+        /*
+         * Fetch data of specified version
+         */
+        List<GenericData.Record> d3 = setup
+            .getApp()
+            .datasets()
+            .getData(user, datasetResource, VersionTag.apply("1.0.0"))
+            .toCompletableFuture()
+            .get();
+
+        assertThat(d3.size()).isEqualTo(records.size());
+
+        VersionDetails vd04 = setup
+            .getApp()
+            .datasets()
+            .getVersionDetails(user, datasetResource)
+            .toCompletableFuture()
+            .get();
+
+        VersionDetails vd05 = setup
+            .getApp()
+            .datasets()
+            .getVersionDetails(user, datasetResource, VersionTag.apply("1.0.0"))
+            .toCompletableFuture()
+            .get();
+
+        assertThat(vd04.getRecords()).isEqualTo(records.size() * 2);
+        assertThat(vd05.getRecords()).isEqualTo(records.size());
 
         setup.getApp().terminate();
     }
