@@ -5,6 +5,8 @@ plugins {
 allprojects {
     repositories {
         jcenter()
+
+        maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
     }
 }
 
@@ -31,9 +33,6 @@ subprojects {
                 'akka-cluster-sharding-typed'      : "com.typesafe.akka:akka-cluster-sharding-typed_${versions['scala']}:${versions['akka']}",
                 'akka-cluster-typed'               : "com.typesafe.akka:akka-cluster-typed_${versions['scala']}:${versions['akka']}",
                 'akka-discovery-kubernetes-api'    : "com.lightbend.akka.discovery:akka-discovery-kubernetes-api_${versions['scala']}:${versions['akka-management']}",
-                'akka-http'                        : "com.typesafe.akka:akka-http_${versions['scala']}:10.1.9",
-                'akka-http-jackson'                : "com.typesafe.akka:akka-http-jackson_${versions['scala']}:10.1.9",
-                'akka-http-spray-json'             : "com.typesafe.akka:akka-http-spray-json_${versions['scala']}:10.1.9",
                 'akka-management-cluster-bootstrap': "com.lightbend.akka.management:akka-management-cluster-bootstrap_${versions['scala']}:${versions['akka-management']}",
                 'akka-peristence-inmemory'         : "com.github.dnvriend:akka-persistence-inmemory_${versions['scala']}:2.5.1.1",
                 'akka-persistence-typed'           : "com.typesafe.akka:akka-persistence-typed_${versions['scala']}:${versions['akka']}",
@@ -57,8 +56,9 @@ subprojects {
                 'picocli'                          : 'info.picocli:picocli:3.5.1',
                 'prettytime'                       : 'org.ocpsoft.prettytime:prettytime:4.0.2.Final',
                 'reactive-streams'                 : 'org.reactivestreams:reactive-streams:1.0.2',
-                'scalatest'                        : "org.scalatest:scalatest_${versions['scala']}:3.0.8",
-                'spray-json'                       : "io.spray:spray-json_${versions['scala']}:1.3.5",
+                'springfox-spring-webflux'         : 'io.springfox:springfox-spring-webflux:3.0.0-SNAPSHOT',
+                'springfox-swagger'                : 'io.springfox:springfox-swagger2:3.0.0-SNAPSHOT',
+                'springfox-swagger-ui'             : 'io.springfox:springfox-swagger-ui:3.0.0-SNAPSHOT',
                 'slf4j-nop'                        : 'org.slf4j:slf4j-nop:1.7.26',
                 'wiremock'                         : 'com.github.tomakehurst:wiremock:2.19.0'
         ]

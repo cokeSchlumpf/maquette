@@ -1,8 +1,25 @@
+buildscript {
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.1.8.RELEASE'
+        classpath 'gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.22.1'
+    }
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.palantir.docker'
+apply plugin: 'com.palantir.docker-run'
+apply plugin: 'com.palantir.docker-compose'
+
 dependencies {
 
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
+    compile 'org.springframework.boot:spring-boot-starter-webflux'
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
     compile libs['akka-cluster-sharding-typed']
-    compile libs['akka-http']
-    compile libs['akka-http-spray-json']
     compile libs['akka-persistence-typed']
     compile libs['akka-streams']
     compile libs['avro']
@@ -12,11 +29,11 @@ dependencies {
     compile libs['jackson-datatype-jdk8']
     compile libs['jackson-datatype-sr310']
     compile libs['leveldbjni-all']
-
-    compile libs['spray-json']
+    compile libs['springfox-spring-webflux']
+    compile libs['springfox-swagger']
+    compile libs['springfox-swagger-ui']
 
     testCompile libs['akka-peristence-inmemory']
     testCompile libs['assertj-core']
-    testCompile libs['scalatest']
 
 }

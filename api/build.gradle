@@ -1,9 +1,0 @@
-dependencies {
-
-    compile libs['akka-streams']
-    compile libs['spray-json']
-
-    testCompile libs['assertj-core']
-    testCompile libs['scalatest']
-
-}

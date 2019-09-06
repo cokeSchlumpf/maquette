@@ -8,6 +8,5 @@
  */
 rootProject.name = 'maquette'
 
-include 'api'
 include 'controller'
 
