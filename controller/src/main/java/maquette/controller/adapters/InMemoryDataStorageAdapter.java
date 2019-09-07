@@ -12,6 +12,7 @@ import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.core.records.Records;
 
 @AllArgsConstructor(staticName = "apply")
 public class InMemoryDataStorageAdapter implements DataStorageAdapter {
@@ -23,11 +24,11 @@ public class InMemoryDataStorageAdapter implements DataStorageAdapter {
     }
 
     @Override
-    public void append(UID versionId, List<GenericData.Record> data) {
+    public void append(UID versionId, Records data) {
         if (this.data.containsKey(versionId)) {
-            this.data.get(versionId).addAll(data);
+            this.data.get(versionId).addAll(data.getRecords());
         } else {
-            this.data.put(versionId, Lists.newArrayList(data));
+            this.data.put(versionId, Lists.newArrayList(data.getRecords()));
         }
     }
 
@@ -37,11 +38,11 @@ public class InMemoryDataStorageAdapter implements DataStorageAdapter {
     }
 
     @Override
-    public List<GenericData.Record> get(UID versionId) {
+    public Records get(UID versionId) {
         if (this.data.containsKey(versionId)) {
-            return ImmutableList.copyOf(this.data.get(versionId));
+            return Records.fromRecords(this.data.get(versionId));
         } else {
-            return Lists.newArrayList();
+            return Records.empty();
         }
     }
 

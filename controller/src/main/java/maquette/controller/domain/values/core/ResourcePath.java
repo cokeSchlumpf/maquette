@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.controller.domain.exceptions.InvalidResourceNameException;
+import maquette.controller.domain.values.exceptions.InvalidResourceNameException;
 import maquette.controller.domain.util.Operators;
 
 @Value

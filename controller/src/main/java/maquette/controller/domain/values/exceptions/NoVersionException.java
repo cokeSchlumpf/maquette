@@ -1,4 +1,4 @@
-package maquette.controller.domain.exceptions;
+package maquette.controller.domain.values.exceptions;
 
 public final class NoVersionException extends IllegalArgumentException implements DomainException {
 

@@ -1,17 +1,14 @@
 package maquette.controller.domain.ports;
 
-import java.util.List;
-
-import org.apache.avro.generic.GenericData;
-
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.core.records.Records;
 
 public interface DataStorageAdapter {
 
-    void append(UID versionId, List<GenericData.Record> data);
+    void append(UID versionId, Records data);
 
     void clean(UID versionId);
 
-    List<GenericData.Record> get(UID versionId);
+    Records get(UID versionId);
 
 }

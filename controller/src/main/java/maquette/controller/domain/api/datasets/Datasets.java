@@ -1,5 +1,6 @@
 package maquette.controller.domain.api.datasets;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
@@ -9,6 +10,7 @@ import org.apache.avro.generic.GenericData;
 import akka.Done;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
@@ -26,9 +28,9 @@ public interface Datasets {
 
     CompletionStage<Done> deleteDataset(User executor, ResourcePath datasetName);
 
-    CompletionStage<List<GenericData.Record>> getData(User executor, ResourcePath dataset);
+    CompletionStage<Records> getData(User executor, ResourcePath dataset);
 
-    CompletionStage<List<GenericData.Record>> getData(User executor, ResourcePath dataset, VersionTag version);
+    CompletionStage<Records> getData(User executor, ResourcePath dataset, VersionTag version);
 
     CompletionStage<DatasetDetails> getDetails(User executor, ResourcePath dataset);
 
@@ -40,7 +42,7 @@ public interface Datasets {
         User executor, ResourcePath datasetName, DatasetPrivilege grant, Authorization grantFor);
 
     CompletionStage<VersionDetails> pushData(
-        User executor, ResourcePath dataset, UID versionId, List<GenericData.Record> records);
+        User executor, ResourcePath dataset, UID versionId, Records records);
 
     CompletionStage<VersionTag> publishDatasetVersion(
         User executor, ResourcePath dataset, UID versionId, String message);

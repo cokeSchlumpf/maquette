@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.controller.domain.exceptions.InvalidVersionException;
+import maquette.controller.domain.values.exceptions.InvalidVersionException;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

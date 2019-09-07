@@ -13,7 +13,7 @@ import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceDetails;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceDetailsResult;
-import maquette.controller.domain.exceptions.NotAuthorizedException;
+import maquette.controller.domain.values.exceptions.NotAuthorizedException;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.AuthenticatedUser;

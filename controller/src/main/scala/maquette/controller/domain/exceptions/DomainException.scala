@@ -1,3 +1,3 @@
-package maquette.controller.domain.exceptions
+package maquette.controller.domain.values.exceptions
 
 case class DomainException(message: String) extends Exception(message)

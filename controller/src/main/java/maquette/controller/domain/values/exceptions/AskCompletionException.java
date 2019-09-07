@@ -1,4 +1,4 @@
-package maquette.controller.domain.exceptions;
+package maquette.controller.domain.values.exceptions;
 
 import maquette.controller.domain.values.core.ErrorMessage;
 

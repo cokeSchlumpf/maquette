@@ -14,8 +14,8 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.japi.Function;
 import akka.japi.function.Function2;
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.exceptions.AskCompletionException;
-import maquette.controller.domain.exceptions.AskTimeoutException;
+import maquette.controller.domain.values.exceptions.AskCompletionException;
+import maquette.controller.domain.values.exceptions.AskTimeoutException;
 import maquette.controller.domain.values.core.ErrorMessage;
 
 @AllArgsConstructor(staticName = "apply")

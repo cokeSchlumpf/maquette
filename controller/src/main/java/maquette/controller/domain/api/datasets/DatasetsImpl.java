@@ -1,10 +1,8 @@
 package maquette.controller.domain.api.datasets;
 
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericData;
 
 import akka.Done;
 import akka.actor.typed.ActorRef;
@@ -43,6 +41,7 @@ import maquette.controller.domain.entities.namespace.protocol.events.RemovedData
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
@@ -131,7 +130,7 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
-    public CompletionStage<List<GenericData.Record>> getData(User executor, ResourcePath dataset) {
+    public CompletionStage<Records> getData(User executor, ResourcePath dataset) {
         return getDetails(dataset)
             .thenApply(DatasetDetails::findLatestVersion)
             .thenCompose(uid -> patterns.ask(
@@ -144,7 +143,7 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
-    public CompletionStage<List<GenericData.Record>> getData(User executor, ResourcePath dataset, VersionTag version) {
+    public CompletionStage<Records> getData(User executor, ResourcePath dataset, VersionTag version) {
         return getDetails(dataset)
             .thenApply(details -> details.findVersionId(version))
             .thenCompose(uid -> patterns.ask(
@@ -203,7 +202,7 @@ public final class DatasetsImpl implements Datasets {
 
     @Override
     public CompletionStage<VersionDetails> pushData(User executor, ResourcePath dataset, UID versionId,
-                                                    List<GenericData.Record> records) {
+                                                    Records records) {
         return patterns
             .ask(
                 datasets,
@@ -216,7 +215,7 @@ public final class DatasetsImpl implements Datasets {
 
     @Override
     public CompletionStage<VersionTag> publishDatasetVersion(User executor, ResourcePath dataset, UID versionId,
-                                                                 String message) {
+                                                             String message) {
         return patterns
             .ask(
                 datasets,

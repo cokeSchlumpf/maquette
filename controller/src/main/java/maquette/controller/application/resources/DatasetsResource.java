@@ -1,9 +1,13 @@
 package maquette.controller.application.resources;
 
+import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 import org.apache.avro.Schema;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +34,7 @@ import maquette.controller.domain.values.iam.User;
 import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
-@RestController("Namespaces")
+@RestController("Datasets")
 @RequestMapping("api/v1/datasets")
 public class DatasetsResource {
 
@@ -215,7 +219,23 @@ public class DatasetsResource {
         UID uid = UID.apply(id);
         User user = ContextUtils.getUser(exchange);
 
-        return null;
+        return file
+            .toFuture()
+            .thenCompose(filePart -> {
+                /*
+                List<ByteBuffer> data = filePart
+                    .content()
+                    .toStream()
+                    .map(DataBuffer::asByteBuffer)
+                    .collect(Collectors.toList());
+
+                return core
+                    .datasets()
+                    .pushDataAsAvro(user, dataset, uid, data);
+
+                 */
+                return null;
+            });
     }
 
     @RequestMapping(

@@ -3,11 +3,9 @@ package maquette.controller.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericData;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 
@@ -16,6 +14,7 @@ import com.google.common.collect.Lists;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetGrant;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
@@ -359,7 +358,7 @@ public class DatasetsITest {
         final ResourcePath datasetResource = ResourcePath.apply(namespace, dataset);
 
         final Schema schema = CountryTestData.getSchema();
-        final List<GenericData.Record> records = CountryTestData.getRecords();
+        final Records records = Records.fromRecords(CountryTestData.getRecords());
 
         TestSetup setup = TestSetup
             .apply()
@@ -422,16 +421,16 @@ public class DatasetsITest {
         /*
          * Now we can download the data from the dataset
          */
-        List<GenericData.Record> d1 = setup
+        Records d1 = setup
             .getApp()
             .datasets()
             .getData(user, datasetResource)
             .toCompletableFuture()
             .get();
 
-        assertThat(d1)
+        assertThat(d1.getRecords())
             .hasSize(records.size())
-            .containsAll(records);
+            .containsAll(records.getRecords());
 
         /*
          * Adding new data to a committed dataset should not be possible.
@@ -486,19 +485,19 @@ public class DatasetsITest {
             .toCompletableFuture()
             .get();
 
-        List<GenericData.Record> d2 = setup
+        Records d2 = setup
             .getApp()
             .datasets()
             .getData(user, datasetResource)
             .toCompletableFuture()
             .get();
 
-        assertThat(d2).hasSize(records.size() * 2);
+        assertThat(d2.getRecords()).hasSize(records.size() * 2);
 
         /*
          * Fetch data of specified version
          */
-        List<GenericData.Record> d3 = setup
+        Records d3 = setup
             .getApp()
             .datasets()
             .getData(user, datasetResource, VersionTag.apply("1.0.0"))

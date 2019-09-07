@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.controller.domain.exceptions.InvalidUIDException;
+import maquette.controller.domain.values.exceptions.InvalidUIDException;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

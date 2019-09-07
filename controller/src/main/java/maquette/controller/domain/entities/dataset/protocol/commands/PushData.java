@@ -1,9 +1,5 @@
 package maquette.controller.domain.entities.dataset.protocol.commands;
 
-import java.util.List;
-
-import org.apache.avro.generic.GenericData;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -14,9 +10,10 @@ import lombok.Value;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.VersionMessage;
 import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
+import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
-import maquette.controller.domain.values.core.ErrorMessage;
+import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.iam.User;
 
 @Value
@@ -40,7 +37,7 @@ public class PushData implements DatasetMessage, VersionMessage {
     private final UID versionId;
 
     @JsonProperty(RECORDS)
-    private final List<GenericData.Record> records;
+    private final Records records;
 
     @JsonProperty(REPLY_TO)
     private final ActorRef<PushedData> replyTo;
@@ -53,7 +50,7 @@ public class PushData implements DatasetMessage, VersionMessage {
         @JsonProperty(EXECUTOR) User executor,
         @JsonProperty(DATASET) ResourcePath dataset,
         @JsonProperty(VERSION_ID) UID versionId,
-        @JsonProperty(RECORDS) List<GenericData.Record> records,
+        @JsonProperty(RECORDS) Records records,
         @JsonProperty(REPLY_TO) ActorRef<PushedData> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 

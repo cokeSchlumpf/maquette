@@ -2,7 +2,7 @@ package maquette.controller.domain.entities
 
 import java.time.Instant
 
-import maquette.controller.domain.exceptions.DomainException
+import maquette.controller.domain.values.exceptions.DomainException
 import maquette.controller.values._
 
 import scala.util.{Success, Try}

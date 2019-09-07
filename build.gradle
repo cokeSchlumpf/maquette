@@ -4,9 +4,12 @@ plugins {
 
 allprojects {
     repositories {
+        mavenCentral()
+        mavenLocal()
         jcenter()
 
         maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
+        maven { url "https://plugins.gradle.org/m2/" }
     }
 }
 
@@ -40,7 +43,7 @@ subprojects {
                 'akka-stream-alpakka-file'         : "com.lightbend.akka:akka-stream-alpakka-file_${versions['scala']}:1.0.0",
                 'akka-streams'                     : "com.typesafe.akka:akka-stream-typed_${versions['scala']}:${versions['akka']}",
                 'assertj-core'                     : 'org.assertj:assertj-core:3.9.1',
-                'avro'                             : 'org.apache.avro:avro:1.8.2',
+                'avro'                             : 'org.apache.avro:avro:1.9.1',
                 'cucumber-java'                    : 'io.cucumber:cucumber-java:4.2.5',
                 'cucumber-picocontainer'           : 'io.cucumber:cucumber-picocontainer:4.2.6',
                 'easymock'                         : 'org.easymock:easymock:4.0.1',
@@ -60,6 +63,7 @@ subprojects {
                 'springfox-swagger'                : 'io.springfox:springfox-swagger2:3.0.0-SNAPSHOT',
                 'springfox-swagger-ui'             : 'io.springfox:springfox-swagger-ui:3.0.0-SNAPSHOT',
                 'slf4j-nop'                        : 'org.slf4j:slf4j-nop:1.7.26',
+                'snappy'                           : 'org.xerial.snappy:snappy-java:1.1.7.3',
                 'wiremock'                         : 'com.github.tomakehurst:wiremock:2.19.0'
         ]
     }

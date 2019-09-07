@@ -1,4 +1,4 @@
-package maquette.controller.domain.exceptions;
+package maquette.controller.domain.values.exceptions;
 
 /**
  * A markup interface for domain exceptions.

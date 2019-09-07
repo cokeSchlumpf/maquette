@@ -1,11 +1,9 @@
 package maquette.controller.domain.api.datasets;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericData;
 
 import akka.Done;
 import akka.actor.typed.ActorRef;
@@ -19,15 +17,16 @@ import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceDetails;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceDetailsResult;
-import maquette.controller.domain.exceptions.NotAuthorizedException;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.dataset.VersionTag;
+import maquette.controller.domain.values.exceptions.NotAuthorizedException;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.namespace.NamespaceDetails;
@@ -153,7 +152,7 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
-    public CompletionStage<List<GenericData.Record>> getData(User executor, ResourcePath dataset) {
+    public CompletionStage<Records> getData(User executor, ResourcePath dataset) {
         return canConsume(dataset, executor)
             .thenCompose(canDo -> {
                 if (canDo) {
@@ -165,7 +164,7 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
-    public CompletionStage<List<GenericData.Record>> getData(User executor, ResourcePath dataset, VersionTag version) {
+    public CompletionStage<Records> getData(User executor, ResourcePath dataset, VersionTag version) {
         return canConsume(dataset, executor)
             .thenCompose(canDo -> {
                 if (canDo) {
@@ -259,7 +258,7 @@ public final class DatasetsSecured implements Datasets {
 
     @Override
     public CompletionStage<VersionDetails> pushData(User executor, ResourcePath dataset, UID versionId,
-                                                    List<GenericData.Record> records) {
+                                                    Records records) {
         return canProduce(dataset, executor)
             .thenCompose(canDo -> {
                 if (canDo) {

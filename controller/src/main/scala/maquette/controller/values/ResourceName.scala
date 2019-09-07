@@ -1,6 +1,6 @@
 package maquette.controller.values
 
-import maquette.controller.domain.exceptions.DomainException
+import maquette.controller.domain.values.exceptions.DomainException
 
 import scala.util.matching.Regex
 
