@@ -19,7 +19,6 @@ import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
-import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.namespace.NamespaceDetails;
 import maquette.controller.domain.values.namespace.NamespaceInfo;
 
@@ -29,6 +28,8 @@ import maquette.controller.domain.values.namespace.NamespaceInfo;
 public class NamespacesResource {
 
     private final CoreApplication core;
+
+    private final ContextUtils ctx;
 
     @RequestMapping(
         path = "{name}/settings/owner",
@@ -41,12 +42,13 @@ public class NamespacesResource {
         @RequestBody Authorization owner,
         ServerWebExchange exchange) {
 
-        User user = ContextUtils.getUser(exchange);
         ResourceName resourceName = ResourceName.apply(name);
 
-        return core
-            .namespaces()
-            .changeOwner(user, resourceName, owner);
+        return ctx
+            .getUser(exchange)
+            .thenCompose(user -> core
+                .namespaces()
+                .changeOwner(user, resourceName, owner));
     }
 
     @RequestMapping(
@@ -60,9 +62,12 @@ public class NamespacesResource {
         ServerWebExchange exchange) {
 
         ResourceName resourceName = ResourceName.apply(name);
-        return core
-            .namespaces()
-            .createNamespace(ContextUtils.getUser(exchange), resourceName);
+
+        return ctx
+            .getUser(exchange)
+            .thenCompose(user -> core
+                .namespaces()
+                .createNamespace(user, resourceName));
     }
 
     @RequestMapping(
@@ -75,13 +80,14 @@ public class NamespacesResource {
         @RequestParam("name") String name,
         ServerWebExchange exchange) {
 
-        User user = ContextUtils.getUser(exchange);
         ResourceName resourceName = ResourceName.apply(name);
 
-        return core
-            .namespaces()
-            .deleteNamespace(user, resourceName)
-            .thenRun(() -> {});
+        return ctx
+            .getUser(exchange)
+            .thenCompose(user -> core
+                .namespaces()
+                .deleteNamespace(user, resourceName)
+                .thenRun(() -> {}));
     }
 
     @RequestMapping(
@@ -94,12 +100,13 @@ public class NamespacesResource {
         @RequestParam("name") String name,
         ServerWebExchange exchange) {
 
-        User user = ContextUtils.getUser(exchange);
         ResourceName resourceName = ResourceName.apply(name);
 
-        return core
-            .namespaces()
-            .getNamespaceDetails(user, resourceName);
+        return ctx
+            .getUser(exchange)
+            .thenCompose(user -> core
+                .namespaces()
+                .getNamespaceDetails(user, resourceName));
     }
 
     @RequestMapping(
@@ -113,12 +120,13 @@ public class NamespacesResource {
         @RequestBody NamespaceAccessRequest request,
         ServerWebExchange exchange) {
 
-        User user = ContextUtils.getUser(exchange);
         ResourceName resourceName = ResourceName.apply(name);
 
-        return core
-            .namespaces()
-            .grantNamespaceAccess(user, resourceName, request.getPrivilege(), request.getAuthorization());
+        return ctx
+            .getUser(exchange)
+            .thenCompose(user -> core
+                .namespaces()
+                .grantNamespaceAccess(user, resourceName, request.getPrivilege(), request.getAuthorization()));
     }
 
     @RequestMapping(
@@ -127,11 +135,11 @@ public class NamespacesResource {
     @ApiOperation(
         value = "List existing namespaces")
     public CompletionStage<Set<NamespaceInfo>> list(ServerWebExchange exchange) {
-        User user = ContextUtils.getUser(exchange);
-
-        return core
-            .namespaces()
-            .listNamespaces(user);
+        return ctx
+            .getUser(exchange)
+            .thenCompose(user -> core
+                .namespaces()
+                .listNamespaces(user));
     }
 
     @RequestMapping(
@@ -145,12 +153,13 @@ public class NamespacesResource {
         @RequestBody NamespaceAccessRequest request,
         ServerWebExchange exchange) {
 
-        User user = ContextUtils.getUser(exchange);
         ResourceName resourceName = ResourceName.apply(name);
 
-        return core
-            .namespaces()
-            .revokeNamespaceAccess(user, resourceName, request.getPrivilege(), request.getAuthorization());
+        return ctx
+            .getUser(exchange)
+            .thenCompose(user -> core
+                .namespaces()
+                .revokeNamespaceAccess(user, resourceName, request.getPrivilege(), request.getAuthorization()));
     }
 
 }
