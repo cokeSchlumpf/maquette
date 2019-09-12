@@ -3,9 +3,7 @@ package maquette.controller.domain.values.iam;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import lombok.AccessLevel;
@@ -14,31 +12,33 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class AnonymousUser implements User {
+public final class TokenAuthenticatedUser implements User {
 
-    private final ImmutableSet<String> roles;
+    private static final String TOKEN = "token";
+
+    @JsonProperty(TOKEN)
+    private final TokenDetails token;
 
     @JsonCreator
-    public static AnonymousUser apply(
-        @JsonProperty("roles") Set<String> roles) {
+    public static TokenAuthenticatedUser apply(
+        @JsonProperty(TOKEN) TokenDetails token) {
 
-        return new AnonymousUser(ImmutableSet.copyOf(roles));
-    }
-
-    public static AnonymousUser apply(String... roles) {
-        return apply(Sets.newHashSet(roles));
+        return new TokenAuthenticatedUser(token);
     }
 
     @Override
-    @JsonIgnore
     public UserId getUserId() {
-        return UserId.apply(getDisplayName(), getDisplayName());
+        return token.getOwner();
     }
 
     @Override
-    @JsonIgnore
     public String getDisplayName() {
-        return "anonymous";
+        return token.getOwner().getName();
+    }
+
+    @Override
+    public Set<String> getRoles() {
+        return Sets.newHashSet();
     }
 
     @Override

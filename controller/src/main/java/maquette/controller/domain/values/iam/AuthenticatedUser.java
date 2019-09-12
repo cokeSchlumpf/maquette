@@ -51,4 +51,14 @@ public final class AuthenticatedUser implements User {
         return roles;
     }
 
+    @Override
+    public boolean isAdministrator() {
+        return false;
+    }
+
+    @Override
+    public boolean isAuditor() {
+        return false;
+    }
+
 }

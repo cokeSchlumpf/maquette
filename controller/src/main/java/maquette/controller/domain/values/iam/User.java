@@ -10,9 +10,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     include = JsonTypeInfo.As.PROPERTY,
     property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = AnonymousUser.class, name = "anonymous"),
-    @JsonSubTypes.Type(value = AuthenticatedUser.class, name = "user")
-})
+                  @JsonSubTypes.Type(value = AnonymousUser.class, name = "anonymous"),
+                  @JsonSubTypes.Type(value = AuthenticatedUser.class, name = "user"),
+                  @JsonSubTypes.Type(value = TokenAuthenticatedUser.class, name = "token")
+              })
 public interface User {
 
     UserId getUserId();
@@ -20,5 +21,9 @@ public interface User {
     String getDisplayName();
 
     Set<String> getRoles();
+
+    boolean isAdministrator();
+
+    boolean isAuditor();
 
 }
