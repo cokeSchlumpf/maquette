@@ -1,9 +1,15 @@
 package maquette.controller.application.resources;
 
+import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 import org.apache.avro.Schema;
+import org.apache.avro.util.ByteBufferInputStream;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
+import akka.japi.Pair;
+import akka.util.ByteString;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import maquette.controller.application.model.DatasetAccessRequest;
@@ -22,10 +30,12 @@ import maquette.controller.application.util.ContextUtils;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.dataset.VersionTag;
 import maquette.controller.domain.values.iam.Authorization;
+import maquette.controller.domain.values.iam.User;
 import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
@@ -121,19 +131,69 @@ public class DatasetsResource {
     }
 
     @RequestMapping(
-        path = "{namespace}/{name}/versions/{version}/data",
+        path = "{namespace}/{name}/versions/latest/data",
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ApiOperation(
         value = "Read data from a dataset; version might be 'latest'")
-    public Resource getData(
+    public CompletionStage<Resource> getData(
         @PathVariable("namespace") String namespace,
         @PathVariable("name") String name,
-        @PathVariable("version") String version) {
+        ServerWebExchange exchange) {
 
-        // version might be "latest"
+        return ctx
+            .getUser(exchange)
+            .thenCompose(user -> {
+                ResourcePath resource = ResourcePath.apply(namespace, name);
 
-        return null;
+                return core
+                    .datasets()
+                    .getData(user, resource);
+            })
+            .thenApply(records -> {
+                List<ByteBuffer> buffers = records
+                    .getBytes()
+                    .stream()
+                    .map(ByteString::asByteBuffer)
+                    .collect(Collectors.toList());
+
+                ByteBufferInputStream is = new ByteBufferInputStream(buffers);
+                return new InputStreamResource(is);
+            });
+    }
+
+    @RequestMapping(
+        path = "{namespace}/{name}/versions/{version}/data",
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_OCTET_STREAM_VALUE})
+    @ApiOperation(
+        value = "Read data from a dataset; version might be 'latest'")
+    public CompletionStage<Resource> getData(
+        @PathVariable("namespace") String namespace,
+        @PathVariable("name") String name,
+        @PathVariable("version") String version,
+        ServerWebExchange exchange) {
+
+        return ctx
+            .getUser(exchange)
+            .thenCompose(user -> {
+                ResourcePath resource = ResourcePath.apply(namespace, name);
+                VersionTag versionTag = VersionTag.apply(version);
+
+                return core
+                    .datasets()
+                    .getData(user, resource, versionTag);
+            })
+            .thenApply(records -> {
+                List<ByteBuffer> buffers = records
+                    .getBytes()
+                    .stream()
+                    .map(ByteString::asByteBuffer)
+                    .collect(Collectors.toList());
+
+                ByteBufferInputStream is = new ByteBufferInputStream(buffers);
+                return new InputStreamResource(is);
+            });
     }
 
     @RequestMapping(
@@ -224,25 +284,22 @@ public class DatasetsResource {
         ResourcePath dataset = ResourcePath.apply(namespace, name);
         UID uid = UID.apply(id);
 
-        return ctx
-            .getUser(exchange)
-            .thenCompose(user -> file
-                .toFuture()
-                .thenCompose(filePart -> {
-                /*
-                List<ByteBuffer> data = filePart
-                    .content()
-                    .toStream()
-                    .map(DataBuffer::asByteBuffer)
-                    .collect(Collectors.toList());
+        return file
+            .toFuture()
+            .thenApply(filePart -> filePart
+                .content()
+                .toStream()
+                .map(DataBuffer::asByteBuffer)
+                .collect(Collectors.toList()))
+            .thenCompose(data -> ctx.getUser(exchange).thenApply(user -> Pair.create(data, user)))
+            .thenCompose(pair -> {
+                List<ByteBuffer> data = pair.first();
+                User user = pair.second();
 
                 return core
                     .datasets()
-                    .pushDataAsAvro(user, dataset, uid, data);
-
-                 */
-                    return null;
-                }));
+                    .pushData(user, dataset, uid, Records.fromByteBuffers(data));
+            });
     }
 
     @RequestMapping(
