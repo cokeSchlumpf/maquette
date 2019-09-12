@@ -15,12 +15,16 @@ import maquette.controller.domain.api.datasets.Datasets;
 import maquette.controller.domain.api.datasets.DatasetsFactory;
 import maquette.controller.domain.api.namespaces.Namespaces;
 import maquette.controller.domain.api.namespaces.NamespacesFactory;
+import maquette.controller.domain.api.users.Users;
+import maquette.controller.domain.api.users.UsersFactory;
 import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.NamespacesRegistry;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
+import maquette.controller.domain.entities.user.User;
+import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
@@ -35,6 +39,8 @@ public class CoreApplication {
     private final Namespaces namespaces;
 
     private final Datasets datasets;
+
+    private final Users users;
 
     public static CoreApplication apply(
         DataStorageAdapter storageAdapter) {
@@ -57,6 +63,12 @@ public class CoreApplication {
                 ctx -> Namespace.create(ctx.getActorContext(), ResourceName.apply(ctx.getEntityId())));
         final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaceShards = sharding.init(namespaceEntity);
 
+        final Entity<UserMessage, ShardingEnvelope<UserMessage>> userEntity = Entity
+            .ofPersistentEntity(
+                User.ENTITY_KEY,
+                ctx -> User.create(User.fromEntityId(ctx.getEntityId())));
+        final ActorRef<ShardingEnvelope<UserMessage>> userShards = sharding.init(userEntity);
+
         // initialize namespace registry
         final ActorRef<NamespacesMessage> namespacesRegistry = singleton.init(NamespacesRegistry.create());
         final Namespaces namespaces = NamespacesFactory
@@ -67,8 +79,12 @@ public class CoreApplication {
             .apply(namespaceShards, datasetShards, patterns)
             .create();
 
+        final Users users = UsersFactory
+            .apply(userShards, patterns)
+            .create();
+
         // initialize application
-        return CoreApplication.apply(system, namespaces, datasets);
+        return CoreApplication.apply(system, namespaces, datasets, users);
     }
 
     public Datasets datasets() {
@@ -77,6 +93,10 @@ public class CoreApplication {
 
     public Namespaces namespaces() {
         return namespaces;
+    }
+
+    public Users users() {
+        return users;
     }
 
     public void terminate() {

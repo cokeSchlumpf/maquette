@@ -35,24 +35,22 @@ public class UserDetails {
         return new UserDetails(id, ImmutableSet.copyOf(accessTokens));
     }
 
-    public TokenAuthenticatedUser authenticateWithToken(
-        UID key,
-        UID secret) {
+    public TokenAuthenticatedUser authenticateWithToken(UID secret) {
 
         return accessTokens
             .stream()
-            .filter(token -> token.getDetails().getId().equals(key) && token.getSecret().equals(secret))
+            .filter(token -> token.getSecret().equals(secret))
             .map(token -> TokenAuthenticatedUser.apply(token.getDetails()))
             .findAny()
-            .orElseThrow(() -> InvalidTokenException.apply(id.getId(), key));
+            .orElseThrow(() -> InvalidTokenException.apply(id.getId()));
+    }
+
+    public boolean canViewPersonalProperties(User executor) {
+        return (executor instanceof AuthenticatedUser && executor.getUserId().equals(id)) || executor.isAdministrator();
     }
 
     public boolean canManageTokens(User executor) {
-        if (executor instanceof AuthenticatedUser && executor.getUserId().equals(id)) {
-            return true;
-        } else {
-            return executor.isAdministrator();
-        }
+        return (executor instanceof AuthenticatedUser && executor.getUserId().equals(id)) || executor.isAdministrator();
     }
 
     public UserDetails withToken(Token token) {

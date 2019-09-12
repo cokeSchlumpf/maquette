@@ -33,7 +33,7 @@ public final class TokenAuthenticatedUser implements User {
 
     @Override
     public String getDisplayName() {
-        return token.getOwner().getName();
+        return token.getOwner().getId();
     }
 
     @Override

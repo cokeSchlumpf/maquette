@@ -32,7 +32,7 @@ public final class AnonymousUser implements User {
     @Override
     @JsonIgnore
     public UserId getUserId() {
-        return UserId.apply(getDisplayName(), getDisplayName());
+        return UserId.apply(getDisplayName());
     }
 
     @Override

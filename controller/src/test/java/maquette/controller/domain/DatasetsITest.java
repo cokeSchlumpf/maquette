@@ -49,7 +49,7 @@ public class DatasetsITest {
                                                    .get();
 
         assertThat(datasetDetails.getDataset()).isEqualTo(dataset01name);
-        assertThat(datasetDetails.getCreatedBy().getName()).isEqualTo(setup.getDefaultUser().getDisplayName());
+        assertThat(datasetDetails.getCreatedBy().getId()).isEqualTo(setup.getDefaultUser().getDisplayName());
 
         final NamespaceDetails namespaceDetails01 = setup
             .getApp()

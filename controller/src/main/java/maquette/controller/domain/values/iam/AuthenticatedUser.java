@@ -38,7 +38,7 @@ public final class AuthenticatedUser implements User {
     @Override
     @JsonIgnore
     public UserId getUserId() {
-        return UserId.apply(getId(), getDisplayName());
+        return UserId.apply(getId());
     }
 
     @Override

@@ -8,10 +8,9 @@ public final class InvalidTokenException extends IllegalArgumentException implem
         super(message);
     }
 
-    public static InvalidTokenException apply(String user, UID tokenKey) {
+    public static InvalidTokenException apply(String user) {
         String message = String.format(
-            "The provided token '%s' is not valid for user '%s'.",
-            tokenKey.getValue(),
+            "The provided token is not valid for user '%s'.",
             user);
 
         return new InvalidTokenException(message);
