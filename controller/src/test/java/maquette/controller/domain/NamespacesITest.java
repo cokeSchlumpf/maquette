@@ -57,7 +57,7 @@ public class NamespacesITest {
             .toCompletableFuture()
             .get();
 
-        assertThat(namespaceInfos01).hasSize(3);
+        assertThat(namespaceInfos01).hasSize(4);
 
         /*
          * Delete a namespaces and get list of namespaces.
@@ -80,7 +80,7 @@ public class NamespacesITest {
                                                    .toCompletableFuture()
                                                    .get();
 
-        assertThat(namespaceInfos02).hasSize(1);
+        assertThat(namespaceInfos02).hasSize(2);
 
         setup.getApp().terminate();
 
@@ -107,7 +107,7 @@ public class NamespacesITest {
             .toCompletableFuture()
             .get();
 
-        assertThat(namespaces01).hasSize(1);
+        assertThat(namespaces01).hasSize(2);
 
         // And the other user shouldn't see it
         Set<NamespaceInfo> namespaces02 = setup
@@ -118,7 +118,7 @@ public class NamespacesITest {
             .get();
 
 
-        assertThat(namespaces02).hasSize(0);
+        assertThat(namespaces02).hasSize(1);
 
         // When the first user grants access to the repository to the other user
         setup
@@ -139,7 +139,7 @@ public class NamespacesITest {
             .get();
 
 
-        assertThat(namespaces03).hasSize(1);
+        assertThat(namespaces03).hasSize(2);
 
         // When the access is revoked
         setup
@@ -160,7 +160,7 @@ public class NamespacesITest {
             .get();
 
 
-        assertThat(namespaces04).hasSize(0);
+        assertThat(namespaces04).hasSize(1);
 
         setup.getApp().terminate();
     }
