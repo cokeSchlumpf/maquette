@@ -4,10 +4,11 @@ import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -38,7 +39,7 @@ public class NamespacesResource {
     @ApiOperation(
         value = "Change the owner of a namespace")
     public CompletionStage<NamespaceInfo> changeOwner(
-        @RequestParam("name") String name,
+        @PathVariable("name") String name,
         @RequestBody Authorization owner,
         ServerWebExchange exchange) {
 
@@ -58,7 +59,7 @@ public class NamespacesResource {
     @ApiOperation(
         value = "Creates a new namespace")
     public CompletionStage<NamespaceInfo> create(
-        @RequestParam("name") String name,
+        @PathVariable("name") String name,
         ServerWebExchange exchange) {
 
         ResourceName resourceName = ResourceName.apply(name);
@@ -77,7 +78,7 @@ public class NamespacesResource {
     @ApiOperation(
         value = "Delete an existing Namespace")
     public CompletionStage<Void> delete(
-        @RequestParam("name") String name,
+        @PathVariable("name") String name,
         ServerWebExchange exchange) {
 
         ResourceName resourceName = ResourceName.apply(name);
@@ -97,7 +98,7 @@ public class NamespacesResource {
     @ApiOperation(
         value = "Grant access to a repository")
     public CompletionStage<NamespaceDetails> get(
-        @RequestParam("name") String name,
+        @PathVariable("name") String name,
         ServerWebExchange exchange) {
 
         ResourceName resourceName = ResourceName.apply(name);
@@ -116,7 +117,7 @@ public class NamespacesResource {
     @ApiOperation(
         value = "Grant access to a repository")
     public CompletionStage<GrantedAuthorization> grant(
-        @RequestParam("name") String name,
+        @PathVariable("name") String name,
         @RequestBody NamespaceAccessRequest request,
         ServerWebExchange exchange) {
 
@@ -149,7 +150,7 @@ public class NamespacesResource {
     @ApiOperation(
         value = "Revoke access from a repository")
     public CompletionStage<GrantedAuthorization> revoke(
-        @RequestParam("name") String name,
+        @PathVariable("name") String name,
         @RequestBody NamespaceAccessRequest request,
         ServerWebExchange exchange) {
 

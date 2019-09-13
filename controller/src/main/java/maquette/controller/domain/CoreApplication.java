@@ -26,6 +26,7 @@ import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.entities.user.User;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.ports.DataStorageAdapter;
+import maquette.controller.domain.services.CreateDefaultNamespace;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
@@ -71,16 +72,20 @@ public class CoreApplication {
 
         // initialize namespace registry
         final ActorRef<NamespacesMessage> namespacesRegistry = singleton.init(NamespacesRegistry.create());
+
+        final CreateDefaultNamespace createDefaultNamespace = CreateDefaultNamespace.apply(
+            namespacesRegistry, namespaceShards, patterns);
+
         final Namespaces namespaces = NamespacesFactory
-            .apply(namespacesRegistry, namespaceShards, patterns)
+            .apply(namespacesRegistry, namespaceShards, patterns, createDefaultNamespace)
             .create();
 
         final Datasets datasets = DatasetsFactory
-            .apply(namespaceShards, datasetShards, patterns)
+            .apply(namespaceShards, datasetShards, patterns, createDefaultNamespace)
             .create();
 
         final Users users = UsersFactory
-            .apply(userShards, patterns)
+            .apply(namespaceShards, userShards, patterns, createDefaultNamespace)
             .create();
 
         // initialize application
