@@ -98,7 +98,8 @@ public final class NamespacesRegistry extends EventSourcedBehavior<NamespacesMes
     }
 
     private Effect<NamespacesEvent, State> onListNamespaces(State state, ListNamespaces list) {
-        list.getReplyTo().tell(ListNamespacesResult.apply(state.getNamespaces()));
+        list.getReplyTo().tell(ListNamespacesResult.apply(
+            state.getNamespaces()));
         return Effect().none();
     }
 

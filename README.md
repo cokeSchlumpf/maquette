@@ -2,9 +2,9 @@
 
 ## Concepts
 
-### Data Catalog
+### Data Shop
 
-The data catalog can be used to find the right data and to easily request access to data. The catalog offers two methods to store and retrieve data:
+The data shop can be used to find the right data and to easily request access to data. The catalog offers two methods to store and retrieve data:
 
 * **Datastreams** provide a mechanism to publish and store events for a provided retention time.
 

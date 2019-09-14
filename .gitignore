@@ -134,3 +134,7 @@ journal/**/*
 
 **/*/.DS_Store
 public/**
+
+# Python
+**/*/.ipynb_checkpoints
+**/*/__pycache__
