@@ -28,7 +28,7 @@ public final class RoleAuthorization implements Authorization {
     }
 
     public String toString() {
-        return "role/" + name;
+        return name;
     }
 
 }

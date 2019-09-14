@@ -1,6 +1,5 @@
 package maquette.controller.adapters.cli.commands;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Date;
@@ -17,6 +16,7 @@ import maquette.controller.adapters.cli.DataTable;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.namespace.NamespaceGrant;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PrintNamespaceDetailsCmd implements Command {
@@ -43,7 +43,10 @@ public final class PrintNamespaceDetailsCmd implements Command {
             .namespaces()
             .getNamespaceDetails(executor, resource)
             .thenApply(details -> {
-                DataTable dt = DataTable
+                StringWriter sw = new StringWriter();
+                PrintWriter out = new PrintWriter(sw);
+
+                DataTable properties = DataTable
                     .apply("key", "property")
                     .withRow("owner", details.getAcl().getOwner().getAuthorization().toString())
                     .withRow("", "")
@@ -53,7 +56,25 @@ public final class PrintNamespaceDetailsCmd implements Command {
                     .withRow("modified", sdf.format(Date.from(details.getModified())))
                     .withRow("modified by", details.getModifiedBy().getId());
 
-                return CommandResult.success(dt.toAscii(false, true));
+                DataTable acl = DataTable.apply("user", "privilege", "granted by", "granted at");
+
+                for (NamespaceGrant grant : details.getAcl().getGrants()) {
+                    acl = acl.withRow(
+                        grant.getAuthorization().getAuthorization().toString(),
+                        grant.getPrivilege().name,
+                        grant.getAuthorization().getBy().getId(),
+                        sdf.format(Date.from(grant.getAuthorization().getAt())));
+                }
+
+                out.println("PROPERTIES");
+                out.println("----------");
+                out.println(properties.toAscii(false, true));
+                out.println();
+                out.println("ACCESS CONTROL");
+                out.println("--------------");
+                out.println(acl.toAscii());
+
+                return CommandResult.success(sw.toString(), properties, acl);
             });
     }
 

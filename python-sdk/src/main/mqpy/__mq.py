@@ -1,11 +1,25 @@
 import pandas as pd
 
+from enum import Enum
 from io import StringIO
 
 from .__client import Client
 from .__user_config import UserConfiguration
 
 client = Client.from_config(UserConfiguration('/foo'))
+
+
+class EAuthorizationType(Enum):
+    USER = "user"
+    ROLE = "role"
+    WILDCARD = "*"
+
+
+class ENamespacePrivilege(Enum):
+    MEMBER = "member"
+    PRODUCER = "producer"
+    CONSUMER = "consumer"
+    ADMIN = "admin"
 
 
 class Dataset:
@@ -38,6 +52,18 @@ class Namespace:
 
     def dataset(self, name: str):
         return Dataset(name, self.__name)
+
+    def grant(self, grant: ENamespacePrivilege, to_auth: EAuthorizationType, to_name: str = None):
+        dict = {
+            'namespace': self.__name,
+            'privilege': grant.value,
+            'authorization': to_auth.value,
+            'to': to_name
+        }
+
+        print(dict)
+
+        client.command('namespace grant', dict)
 
     def print(self):
         resp = client.command('namespace show', {'namespace': self.__name})

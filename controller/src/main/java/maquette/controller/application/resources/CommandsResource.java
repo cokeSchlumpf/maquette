@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +27,8 @@ import maquette.controller.domain.values.exceptions.DomainException;
 @RequestMapping("api/v1/cli")
 public class CommandsResource {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CommandsResource.class);
+
     private final CoreApplication core;
 
     private final ContextUtils ctx;
@@ -41,7 +45,10 @@ public class CommandsResource {
             .exceptionally(throwable -> Operators
                 .hasCause(throwable, DomainException.class)
                 .map(e -> CommandResult.error(e.getMessage()))
-                .orElseGet(() -> CommandResult.error("An exception occurred on Maquette controller. Sorry bro ¯\\_(ツ)_/¯")));
+                .orElseGet(() -> {
+                    LOG.error(throwable.getMessage(), throwable);
+                    return CommandResult.error("An exception occurred on Maquette controller. Sorry bro ¯\\_(ツ)_/¯");
+                }));
     }
 
 }

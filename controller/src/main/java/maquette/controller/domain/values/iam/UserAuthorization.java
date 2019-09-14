@@ -36,7 +36,7 @@ public final class UserAuthorization implements Authorization {
     }
 
     public String toString() {
-        return "user/" + name;
+        return name;
     }
     
 }

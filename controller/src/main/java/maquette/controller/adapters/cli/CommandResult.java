@@ -27,8 +27,8 @@ public class CommandResult {
         return new CommandResult(null, output, ImmutableList.copyOf(data));
     }
 
-    public static CommandResult success(String output, DataTable data) {
-        return new CommandResult(null, output, ImmutableList.of(data));
+    public static CommandResult success(String output, DataTable ...data) {
+        return new CommandResult(null, output, ImmutableList.copyOf(data));
     }
 
     public static CommandResult success(String output) {

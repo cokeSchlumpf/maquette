@@ -17,6 +17,7 @@ import maquette.controller.domain.values.iam.User;
     {
         @JsonSubTypes.Type(value = CreateDatasetCmd.class, name = "datasets create"),
         @JsonSubTypes.Type(value = CreateNamespaceCmd.class, name = "namespaces create"),
+        @JsonSubTypes.Type(value = GrantNamespaceAccessCmd.class, name = "namespace grant"),
         @JsonSubTypes.Type(value = ListDatasetsCmd.class, name = "datasets"),
         @JsonSubTypes.Type(value = ListNamespacesCmd.class, name = "namespaces"),
         @JsonSubTypes.Type(value = PrintNamespaceDetailsCmd.class, name = "namespace show")
