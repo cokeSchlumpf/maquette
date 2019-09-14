@@ -25,7 +25,7 @@ public class DataTableUTest {
 
         assertThat(csv)
             .hasLineCount(4)
-            .contains("Team;Points;Rank")
+            .contains("Team;Points;Rank".toUpperCase())
             .contains("VFC Plauen;67;1");
 
         System.out.println(csv);
