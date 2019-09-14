@@ -2,6 +2,8 @@ package maquette.controller.domain.util;
 
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
+import maquette.controller.domain.values.exceptions.DomainException;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Map;
@@ -122,7 +124,7 @@ public final class NameFactory {
         return validCharactersOnly.toString();
     }
 
-    public static class InvalidNameException extends RuntimeException {
+    public static class InvalidNameException extends RuntimeException implements DomainException {
 
         private InvalidNameException(String message) {
             super(message);

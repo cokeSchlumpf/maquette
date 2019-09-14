@@ -1,6 +1,5 @@
 package maquette.controller.adapters.cli.commands;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -8,37 +7,44 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Value;
 import maquette.controller.adapters.cli.CommandResult;
+import maquette.controller.adapters.cli.DataTable;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
 
-@Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateNamespaceCmd implements Command {
+public final class ListDatasetsCmd implements Command {
 
-    private final String name;
+    private final String namespace;
 
     @JsonCreator
-    public static CreateNamespaceCmd apply(@JsonProperty("name") String name) {
-        return new CreateNamespaceCmd(name);
+    public static ListDatasetsCmd apply(@JsonProperty("namespace") String namespace) {
+        return new ListDatasetsCmd(namespace);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
         ResourceName resource;
 
-        if (name == null) {
+        if (namespace == null) {
             resource = ResourceName.apply(executor.getUserId().getId());
         } else {
-            resource = ResourceName.apply(name);
+            resource = ResourceName.apply(namespace);
         }
 
         return app
             .namespaces()
-            .createNamespace(executor, resource)
-            .thenApply(info -> CommandResult.success());
+            .getNamespaceDetails(executor, resource)
+            .thenApply(details -> {
+                DataTable dt = DataTable.apply("name");
+
+                for (ResourceName dataset : details.getDatasets()) {
+                    dt = dt.withRow(dataset.getValue());
+                }
+
+                return CommandResult.success(dt);
+            });
     }
 
 }

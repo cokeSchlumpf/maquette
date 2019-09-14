@@ -1,2 +1,2 @@
-from .__mq import namespaces, create_namespace
+from .__mq import *
 

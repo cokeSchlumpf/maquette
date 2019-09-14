@@ -11,34 +11,43 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.domain.CoreApplication;
-import maquette.controller.domain.values.core.ResourceName;
+import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.iam.User;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateNamespaceCmd implements Command {
+public class CreateDatasetCmd implements Command {
+
+    private final String namespace;
 
     private final String name;
 
     @JsonCreator
-    public static CreateNamespaceCmd apply(@JsonProperty("name") String name) {
-        return new CreateNamespaceCmd(name);
+    public static CreateDatasetCmd apply(
+        @JsonProperty("namespace") String namespace,
+        @JsonProperty("name") String name) {
+
+        return new CreateDatasetCmd(namespace, name);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ResourceName resource;
+        ResourcePath rp;
 
         if (name == null) {
-            resource = ResourceName.apply(executor.getUserId().getId());
+            return CompletableFuture.completedFuture(CommandResult.error("name of dataset must be specified"));
+        }
+
+        if (namespace == null) {
+            rp = ResourcePath.apply(executor.getUserId().getId(), name);
         } else {
-            resource = ResourceName.apply(name);
+            rp = ResourcePath.apply(namespace, name);
         }
 
         return app
-            .namespaces()
-            .createNamespace(executor, resource)
-            .thenApply(info -> CommandResult.success());
+            .datasets()
+            .createDataset(executor, rp)
+            .thenApply(details -> CommandResult.success());
     }
 
 }

@@ -53,7 +53,7 @@ public final class ListNamespacesCmd implements Command {
                         String.valueOf(info.getDatasets().size()));
                 }
 
-                return CommandResult.success(dt);
+                return CommandResult.success(dt.toAscii(), dt);
             }));
     }
 

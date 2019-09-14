@@ -20,6 +20,20 @@ class Client:
     def from_config(config: UserConfiguration) -> 'Client':
         return Client(config.url(), config.user(), [])
 
+    def command(self, cmd: str, args: dict = None) -> dict:
+        request = { 'command': cmd }
+        if args is not None:
+            request.update(args)
+
+        response = requests.post(self.__base_url + '/cli', json = request, headers = self.__headers)
+
+        if response.status_code < 200 or response.status_code > 299:
+            raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯")
+        elif response.json()['error'] is not None:
+            raise RuntimeError(response.json()['error'])
+        else:
+            return response.json()
+
     def get(self, url: str) -> requests.Response:
         return requests.get(self.__base_url + url, headers = self.__headers)
 

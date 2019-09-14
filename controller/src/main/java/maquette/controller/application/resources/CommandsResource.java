@@ -1,7 +1,9 @@
 package maquette.controller.application.resources;
 
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +17,8 @@ import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.application.util.ContextUtils;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.util.Operators;
+import maquette.controller.domain.values.exceptions.DomainException;
 
 @AllArgsConstructor
 @RestController("CLI")
@@ -33,7 +37,11 @@ public class CommandsResource {
     public CompletionStage<CommandResult> process(@RequestBody Command command, ServerWebExchange exchange) {
         return ctx
             .getUser(exchange)
-            .thenCompose(user -> command.run(user, core));
+            .thenCompose(user -> command.run(user, core))
+            .exceptionally(throwable -> Operators
+                .hasCause(throwable, DomainException.class)
+                .map(e -> CommandResult.error(e.getMessage()))
+                .orElseGet(() -> CommandResult.error("An exception occurred on Maquette controller. Sorry bro ¯\\_(ツ)_/¯")));
     }
 
 }
