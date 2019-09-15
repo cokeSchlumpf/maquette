@@ -54,16 +54,12 @@ class Namespace:
         return Dataset(name, self.__name)
 
     def grant(self, grant: ENamespacePrivilege, to_auth: EAuthorizationType, to_name: str = None):
-        dict = {
+        client.command('namespace grant', {
             'namespace': self.__name,
             'privilege': grant.value,
             'authorization': to_auth.value,
             'to': to_name
-        }
-
-        print(dict)
-
-        client.command('namespace grant', dict)
+        })
 
     def print(self):
         resp = client.command('namespace show', {'namespace': self.__name})
