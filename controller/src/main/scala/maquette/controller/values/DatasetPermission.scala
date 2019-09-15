@@ -1,6 +1,0 @@
-package maquette.controller.values
-
-sealed trait DatasetPermission
-
-case object ReadDatasetPermission extends DatasetPermission
-case object ReadWriteDatasetPermission extends DatasetPermission
