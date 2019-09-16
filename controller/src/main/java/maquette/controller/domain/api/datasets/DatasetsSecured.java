@@ -1,13 +1,16 @@
 package maquette.controller.domain.api.datasets;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import org.apache.avro.Schema;
 
 import akka.Done;
+import akka.NotUsed;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
+import akka.stream.javadsl.Source;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
@@ -275,6 +278,19 @@ public final class DatasetsSecured implements Datasets {
             .thenCompose(canDo -> {
                 if (canDo) {
                     return delegate.publishDatasetVersion(executor, dataset, versionId, message);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
+    }
+
+    @Override
+    public CompletionStage<VersionTag> putData(User executor, ResourcePath dataset, Source<ByteBuffer, NotUsed> data,
+                                               String message) {
+        return canProduce(dataset, executor)
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.putData(executor, dataset, data, message);
                 } else {
                     throw NotAuthorizedException.apply(executor);
                 }

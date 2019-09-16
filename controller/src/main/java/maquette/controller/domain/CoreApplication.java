@@ -9,6 +9,7 @@ import akka.cluster.sharding.typed.ShardingEnvelope;
 import akka.cluster.sharding.typed.javadsl.ClusterSharding;
 import akka.cluster.sharding.typed.javadsl.Entity;
 import akka.cluster.typed.ClusterSingleton;
+import akka.stream.ActorMaterializer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.api.datasets.Datasets;
@@ -43,13 +44,17 @@ public class CoreApplication {
 
     private final Users users;
 
-    public static CoreApplication apply(
-        DataStorageAdapter storageAdapter) {
+    public static CoreApplication apply(DataStorageAdapter storageAdapter) {
+        return apply(ActorSystem.apply("maquette"), storageAdapter);
+    }
 
-        final ActorSystem system = ActorSystem.apply("maquette");
+    public static CoreApplication apply(
+        ActorSystem system, DataStorageAdapter storageAdapter) {
+
         final ClusterSharding sharding = ClusterSharding.get(Adapter.toTyped(system));
         final ClusterSingleton singleton = ClusterSingleton.createExtension(Adapter.toTyped(system));
         final ActorPatterns patterns = ActorPatterns.apply(system);
+        final ActorMaterializer materializer = ActorMaterializer.create(system);
 
         final Entity<DatasetMessage, ShardingEnvelope<DatasetMessage>> datasetEntity = Entity
             .ofPersistentEntity(
@@ -81,7 +86,7 @@ public class CoreApplication {
             .create();
 
         final Datasets datasets = DatasetsFactory
-            .apply(namespaceShards, datasetShards, patterns, createDefaultNamespace)
+            .apply(namespaceShards, datasetShards, patterns, createDefaultNamespace, materializer)
             .create();
 
         final Users users = UsersFactory

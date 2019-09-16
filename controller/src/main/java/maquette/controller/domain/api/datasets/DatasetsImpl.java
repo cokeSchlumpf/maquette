@@ -1,12 +1,20 @@
 package maquette.controller.domain.api.datasets;
 
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.CompletionStage;
 
 import org.apache.avro.Schema;
 
 import akka.Done;
+import akka.NotUsed;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
+import akka.stream.Materializer;
+import akka.stream.javadsl.FileIO;
+import akka.stream.javadsl.Source;
+import akka.util.ByteString;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
@@ -39,6 +47,7 @@ import maquette.controller.domain.entities.namespace.protocol.commands.RemoveDat
 import maquette.controller.domain.entities.namespace.protocol.events.RegisteredDataset;
 import maquette.controller.domain.entities.namespace.protocol.events.RemovedDataset;
 import maquette.controller.domain.util.ActorPatterns;
+import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.records.Records;
@@ -57,6 +66,8 @@ public final class DatasetsImpl implements Datasets {
     private final ActorRef<ShardingEnvelope<DatasetMessage>> datasets;
 
     private final ActorPatterns patterns;
+
+    private final Materializer materializer;
 
     private CompletionStage<DatasetDetails> getDetails(ResourcePath dataset) {
         return patterns
@@ -224,6 +235,26 @@ public final class DatasetsImpl implements Datasets {
                     PublishDatasetVersion.apply(executor, dataset, versionId, message, replyTo, errorTo)),
                 PublishedDatasetVersion.class)
             .thenApply(published -> published.getVersion().getVersion());
+    }
+
+    @Override
+    public CompletionStage<VersionTag> putData(
+        User executor, ResourcePath dataset, Source<ByteBuffer, NotUsed> data,
+        String message) {
+
+        Path tmpFile = Operators.suppressExceptions(() -> Files.createTempFile("maquette", "upload"));
+
+        return data
+            .map(ByteString::fromByteBuffer)
+            .runWith(FileIO.toPath(tmpFile), materializer)
+            .thenCompose(written -> {
+                Records records = Records.fromFile(tmpFile);
+                Schema schema = records.getSchema();
+
+                return createDatasetVersion(executor, dataset, schema)
+                    .thenCompose(uid -> pushData(executor, dataset, uid, records))
+                    .thenCompose(vd -> publishDatasetVersion(executor, dataset, vd.getVersionId(), message));
+            });
     }
 
     @Override

@@ -2,6 +2,7 @@ package maquette.controller.domain.api.datasets;
 
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
+import akka.stream.Materializer;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
@@ -19,8 +20,10 @@ public final class DatasetsFactory {
 
     private final CreateDefaultNamespace createDefaultNamespace;
 
+    private final Materializer materializer;
+
     public Datasets create() {
-        DatasetsImpl impl = DatasetsImpl.apply(namespaces, datasets, patterns);
+        DatasetsImpl impl = DatasetsImpl.apply(namespaces, datasets, patterns, materializer);
         DatasetsSecured secured = DatasetsSecured.apply(namespaces, datasets, patterns, impl);
         return DatasetsUserActivity.apply(secured, createDefaultNamespace);
     }

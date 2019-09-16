@@ -1,14 +1,16 @@
 package maquette.controller.domain.api.datasets;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 import org.apache.avro.Schema;
 
 import akka.Done;
+import akka.NotUsed;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
-import lombok.AccessLevel;
+import akka.stream.javadsl.Source;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
@@ -102,6 +104,12 @@ public final class DatasetsUserActivity implements Datasets {
     @Override
     public CompletionStage<VersionTag> publishDatasetVersion(User executor, ResourcePath dataset, UID versionId, String message) {
         return createDefaultNamespace(executor, d -> d.publishDatasetVersion(executor, dataset, versionId, message));
+    }
+
+    @Override
+    public CompletionStage<VersionTag> putData(User executor, ResourcePath dataset, Source<ByteBuffer, NotUsed> data,
+                                               String message) {
+        return createDefaultNamespace(executor, d -> d.putData(executor, dataset, data, message));
     }
 
     @Override

@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
+import akka.NotUsed;
 import akka.japi.Pair;
+import akka.stream.javadsl.Source;
 import akka.util.ByteString;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
@@ -36,6 +38,7 @@ import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.dataset.VersionTag;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.User;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
@@ -268,7 +271,7 @@ public class DatasetsResource {
 
     @RequestMapping(
         path = "{namespace}/{name}/versions/{id}",
-        method = RequestMethod.PUT,
+        method = RequestMethod.PATCH,
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
         produces = {MediaType.APPLICATION_JSON_VALUE}
     )
@@ -299,6 +302,37 @@ public class DatasetsResource {
                 return core
                     .datasets()
                     .pushData(user, dataset, uid, Records.fromByteBuffers(data));
+            });
+    }
+
+    @RequestMapping(
+        path = "{namespace}/{name}/versions",
+        method = RequestMethod.PUT,
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = {MediaType.APPLICATION_JSON_VALUE}
+    )
+    @ApiOperation(
+        value = "Push data into a dataset")
+    public CompletionStage<VersionTag> putData(
+        @PathVariable("namespace") String namespace,
+        @PathVariable("name") String name,
+        @RequestPart("message") String message,
+        @RequestPart("file") Mono<FilePart> file,
+        ServerWebExchange exchange) {
+
+        return file
+            .toFuture()
+            .thenCompose(filePart -> {
+                ResourcePath dataset = ResourcePath.apply(namespace, name);
+                Source<ByteBuffer, NotUsed> data = Source
+                    .fromPublisher(filePart.content())
+                    .map(DataBuffer::asByteBuffer);
+
+                return ctx
+                    .getUser(exchange)
+                    .thenCompose(user -> core
+                                .datasets()
+                                .putData(user, dataset, data, message));
             });
     }
 

@@ -8,6 +8,8 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
 import akka.Done;
+import akka.NotUsed;
+import akka.stream.javadsl.Source;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.records.Records;
@@ -46,6 +48,10 @@ public interface Datasets {
 
     CompletionStage<VersionTag> publishDatasetVersion(
         User executor, ResourcePath dataset, UID versionId, String message);
+
+    CompletionStage<VersionTag> putData(
+        User executor, ResourcePath dataset, Source<ByteBuffer, NotUsed> data,
+        String message);
 
     CompletionStage<DatasetDetails> revokeDatasetAccess(
         User executor, ResourcePath datasetName, DatasetPrivilege revoke, Authorization revokeFrom);
