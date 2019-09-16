@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.values.exceptions.InvalidResourceNameException;
 import maquette.controller.domain.util.Operators;
+import maquette.controller.domain.values.iam.User;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -44,6 +45,14 @@ public final class ResourcePath {
         return new ResourcePath(
             ResourceName.apply(namespace),
             ResourceName.apply(name));
+    }
+
+    public static ResourcePath apply(
+        User executor,
+        String namespace,
+        String name) {
+
+        return apply(namespace.equals("_") ? executor.getUserId().getId() : namespace, name);
     }
 
     public static ResourcePath apply(String s) {

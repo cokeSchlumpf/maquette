@@ -1,5 +1,8 @@
 package maquette.controller.domain.values.core.records;
 
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +17,7 @@ import org.apache.avro.util.ByteBufferOutputStream;
 
 import com.google.common.collect.ImmutableList;
 
+import akka.stream.Materializer;
 import akka.util.ByteString;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -56,15 +60,8 @@ final class AvroRecords implements Records {
     public List<ByteString> getBytes() {
         return Operators.suppressExceptions(() -> {
             ByteBufferOutputStream os = new ByteBufferOutputStream();
-            DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(getSchema());
-            DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
-            dataFileWriter.create(getSchema(), os);
+            writeToOutputStream(os);
 
-            for (GenericData.Record record : records) {
-                dataFileWriter.append(record);
-            }
-
-            dataFileWriter.close();
             return ImmutableList
                 .copyOf(os
                             .getBufferList()
@@ -77,6 +74,29 @@ final class AvroRecords implements Records {
     @Override
     public int size() {
         return records.size();
+    }
+
+    @Override
+    public void toFile(Path file) {
+        Operators.suppressExceptions(() -> {
+            try (OutputStream os = Files.newOutputStream(file)) {
+                writeToOutputStream(os);
+            }
+        });
+    }
+
+    private void writeToOutputStream(OutputStream os) {
+        Operators.suppressExceptions(() -> {
+            DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(getSchema());
+            DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
+            dataFileWriter.create(getSchema(), os);
+
+            for (GenericData.Record record : records) {
+                dataFileWriter.append(record);
+            }
+
+            dataFileWriter.close();
+        });
     }
 
 }

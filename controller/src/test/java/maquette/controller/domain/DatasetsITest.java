@@ -3,6 +3,7 @@ package maquette.controller.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.avro.Schema;
@@ -524,6 +525,11 @@ public class DatasetsITest {
         assertThat(vd05.getRecords()).isEqualTo(records.size());
 
         setup.getApp().terminate();
+    }
+
+    @Test
+    public void createTestFile() {
+        Records.fromRecords(CountryTestData.getRecords()).toFile(Paths.get("/Users/michael/downloads/test.avro"));
     }
 
 }

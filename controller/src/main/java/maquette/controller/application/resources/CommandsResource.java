@@ -67,29 +67,4 @@ public class CommandsResource {
                 }));
     }
 
-    @RequestMapping(
-        method = RequestMethod.PUT,
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-        produces = {MediaType.APPLICATION_JSON_VALUE}
-    )
-    @ApiOperation(
-        value = "Push data into a dataset")
-    public CompletionStage<String> pushData(
-        @RequestPart("id") String id,
-        @RequestPart("file") Mono<FilePart> file,
-        ServerWebExchange exchange) {
-
-        return file
-            .toFuture()
-            .thenCompose(filePart -> filePart
-                .content()
-                .map(b -> {
-                    System.out.println(b.capacity());
-                    return b;
-                })
-                .collect(Collectors.counting())
-                .toFuture())
-            .thenApply(fp -> "Ok");
-    }
-
 }

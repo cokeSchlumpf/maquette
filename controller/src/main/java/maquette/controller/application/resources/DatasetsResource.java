@@ -284,7 +284,6 @@ public class DatasetsResource {
         @RequestPart("file") Mono<FilePart> file,
         ServerWebExchange exchange) {
 
-        ResourcePath dataset = ResourcePath.apply(namespace, name);
         UID uid = UID.apply(id);
 
         return file
@@ -298,6 +297,7 @@ public class DatasetsResource {
             .thenCompose(pair -> {
                 List<ByteBuffer> data = pair.first();
                 User user = pair.second();
+                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
 
                 return core
                     .datasets()
@@ -323,16 +323,19 @@ public class DatasetsResource {
         return file
             .toFuture()
             .thenCompose(filePart -> {
-                ResourcePath dataset = ResourcePath.apply(namespace, name);
                 Source<ByteBuffer, NotUsed> data = Source
                     .fromPublisher(filePart.content())
                     .map(DataBuffer::asByteBuffer);
 
                 return ctx
                     .getUser(exchange)
-                    .thenCompose(user -> core
-                                .datasets()
-                                .putData(user, dataset, data, message));
+                    .thenCompose(user -> {
+                        ResourcePath dataset = ResourcePath.apply(user, namespace, name);
+
+                        return core
+                            .datasets()
+                            .putData(user, dataset, data, message);
+                    });
             });
     }
 

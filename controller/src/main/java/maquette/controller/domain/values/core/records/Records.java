@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import akka.stream.Materializer;
 import akka.util.ByteString;
 import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.exceptions.InvalidAvroFileException;
@@ -70,5 +71,7 @@ public interface Records {
     List<ByteString> getBytes();
 
     int size();
+
+    void toFile(Path file);
 
 }
