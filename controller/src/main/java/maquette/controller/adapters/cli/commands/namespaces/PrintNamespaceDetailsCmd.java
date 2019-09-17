@@ -1,4 +1,4 @@
-package maquette.controller.adapters.cli.commands;
+package maquette.controller.adapters.cli.commands.namespaces;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -13,6 +13,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.adapters.cli.DataTable;
+import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;

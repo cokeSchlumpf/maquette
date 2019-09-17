@@ -1,11 +1,9 @@
-package maquette.controller.adapters.cli.commands;
+package maquette.controller.adapters.cli.commands.namespaces;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -16,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.adapters.cli.DataTable;
+import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.iam.User;

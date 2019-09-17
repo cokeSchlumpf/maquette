@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 
-import maquette.controller.adapters.InMemoryDataStorageAdapter;
+import maquette.controller.adapters.storage.InMemoryDataStorageAdapter;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
 import maquette.controller.domain.values.iam.RoleAuthorization;

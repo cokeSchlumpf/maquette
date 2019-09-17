@@ -1,6 +1,5 @@
-package maquette.controller.adapters.cli.commands;
+package maquette.controller.adapters.cli.commands.namespaces;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -10,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.adapters.cli.CommandResult;
+import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
@@ -18,21 +18,21 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateNamespaceCmd implements Command {
 
-    private final String name;
+    private final String namespace;
 
     @JsonCreator
-    public static CreateNamespaceCmd apply(@JsonProperty("name") String name) {
-        return new CreateNamespaceCmd(name);
+    public static CreateNamespaceCmd apply(@JsonProperty("namespace") String namespace) {
+        return new CreateNamespaceCmd(namespace);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
         ResourceName resource;
 
-        if (name == null) {
+        if (namespace == null) {
             resource = ResourceName.apply(executor.getUserId().getId());
         } else {
-            resource = ResourceName.apply(name);
+            resource = ResourceName.apply(namespace);
         }
 
         return app

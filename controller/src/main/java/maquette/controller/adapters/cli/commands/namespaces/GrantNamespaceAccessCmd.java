@@ -1,4 +1,4 @@
-package maquette.controller.adapters.cli.commands;
+package maquette.controller.adapters.cli.commands.namespaces;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -10,13 +10,12 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.adapters.cli.CommandResult;
+import maquette.controller.adapters.cli.commands.Command;
+import maquette.controller.adapters.cli.commands.EAuthorizationType;
+import maquette.controller.adapters.cli.commands.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourceName;
-import maquette.controller.domain.values.iam.Authorization;
-import maquette.controller.domain.values.iam.RoleAuthorization;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.iam.UserAuthorization;
-import maquette.controller.domain.values.iam.WildcardAuthorization;
 import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @Value
@@ -43,17 +42,13 @@ public final class GrantNamespaceAccessCmd implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ResourceName resource;
+        ObjectValidation.notNull().validate(privilege, "privilege");
+        ObjectValidation
+            .validAuthorization(to)
+            .and(ObjectValidation.notNull())
+            .validate(authorization, "authorization");
 
-        if (privilege == null) {
-            return CompletableFuture.completedFuture(CommandResult.error("A privilege must be specified"));
-        } else if (authorization == null) {
-            return CompletableFuture.completedFuture(CommandResult.error("A valid authorization must be specified"));
-        } else if (authorization.equals(EAuthorizationType.ROLE) && to == null) {
-            return CompletableFuture.completedFuture(CommandResult.error("A role must be specified"));
-        } else if (authorization.equals(EAuthorizationType.USER) && to == null) {
-            return CompletableFuture.completedFuture(CommandResult.error("A user must be specified"));
-        }
+        ResourceName resource;
 
         if (namespace == null) {
             resource = ResourceName.apply(executor.getUserId().getId());
@@ -63,21 +58,8 @@ public final class GrantNamespaceAccessCmd implements Command {
 
         return app
             .namespaces()
-            .grantNamespaceAccess(executor, resource, privilege, getAuthorization())
+            .grantNamespaceAccess(executor, resource, privilege, authorization.asAuthorization(to))
             .thenApply(granted -> CommandResult.success());
-    }
-
-    private Authorization getAuthorization() {
-        switch (authorization) {
-            case USER:
-                return UserAuthorization.apply(to);
-            case ROLE:
-                return RoleAuthorization.apply(to);
-            case WILDCARD:
-                return WildcardAuthorization.apply();
-            default:
-                throw new IllegalArgumentException("Unknown authorization type");
-        }
     }
 
 }

@@ -1,11 +1,10 @@
-package maquette.controller.adapters;
+package maquette.controller.adapters.storage;
 
 import java.util.List;
 import java.util.Map;
 
 import org.apache.avro.generic.GenericData;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -15,7 +14,7 @@ import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.records.Records;
 
 @AllArgsConstructor(staticName = "apply")
-public class InMemoryDataStorageAdapter implements DataStorageAdapter {
+public final class InMemoryDataStorageAdapter implements DataStorageAdapter {
 
     private final Map<UID, List<GenericData.Record>> data;
 

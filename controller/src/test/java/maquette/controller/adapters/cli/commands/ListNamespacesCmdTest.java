@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import maquette.controller.adapters.cli.commands.namespaces.ListNamespacesCmd;
 import maquette.controller.domain.util.databind.ObjectMapperFactory;
 
 public class ListNamespacesCmdTest {

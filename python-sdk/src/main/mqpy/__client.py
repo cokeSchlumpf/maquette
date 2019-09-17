@@ -1,8 +1,11 @@
+import pandas as pd
 import requests
 
+from io import StringIO
 from typing import List
 
 from .__user_config import UserConfiguration
+
 
 class Client:
 
@@ -22,17 +25,25 @@ class Client:
 
     def command(self, cmd: str, args: dict = None) -> dict:
         request = { 'command': cmd }
+
         if args is not None:
             request.update(args)
 
         response = requests.post(self.__base_url + '/cli', json = request, headers = self.__headers)
 
         if response.status_code < 200 or response.status_code > 299:
-            raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯")
+
+            raise RuntimeError("call to Maquette controller was not successful ¯\\_(ツ)_/¯\n"
+                               "status code: " + str(response.status_code) + ", content:\n" + response.text)
         elif response.json()['error'] is not None:
             raise RuntimeError(response.json()['error'])
         else:
-            return response.json()
+            result = response.json()
+
+            if result['data'] is not None:
+                result['data'] = list(map(lambda table: pd.read_csv(StringIO(table), sep = ';'), result['data']))
+
+            return result
 
     def get(self, url: str) -> requests.Response:
         return requests.get(self.__base_url + url, headers = self.__headers)

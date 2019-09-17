@@ -2,7 +2,7 @@ package maquette.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.controller.adapters.InMemoryDataStorageAdapter;
+import maquette.controller.adapters.storage.InMemoryDataStorageAdapter;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.util.Operators;

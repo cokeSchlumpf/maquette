@@ -1,6 +1,5 @@
-package maquette.controller.adapters.cli.commands;
+package maquette.controller.adapters.cli.commands.datasets;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -10,6 +9,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.adapters.cli.CommandResult;
+import maquette.controller.adapters.cli.commands.Command;
+import maquette.controller.adapters.cli.commands.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.iam.User;
@@ -20,28 +21,26 @@ public class CreateDatasetCmd implements Command {
 
     private final String namespace;
 
-    private final String name;
+    private final String dataset;
 
     @JsonCreator
     public static CreateDatasetCmd apply(
         @JsonProperty("namespace") String namespace,
-        @JsonProperty("name") String name) {
+        @JsonProperty("dataset") String dataset) {
 
-        return new CreateDatasetCmd(namespace, name);
+        return new CreateDatasetCmd(namespace, dataset);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
+        ObjectValidation.notNull().validate(dataset, "dataset");
+
         ResourcePath rp;
 
-        if (name == null) {
-            return CompletableFuture.completedFuture(CommandResult.error("name of dataset must be specified"));
-        }
-
         if (namespace == null) {
-            rp = ResourcePath.apply(executor.getUserId().getId(), name);
+            rp = ResourcePath.apply(executor.getUserId().getId(), dataset);
         } else {
-            rp = ResourcePath.apply(namespace, name);
+            rp = ResourcePath.apply(namespace, dataset);
         }
 
         return app

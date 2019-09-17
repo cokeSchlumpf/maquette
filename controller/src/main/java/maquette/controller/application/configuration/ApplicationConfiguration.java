@@ -5,8 +5,10 @@ import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import maquette.controller.adapters.InMemoryDataStorageAdapter;
+import maquette.controller.adapters.storage.FileSystemStorageAdapter;
+import maquette.controller.adapters.storage.InMemoryDataStorageAdapter;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.util.databind.ObjectMapperFactory;
 
 @Configuration
@@ -14,7 +16,7 @@ public class ApplicationConfiguration {
 
     @Bean
     public CoreApplication getApplication() {
-        InMemoryDataStorageAdapter storageAdapter = InMemoryDataStorageAdapter.apply();
+        DataStorageAdapter storageAdapter = FileSystemStorageAdapter.apply();
         return CoreApplication.apply(storageAdapter);
     }
 
