@@ -18,7 +18,7 @@ public class DataTableUTest {
         DataTable dt = DataTable
             .apply("Team", "Points", "Rank")
             .withRow("VFC Plauen", "67", "1")
-            .withRow(Lists.newArrayList("FC Bayern", "66", "2"))
+            .withRowFromList(Lists.newArrayList("FC Bayern", "66", "2"))
             .withRow("Fortuna Düsseldorf", "34", "3");
 
         String csv = dt.toCSV();
@@ -39,7 +39,7 @@ public class DataTableUTest {
         DataTable dt = DataTable
             .apply("Team", "Points", "Rank")
             .withRow("VFC Plauen", "67", "1")
-            .withRow(Lists.newArrayList("FC Bayern", "66", "2"))
+            .withRowFromList(Lists.newArrayList("FC Bayern", "66", "2"))
             .withRow("Fortuna Düsseldorf", "34", "3");
 
         String json = om.writeValueAsString(dt);

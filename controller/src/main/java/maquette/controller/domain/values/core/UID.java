@@ -37,6 +37,10 @@ public class UID {
         return apply(UUID.randomUUID().toString());
     }
 
+    public String toString() {
+        return value;
+    }
+
     public static class Serializer extends StdSerializer<UID> {
 
         private Serializer() {

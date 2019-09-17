@@ -1,6 +1,7 @@
 package maquette.controller.domain.values.core;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -17,6 +18,7 @@ import lombok.Value;
 
 import maquette.controller.domain.values.exceptions.InvalidResourceNameException;
 import maquette.controller.domain.util.NameFactory;
+import maquette.controller.domain.values.iam.User;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -40,6 +42,14 @@ public class ResourceName {
         }
 
         return new ResourceName(name);
+    }
+
+    public static ResourceName apply(User executor, String namespace) {
+        if ((Objects.isNull(namespace) || namespace.equals("_") || namespace.length() == 0)) {
+            return apply(executor.getUserId().getId());
+        } else {
+            return apply(namespace);
+        }
     }
 
     @Override

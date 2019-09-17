@@ -1,5 +1,6 @@
-package maquette.controller.adapters.cli.commands.namespaces;
+package maquette.controller.adapters.cli.commands.datasets;
 
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -26,13 +27,7 @@ public final class ListDatasetsCmd implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ResourceName resource;
-
-        if (namespace == null) {
-            resource = ResourceName.apply(executor.getUserId().getId());
-        } else {
-            resource = ResourceName.apply(namespace);
-        }
+        ResourceName resource = ResourceName.apply(executor, namespace);
 
         return app
             .namespaces()
@@ -40,8 +35,9 @@ public final class ListDatasetsCmd implements Command {
             .thenApply(details -> {
                 DataTable dt = DataTable.apply("name");
 
-                for (ResourceName dataset : details.getDatasets()) {
-                    dt = dt.withRow(dataset.getValue());
+                Set<ResourceName> datasets = details.getDatasets();
+                for (ResourceName dataset : datasets) {
+                    dt = dt.withRow(dataset);
                 }
 
                 return CommandResult.success(dt);

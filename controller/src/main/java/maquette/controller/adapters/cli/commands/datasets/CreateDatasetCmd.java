@@ -34,14 +34,7 @@ public class CreateDatasetCmd implements Command {
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
         ObjectValidation.notNull().validate(dataset, "dataset");
-
-        ResourcePath rp;
-
-        if (namespace == null) {
-            rp = ResourcePath.apply(executor.getUserId().getId(), dataset);
-        } else {
-            rp = ResourcePath.apply(namespace, dataset);
-        }
+        ResourcePath rp = ResourcePath.apply(executor, namespace, dataset);
 
         return app
             .datasets()

@@ -27,6 +27,10 @@ public class UserId {
         return new UserId(id);
     }
 
+    public String toString() {
+        return id;
+    }
+
     public static class Serializer extends StdSerializer<UserId> {
 
         private Serializer() {

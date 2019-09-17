@@ -27,13 +27,7 @@ public class CreateNamespaceCmd implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ResourceName resource;
-
-        if (namespace == null) {
-            resource = ResourceName.apply(executor.getUserId().getId());
-        } else {
-            resource = ResourceName.apply(namespace);
-        }
+        ResourceName resource = ResourceName.apply(executor, namespace);
 
         return app
             .namespaces()

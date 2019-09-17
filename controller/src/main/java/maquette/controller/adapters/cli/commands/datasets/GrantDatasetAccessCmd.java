@@ -58,13 +58,7 @@ public final class GrantDatasetAccessCmd implements Command {
             .and(ObjectValidation.notNull())
             .validate(authorization, "authorization");
 
-        ResourcePath resource;
-
-        if (namespace == null) {
-            resource = ResourcePath.apply(executor.getUserId().getId(), dataset);
-        } else {
-            resource = ResourcePath.apply(namespace, dataset);
-        }
+        ResourcePath resource = ResourcePath.apply(executor, namespace, dataset);
 
         return app
             .datasets()

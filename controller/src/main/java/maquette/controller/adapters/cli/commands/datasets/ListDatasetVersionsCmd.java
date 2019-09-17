@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.adapters.cli.DataTable;
 import maquette.controller.adapters.cli.commands.Command;
+import maquette.controller.adapters.cli.commands.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
@@ -39,21 +40,9 @@ public final class ListDatasetVersionsCmd implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
-        ResourceName nsResource;
-        ResourcePath datasetResource;
+        ObjectValidation.notNull().validate(dataset, "dataset");
+        ResourcePath datasetResource = ResourcePath.apply(executor, namespace, dataset);
 
-        if (namespace == null) {
-            nsResource = ResourceName.apply(executor.getUserId().getId());
-        } else {
-            nsResource = ResourceName.apply(namespace);
-        }
-
-        if (dataset == null) {
-            return CompletableFuture.completedFuture(CommandResult.error("dataset name must be set"));
-        }
-
-        datasetResource = ResourcePath.apply(nsResource.getValue(), dataset);
 
         return app
             .datasets()
@@ -74,11 +63,11 @@ public final class ListDatasetVersionsCmd implements Command {
 
                 for (VersionInfo v : sorted) {
                     dt = dt.withRow(
-                        v.getVersion().map(VersionTag::toString).orElse(""),
-                        String.valueOf(v.getRecords()),
-                        sdf.format(Date.from(v.getLastModified())),
-                        v.getModifiedBy().getId(),
-                        v.getVersionId().getValue());
+                        v.getVersion(),
+                        v.getRecords(),
+                        v.getLastModified(),
+                        v.getModifiedBy(),
+                        v.getVersionId());
                 }
 
                 return CommandResult.success(dt);

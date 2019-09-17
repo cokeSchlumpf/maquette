@@ -1,6 +1,7 @@
 package maquette.controller.domain.values.core;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -52,7 +53,7 @@ public final class ResourcePath {
         String namespace,
         String name) {
 
-        return apply(namespace.equals("_") ? executor.getUserId().getId() : namespace, name);
+        return apply(Objects.isNull(namespace) || namespace.equals("_") ? executor.getUserId().getId() : namespace, name);
     }
 
     public static ResourcePath apply(String s) {

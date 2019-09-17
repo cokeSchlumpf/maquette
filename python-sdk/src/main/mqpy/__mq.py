@@ -1,6 +1,7 @@
 import pandas as pd
 
 from enum import Enum
+from typing import Optional
 
 from .__client import Client
 from .__user_config import UserConfiguration
@@ -35,7 +36,7 @@ class DatasetVersion:
 
     __version: str = None
 
-    def __init__(self, dataset: str, version: str = None, namespace: str = None):
+    def __init__(self, dataset: str, version: Optional[str] = None, namespace: Optional[str] = None):
         self.__namespace = namespace
         self.__dataset = dataset
         self.__version = version
@@ -54,6 +55,18 @@ class DatasetVersion:
 
         return self
 
+    def __str__(self):
+        resp = client.command('dataset version show', {
+            'namespace': self.__namespace,
+            'dataset': self.__dataset,
+            'version': self.__version
+        })
+
+        return resp['output']
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class Dataset:
 
@@ -71,7 +84,7 @@ class Dataset:
 
     def grant(self, grant: EDatasetPrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Dataset':
         client.command('dataset grant', {
-            'dataset': self.__namespace,
+            'dataset': self.__name,
             'namespace': self.__namespace,
             'privilege': grant.value,
             'authorization': to_auth.value,
@@ -80,12 +93,38 @@ class Dataset:
 
         return self
 
+    def revoke(self, revoke: EDatasetPrivilege, auth: EAuthorizationType, from_name: str = None) -> 'Dataset':
+        client.command('dataset revoke', {
+            'dataset': self.__name,
+            'namespace': self.__namespace,
+            'privilege': revoke.value,
+            'authorization': auth.value,
+            'from': from_name
+        })
+
+        return self
+
+    def print(self):
+        resp = client.command('dataset show', {'dataset': self.__name, 'namespace': self.__namespace})
+        print(resp['output'])
+        return self
+
     def put(self, data: pd.DataFrame) -> DatasetVersion:
         pass
 
     def versions(self) -> pd.DataFrame:
         resp = client.command('dataset versions', {'dataset': self.__name, 'namespace': self.__namespace})
         return resp['data'][0]
+
+    def version(self, version: Optional[str] = None):
+        return DatasetVersion(self.__name, version, self.__namespace)
+
+    def __str__(self):
+        resp = client.command('dataset show', {'dataset': self.__name, 'namespace': self.__namespace})
+        return resp['output']
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class Namespace:
@@ -116,11 +155,27 @@ class Namespace:
 
         return self
 
+    def revoke(self, grant: ENamespacePrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Namespace':
+        client.command('namespace revoke', {
+            'namespace': self.__name,
+            'privilege': grant.value,
+            'authorization': to_auth.value,
+            'from': to_name
+        })
+
+        return self
+
     def print(self) -> 'Namespace':
         resp = client.command('namespace show', {'namespace': self.__name})
         print(resp['output'])
-
         return self
+
+    def __str__(self):
+        resp = client.command('namespace show', {'namespace': self.__name})
+        return resp['output']
+
+    def __repr__(self):
+        return self.__str__()
 
 
 def namespaces() -> pd.DataFrame:

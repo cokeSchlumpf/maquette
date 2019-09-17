@@ -31,8 +31,6 @@ public final class ListNamespacesCmd implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
-
         return app
             .namespaces()
             .listNamespaces(executor)
@@ -46,10 +44,10 @@ public final class ListNamespacesCmd implements Command {
 
                 for (NamespaceInfo info : sorted) {
                     dt = dt.withRow(
-                        info.getName().getValue(),
-                        info.getAcl().getOwner().getAuthorization().toString(),
-                        sdf.format(Date.from(info.getModified())),
-                        String.valueOf(info.getDatasets().size()));
+                        info.getName(),
+                        info.getAcl().getOwner().getAuthorization(),
+                        info.getModified(),
+                        info.getDatasets().size());
                 }
 
                 return CommandResult.success(dt.toAscii(), dt);

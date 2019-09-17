@@ -1,6 +1,5 @@
-package maquette.controller.adapters.cli.commands.namespaces;
+package maquette.controller.adapters.cli.commands.datasets;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -14,45 +13,49 @@ import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.adapters.cli.commands.EAuthorizationType;
 import maquette.controller.adapters.cli.commands.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
-import maquette.controller.domain.values.core.ResourceName;
+import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class GrantNamespaceAccessCmd implements Command {
+public final class RevokeDatasetAccessCmd implements Command {
 
     private final String namespace;
 
+    private final String dataset;
+
     private final EAuthorizationType authorization;
 
-    private final NamespacePrivilege privilege;
+    private final DatasetPrivilege privilege;
 
-    private final String to;
+    private final String from;
 
     @JsonCreator
-    public static GrantNamespaceAccessCmd apply(
+    public static RevokeDatasetAccessCmd apply(
         @JsonProperty("namespace") String namespace,
+        @JsonProperty("dataset") String dataset,
         @JsonProperty("authorization") EAuthorizationType authorization,
-        @JsonProperty("privilege") NamespacePrivilege privilege,
-        @JsonProperty("to") String to) {
+        @JsonProperty("privilege") DatasetPrivilege privilege,
+        @JsonProperty("from") String from) {
 
-        return new GrantNamespaceAccessCmd(namespace, authorization, privilege, to);
+        return new RevokeDatasetAccessCmd(namespace, dataset, authorization, privilege, from);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
         ObjectValidation.notNull().validate(privilege, "privilege");
+        ObjectValidation.notNull().validate(dataset, "dataset");
         ObjectValidation
-            .validAuthorization(to)
+            .validAuthorization(from)
             .and(ObjectValidation.notNull())
             .validate(authorization, "authorization");
 
-        ResourceName resource = ResourceName.apply(executor, namespace);
+        ResourcePath resource = ResourcePath.apply(executor, namespace, dataset);
 
         return app
-            .namespaces()
-            .grantNamespaceAccess(executor, resource, privilege, authorization.asAuthorization(to))
+            .datasets()
+            .revokeDatasetAccess(executor, resource, privilege, authorization.asAuthorization(from))
             .thenApply(granted -> CommandResult.success());
     }
 

@@ -33,14 +33,21 @@ public class DataTable {
 
     private final List<List<String>> rows;
 
-    private static DataTable apply(List<String> headers, List<List<String>> rows) {
+    private final OutputFormat outputFormat;
+
+    private static DataTable apply(List<String> headers, List<List<String>> rows, OutputFormat outputFormat) {
         return new DataTable(
             ImmutableList.copyOf(headers.stream().map(String::toUpperCase).collect(Collectors.toList())),
-            ImmutableList.copyOf(rows.stream().map(ImmutableList::copyOf).collect(Collectors.toList())));
+            ImmutableList.copyOf(rows.stream().map(ImmutableList::copyOf).collect(Collectors.toList())),
+            outputFormat);
     }
 
     public static DataTable apply(List<String> headers) {
-        return DataTable.apply(headers, Lists.newArrayList());
+        return apply(headers, OutputFormat.apply());
+    }
+
+    public static DataTable apply(List<String> headers, OutputFormat outputFormat) {
+        return DataTable.apply(headers, Lists.newArrayList(), outputFormat);
     }
 
     public static DataTable apply(String ...headers) {
@@ -57,29 +64,34 @@ public class DataTable {
         lines.remove(0);
 
         for (String line : lines) {
-            result = result.withRow(line.split(";"));
+            result = result.withRowFromList(Lists.newArrayList(line.split(";")));
         }
 
         return result;
     }
 
-    public DataTable withRow(List<String> row) {
+    public DataTable withRowFromList(List<Object> row) {
         if (row.size() != headers.size()) {
             throw new IllegalArgumentException("row must contain same number of columns as headers of table");
         }
 
-        if (String.join("", row).contains(";")) {
+        List<String> row$new = row
+            .stream()
+            .map(outputFormat::format)
+            .collect(Collectors.toList());
+
+        if (String.join("", row$new).contains(";")) {
             throw new IllegalArgumentException("field cannot contain semicolon (;)");
         }
 
         List<List<String>> rows$new = Lists.newArrayList(rows);
-        rows$new.add(row);
+        rows$new.add(row$new);
 
-        return apply(headers, rows$new);
+        return apply(headers, rows$new, outputFormat);
     }
 
-    public DataTable withRow(String ...columns) {
-        return withRow(Lists.newArrayList(columns));
+    public DataTable withRow(Object ...columns) {
+        return withRowFromList(Lists.newArrayList(columns));
     }
 
     public String toCSV() {

@@ -1,4 +1,4 @@
-package maquette.controller.adapters.cli.commands.namespaces;
+package maquette.controller.adapters.cli.commands.datasets;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -12,34 +12,41 @@ import lombok.AllArgsConstructor;
 import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.adapters.cli.DataTable;
 import maquette.controller.adapters.cli.commands.Command;
+import maquette.controller.adapters.cli.commands.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
-import maquette.controller.domain.values.core.ResourceName;
+import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.dataset.DatasetGrant;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.namespace.NamespaceGrant;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class PrintNamespaceDetailsCmd implements Command {
+public final class PrintDatasetDetailsCmd implements Command {
 
     private final String namespace;
 
+    private final String dataset;
+
     @JsonCreator
-    public static PrintNamespaceDetailsCmd apply(@JsonProperty("namespace") String namespace) {
-        return new PrintNamespaceDetailsCmd(namespace);
+    public static PrintDatasetDetailsCmd apply(
+        @JsonProperty("namespace") String namespace,
+        @JsonProperty("dataset") String dataset) {
+        return new PrintDatasetDetailsCmd(namespace, dataset);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ResourceName resource = ResourceName.apply(executor, namespace);
+        ObjectValidation.notNull().validate(dataset, "dataset");
+        ResourcePath datasetResource = ResourcePath.apply(executor, namespace, dataset);
+
 
         return app
-            .namespaces()
-            .getNamespaceDetails(executor, resource)
+            .datasets()
+            .getDetails(executor, datasetResource)
             .thenApply(details -> {
                 StringWriter sw = new StringWriter();
                 PrintWriter out = new PrintWriter(sw);
 
                 DataTable properties = DataTable
-                    .apply("key", "property")
+                    .apply("key", "value")
                     .withRow("owner", details.getAcl().getOwner().getAuthorization())
                     .withRow("", "")
                     .withRow("created", details.getCreated())
@@ -48,11 +55,11 @@ public final class PrintNamespaceDetailsCmd implements Command {
                     .withRow("modified", details.getModified())
                     .withRow("modified by", details.getModifiedBy())
                     .withRow("", "")
-                    .withRow("datasets", details.getDatasets().size());
+                    .withRow("versions", details.getVersions().size());
 
                 DataTable acl = DataTable.apply("granted to", "privilege", "granted by", "granted at");
 
-                for (NamespaceGrant grant : details.getAcl().getGrants()) {
+                for (DatasetGrant grant : details.getAcl().getGrants()) {
                     acl = acl.withRow(
                         grant.getAuthorization().getAuthorization(),
                         grant.getPrivilege().name,

@@ -1,6 +1,5 @@
 package maquette.controller.adapters.cli.commands.namespaces;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -20,7 +19,7 @@ import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class GrantNamespaceAccessCmd implements Command {
+public final class RevokeNamespaceAccessCmd implements Command {
 
     private final String namespace;
 
@@ -28,23 +27,23 @@ public final class GrantNamespaceAccessCmd implements Command {
 
     private final NamespacePrivilege privilege;
 
-    private final String to;
+    private final String from;
 
     @JsonCreator
-    public static GrantNamespaceAccessCmd apply(
+    public static RevokeNamespaceAccessCmd apply(
         @JsonProperty("namespace") String namespace,
         @JsonProperty("authorization") EAuthorizationType authorization,
         @JsonProperty("privilege") NamespacePrivilege privilege,
-        @JsonProperty("to") String to) {
+        @JsonProperty("from") String from) {
 
-        return new GrantNamespaceAccessCmd(namespace, authorization, privilege, to);
+        return new RevokeNamespaceAccessCmd(namespace, authorization, privilege, from);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
         ObjectValidation.notNull().validate(privilege, "privilege");
         ObjectValidation
-            .validAuthorization(to)
+            .validAuthorization(from)
             .and(ObjectValidation.notNull())
             .validate(authorization, "authorization");
 
@@ -52,7 +51,7 @@ public final class GrantNamespaceAccessCmd implements Command {
 
         return app
             .namespaces()
-            .grantNamespaceAccess(executor, resource, privilege, authorization.asAuthorization(to))
+            .revokeNamespaceAccess(executor, resource, privilege, authorization.asAuthorization(from))
             .thenApply(granted -> CommandResult.success());
     }
 
