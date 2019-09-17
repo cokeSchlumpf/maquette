@@ -38,7 +38,6 @@ import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.dataset.VersionTag;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.User;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
@@ -62,13 +61,15 @@ public class DatasetsResource {
         @RequestBody Authorization owner,
         ServerWebExchange exchange) {
 
-        ResourcePath dataset = ResourcePath.apply(namespace, name);
-
         return ctx
             .getUser(exchange)
-            .thenCompose(user -> core
-                .datasets()
-                .changeOwner(user, dataset, owner));
+            .thenCompose(user -> {
+                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
+
+                return core
+                    .datasets()
+                    .changeOwner(user, dataset, owner);
+            });
     }
 
     @RequestMapping(
@@ -82,13 +83,15 @@ public class DatasetsResource {
         @PathVariable("name") String name,
         ServerWebExchange exchange) {
 
-        ResourcePath dataset = ResourcePath.apply(namespace, name);
-
         return ctx
             .getUser(exchange)
-            .thenCompose(user -> core
-                .datasets()
-                .createDataset(user, dataset));
+            .thenCompose(user -> {
+                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
+
+                return core
+                    .datasets()
+                    .createDataset(user, dataset);
+            });
     }
 
     @RequestMapping(
@@ -103,13 +106,15 @@ public class DatasetsResource {
         @RequestBody Schema schema,
         ServerWebExchange exchange) {
 
-        ResourcePath dataset = ResourcePath.apply(namespace, name);
-
         return ctx
             .getUser(exchange)
-            .thenCompose(user -> core
-                .datasets()
-                .createDatasetVersion(user, dataset, schema));
+            .thenCompose(user -> {
+                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
+
+                return core
+                    .datasets()
+                    .createDatasetVersion(user, dataset, schema);
+            });
     }
 
     @RequestMapping(
@@ -123,14 +128,16 @@ public class DatasetsResource {
         @PathVariable("name") String name,
         ServerWebExchange exchange) {
 
-        ResourcePath dataset = ResourcePath.apply(namespace, name);
-
         return ctx
             .getUser(exchange)
-            .thenCompose(user -> core
-                .datasets()
-                .deleteDataset(user, dataset)
-                .thenRun(() -> {}));
+            .thenCompose(user -> {
+                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
+
+                return core
+                    .datasets()
+                    .deleteDataset(user, dataset)
+                    .thenRun(() -> {});
+            });
     }
 
     @RequestMapping(
@@ -147,7 +154,7 @@ public class DatasetsResource {
         return ctx
             .getUser(exchange)
             .thenCompose(user -> {
-                ResourcePath resource = ResourcePath.apply(namespace, name);
+                ResourcePath resource = ResourcePath.apply(user, namespace, name);
 
                 return core
                     .datasets()
@@ -180,7 +187,7 @@ public class DatasetsResource {
         return ctx
             .getUser(exchange)
             .thenCompose(user -> {
-                ResourcePath resource = ResourcePath.apply(namespace, name);
+                ResourcePath resource = ResourcePath.apply(user, namespace, name);
                 VersionTag versionTag = VersionTag.apply(version);
 
                 return core
@@ -210,13 +217,15 @@ public class DatasetsResource {
         @PathVariable("name") String name,
         ServerWebExchange exchange) {
 
-        ResourcePath dataset = ResourcePath.apply(namespace, name);
-
         return ctx
             .getUser(exchange)
-            .thenCompose(user -> core
-                .datasets()
-                .getDetails(user, dataset));
+            .thenCompose(user -> {
+                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
+
+                return core
+                    .datasets()
+                    .getDetails(user, dataset);
+            });
     }
 
     @RequestMapping(
@@ -231,11 +240,11 @@ public class DatasetsResource {
         @PathVariable("version") String version,
         ServerWebExchange exchange) {
 
-        ResourcePath dataset = ResourcePath.apply(namespace, name);
-
         return ctx
             .getUser(exchange)
             .thenCompose(user -> {
+                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
+
                 if (version.equals("latest")) {
                     return core
                         .datasets()
@@ -260,13 +269,15 @@ public class DatasetsResource {
         @RequestBody DatasetAccessRequest request,
         ServerWebExchange exchange) {
 
-        ResourcePath dataset = ResourcePath.apply(namespace, name);
-
         return ctx
             .getUser(exchange)
-            .thenCompose(user -> core
-                .datasets()
-                .grantDatasetAccess(user, dataset, request.getPrivilege(), request.getAuthorization()));
+            .thenCompose(user -> {
+                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
+
+                return core
+                    .datasets()
+                    .grantDatasetAccess(user, dataset, request.getPrivilege(), request.getAuthorization());
+            });
     }
 
     @RequestMapping(
@@ -354,14 +365,16 @@ public class DatasetsResource {
         @RequestBody PublishDatasetVersionRequest request,
         ServerWebExchange exchange) {
 
-        ResourcePath dataset = ResourcePath.apply(namespace, name);
-        UID uid = UID.apply(id);
-
         return ctx
             .getUser(exchange)
-            .thenCompose(user -> core
-                .datasets()
-                .publishDatasetVersion(user, dataset, uid, request.getMessage()));
+            .thenCompose(user -> {
+                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
+                UID uid = UID.apply(id);
+
+                return core
+                    .datasets()
+                    .publishDatasetVersion(user, dataset, uid, request.getMessage());
+            });
     }
 
     @RequestMapping(
@@ -376,13 +389,15 @@ public class DatasetsResource {
         @RequestBody DatasetAccessRequest request,
         ServerWebExchange exchange) {
 
-        ResourcePath dataset = ResourcePath.apply(namespace, name);
-
         return ctx
             .getUser(exchange)
-            .thenCompose(user -> core
-                .datasets()
-                .revokeDatasetAccess(user, dataset, request.getPrivilege(), request.getAuthorization()));
+            .thenCompose(user -> {
+                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
+
+                return core
+                    .datasets()
+                    .revokeDatasetAccess(user, dataset, request.getPrivilege(), request.getAuthorization());
+            });
     }
 
 }

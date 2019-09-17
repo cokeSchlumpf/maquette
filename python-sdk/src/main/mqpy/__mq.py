@@ -1,6 +1,8 @@
 import pandas as pd
+import pandavro
 
 from enum import Enum
+from io import BytesIO
 from typing import Optional
 
 from .__client import Client
@@ -42,7 +44,12 @@ class DatasetVersion:
         self.__version = version
 
     def get(self) -> pd.DataFrame:
-        pass
+        ns = self.__namespace or '_'
+        ds = self.__dataset
+        version = self.__version or 'latest'
+
+        resp = client.get('/datasets/' + ns + '/' + ds + '/versions/' + version + '/data')
+        return pandavro.from_avro(BytesIO(resp.content))
 
     def print(self) -> 'DatasetVersion':
         resp = client.command('dataset version show', {
@@ -51,6 +58,8 @@ class DatasetVersion:
             'version': self.__version
         })
 
+        print('VERSION ' + self.__version)
+        print()
         print(resp['output'])
 
         return self
@@ -62,7 +71,11 @@ class DatasetVersion:
             'version': self.__version
         })
 
-        return resp['output']
+        out = 'VERSION ' + self.__version \
+            + '\n\n' \
+            + resp['output']
+
+        return out
 
     def __repr__(self):
         return self.__str__()
@@ -109,8 +122,20 @@ class Dataset:
         print(resp['output'])
         return self
 
-    def put(self, data: pd.DataFrame) -> DatasetVersion:
-        pass
+    def put(self, data: pd.DataFrame, short_description: str) -> DatasetVersion:
+        ns: str = self.__namespace or '_'
+        ds: str = self.__name
+
+        file: BytesIO = BytesIO()
+        pandavro.to_avro(file, data)
+        file.seek(0)
+
+        resp = client.put('/datasets/' + ns + '/' + ds + '/versions', files = {
+            'message': short_description,
+            'file': file
+        })
+
+        return self.version(resp.json())
 
     def versions(self) -> pd.DataFrame:
         resp = client.command('dataset versions', {'dataset': self.__name, 'namespace': self.__namespace})
