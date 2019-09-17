@@ -7,7 +7,9 @@ import java.util.Date;
 import java.util.Optional;
 
 import lombok.AllArgsConstructor;
+import lombok.Value;
 
+@Value
 @AllArgsConstructor(staticName = "apply")
 public final class OutputFormat {
 
