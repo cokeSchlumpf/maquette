@@ -527,9 +527,4 @@ public class DatasetsITest {
         setup.getApp().terminate();
     }
 
-    @Test
-    public void createTestFile() {
-        Records.fromRecords(CountryTestData.getRecords()).toFile(Paths.get("/Users/michael/downloads/test.avro"));
-    }
-
 }
