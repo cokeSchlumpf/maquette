@@ -21,6 +21,7 @@ import maquette.sdk.databind.AvroSerializer;
 import maquette.sdk.databind.JacksonAvroSerializer;
 import maquette.sdk.databind.ObjectMapperFactory;
 import maquette.sdk.util.MaquetteConfiguration;
+import maquette.sdk.util.MaquetteRequestException;
 import maquette.sdk.util.Operators;
 import maquette.sdk.util.PublishDatasetVersionRequest;
 import okhttp3.MediaType;
@@ -89,8 +90,6 @@ public final class DatasetProducerFactory {
     }
 
     public <T> Sink<T, CompletionStage<Done>> createSink(String namespace, String dataset, AvroSerializer<T> serializer) {
-        CompletableFuture<CreatedDatasetVersionRequest<T>> created = new CompletableFuture<>();
-
         return Flow
             .of(serializer.getRecordType())
             .viaMat(createFlow(namespace, dataset, serializer), Keep.right())
@@ -119,8 +118,7 @@ public final class DatasetProducerFactory {
         Response response = Operators.suppressExceptions(() -> client.newCall(request).execute());
 
         if (!response.isSuccessful()) {
-            System.out.println(response);
-            throw new RuntimeException("uuuups");
+            throw MaquetteRequestException.apply(request, response);
         }
     }
 
@@ -143,7 +141,7 @@ public final class DatasetProducerFactory {
                 String uid = om.readValue(body.string(), String.class);
                 return CreatedDatasetVersionRequest.apply(uid);
             } else {
-                throw new RuntimeException("ups");
+                throw MaquetteRequestException.apply(request, response);
             }
         });
     }
@@ -162,9 +160,7 @@ public final class DatasetProducerFactory {
             Response response = client.newCall(request).execute();
 
             if (!response.isSuccessful()) {
-                System.out.println(response);
-                System.out.println(response.body().string());
-                throw new RuntimeException("ups");
+                throw MaquetteRequestException.apply(request, response);
             }
         });
     }
