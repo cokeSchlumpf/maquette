@@ -7,39 +7,56 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Value;
 import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.iam.UserId;
 
-@Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateDatasetCmd implements Command {
+public final class CreateDatasetConsumerToken implements Command {
 
     private final String namespace;
 
     private final String dataset;
 
-    @JsonCreator
-    public static CreateDatasetCmd apply(
-        @JsonProperty("namespace") String namespace,
-        @JsonProperty("dataset") String dataset) {
+    private final String forUser;
 
-        return new CreateDatasetCmd(namespace, dataset);
+    @JsonCreator
+    public static CreateDatasetConsumerToken apply(
+        @JsonProperty("namespace") String namespace,
+        @JsonProperty("dataset") String dataset,
+        @JsonProperty("for-user") String forUser) {
+
+        return new CreateDatasetConsumerToken(namespace, dataset, forUser);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
         ObjectValidation.notNull().validate(dataset, "dataset");
-        ResourcePath rp = ResourcePath.apply(executor, namespace, dataset);
+        ResourcePath datasetResource = ResourcePath.apply(executor, namespace, dataset);
+
+        UserId forUserId;
+
+        if (forUser == null) {
+            forUserId = executor.getUserId();
+        } else {
+            forUserId = UserId.apply(forUser);
+        }
 
         return app
             .datasets()
-            .createDataset(executor, rp)
-            .thenApply(details -> CommandResult.success());
+            .createDatasetConsumerToken(executor, forUserId, datasetResource)
+            .thenApply(token -> {
+                String sb = String.format(
+                    "Created consumer token '%s' with secret '%s'",
+                    token.getDetails().getName(),
+                    token.getSecret());
+
+                return CommandResult.success(sb);
+            });
     }
 
 }

@@ -1,6 +1,7 @@
 package maquette.controller.domain.values.iam;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -25,6 +26,14 @@ public class UserId {
 
     public static UserId apply(String id) {
         return new UserId(id);
+    }
+
+    public static UserId apply(User executor, String id) {
+        if (Objects.isNull(id)) {
+            return executor.getUserId();
+        } else {
+            return UserId.apply(id);
+        }
     }
 
     public String toString() {

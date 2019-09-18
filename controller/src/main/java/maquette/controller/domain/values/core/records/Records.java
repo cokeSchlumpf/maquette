@@ -13,16 +13,15 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
-import org.apache.avro.util.ByteBufferInputStream;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import akka.stream.Materializer;
+import akka.NotUsed;
+import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.exceptions.InvalidAvroFileException;
 
 @JsonSerialize(using = RecordsSerializer.class)
@@ -69,6 +68,8 @@ public interface Records {
     List<GenericData.Record> getRecords();
 
     List<ByteString> getBytes();
+
+    Source<ByteBuffer, NotUsed> getSource();
 
     int size();
 

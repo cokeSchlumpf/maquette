@@ -1,4 +1,4 @@
-package maquette.controller.domain.util;
+package maquette.sdk;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -7,14 +7,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.Hashing;
 
 public final class Operators {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Operators.class);
 
     private Operators() {
 
@@ -69,14 +65,6 @@ public final class Operators {
                 .ofNullable(ex.getMessage())
                 .map(str -> String.format("%s: %s", ex.getClass().getSimpleName(), ex.getMessage()))
                 .orElse(String.format("%s: No details provided.", ex.getClass().getSimpleName())));
-    }
-
-    public static void ignoreExceptions(ExceptionalRunnable runnable) {
-        try {
-            runnable.run();
-        } catch (Exception e) {
-            ExceptionUtils.wrapAndThrow(e);
-        }
     }
 
     public static void suppressExceptions(ExceptionalRunnable runnable) {

@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
 import akka.NotUsed;
-import akka.japi.Pair;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
 import io.swagger.annotations.ApiOperation;
@@ -32,12 +31,10 @@ import maquette.controller.application.util.ContextUtils;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
-import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.dataset.VersionTag;
 import maquette.controller.domain.values.iam.Authorization;
-import maquette.controller.domain.values.iam.User;
 import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
@@ -100,7 +97,7 @@ public class DatasetsResource {
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ApiOperation(
         value = "Create a new dataset version")
-    public CompletionStage<UID> createVersions(
+    public CompletionStage<UID> createDatasetVersion(
         @PathVariable("namespace") String namespace,
         @PathVariable("name") String name,
         @RequestBody Schema schema,
@@ -299,20 +296,20 @@ public class DatasetsResource {
 
         return file
             .toFuture()
-            .thenApply(filePart -> filePart
-                .content()
-                .toStream()
-                .map(DataBuffer::asByteBuffer)
-                .collect(Collectors.toList()))
-            .thenCompose(data -> ctx.getUser(exchange).thenApply(user -> Pair.create(data, user)))
-            .thenCompose(pair -> {
-                List<ByteBuffer> data = pair.first();
-                User user = pair.second();
-                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
+            .thenCompose(filePart -> {
+                Source<ByteBuffer, NotUsed> data = Source
+                    .fromPublisher(filePart.content())
+                    .map(DataBuffer::asByteBuffer);
 
-                return core
-                    .datasets()
-                    .pushData(user, dataset, uid, Records.fromByteBuffers(data));
+                return ctx
+                    .getUser(exchange)
+                    .thenCompose(user -> {
+                        ResourcePath dataset = ResourcePath.apply(user, namespace, name);
+
+                        return core
+                            .datasets()
+                            .pushData(user, dataset, uid, data);
+                    });
             });
     }
 
@@ -353,7 +350,6 @@ public class DatasetsResource {
     @RequestMapping(
         path = "{namespace}/{name}/versions/{id}",
         method = RequestMethod.POST,
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
         produces = {MediaType.APPLICATION_JSON_VALUE}
     )
     @ApiOperation(

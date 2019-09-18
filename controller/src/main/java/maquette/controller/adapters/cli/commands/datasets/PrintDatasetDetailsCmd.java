@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.adapters.cli.DataTable;
 import maquette.controller.adapters.cli.commands.Command;
-import maquette.controller.adapters.cli.commands.validations.ObjectValidation;
+import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.DatasetGrant;

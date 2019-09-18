@@ -3,7 +3,6 @@ package maquette.controller.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.avro.Schema;
@@ -400,7 +399,7 @@ public class DatasetsITest {
         VersionDetails v02 = setup
             .getApp()
             .datasets()
-            .pushData(user, datasetResource, uid1, records)
+            .pushData(user, datasetResource, uid1, records.getSource())
             .toCompletableFuture()
             .get();
 
@@ -439,7 +438,7 @@ public class DatasetsITest {
         assertThatThrownBy(() -> setup
             .getApp()
             .datasets()
-            .pushData(user, datasetResource, uid1, records)
+            .pushData(user, datasetResource, uid1, records.getSource())
             .toCompletableFuture()
             .get()).hasMessageContaining("already committed");
 
@@ -456,14 +455,14 @@ public class DatasetsITest {
         setup
             .getApp()
             .datasets()
-            .pushData(user, datasetResource, uid2, records)
+            .pushData(user, datasetResource, uid2, records.getSource())
             .toCompletableFuture()
             .get();
 
         setup
             .getApp()
             .datasets()
-            .pushData(user, datasetResource, uid2, records)
+            .pushData(user, datasetResource, uid2, records.getSource())
             .toCompletableFuture()
             .get();
 

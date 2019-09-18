@@ -18,13 +18,19 @@ import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.dataset.VersionTag;
 import maquette.controller.domain.values.iam.Authorization;
+import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.iam.UserId;
 
 public interface Datasets {
 
     CompletionStage<DatasetDetails> changeOwner(User executor, ResourcePath dataset, Authorization owner);
 
     CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name);
+
+    CompletionStage<Token> createDatasetConsumerToken(User executor, UserId forUser, ResourcePath name);
+
+    CompletionStage<Token> createDatasetProducerToken(User executor, UserId forUser, ResourcePath name);
 
     CompletionStage<UID> createDatasetVersion(User executor, ResourcePath dataset, Schema schema);
 
@@ -44,7 +50,7 @@ public interface Datasets {
         User executor, ResourcePath datasetName, DatasetPrivilege grant, Authorization grantFor);
 
     CompletionStage<VersionDetails> pushData(
-        User executor, ResourcePath dataset, UID versionId, Records records);
+        User executor, ResourcePath dataset, UID versionId, Source<ByteBuffer, NotUsed> data);
 
     CompletionStage<VersionTag> publishDatasetVersion(
         User executor, ResourcePath dataset, UID versionId, String message);

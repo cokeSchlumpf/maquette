@@ -64,7 +64,8 @@ public class DataTable {
         lines.remove(0);
 
         for (String line : lines) {
-            result = result.withRowFromList(Lists.newArrayList(line.split(";")));
+            String[] split = line.split(";");
+            result = result.withRowFromList(Lists.newArrayList((Object[]) split));
         }
 
         return result;

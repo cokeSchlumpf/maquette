@@ -18,6 +18,8 @@ import org.apache.avro.util.ByteBufferInputStream;
 
 import com.google.common.collect.Lists;
 
+import akka.NotUsed;
+import akka.stream.javadsl.Source;
 import akka.util.ByteString;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -53,6 +55,11 @@ final class EncodedAvroRecords implements Records {
     @Override
     public List<ByteString> getBytes() {
         return data;
+    }
+
+    @Override
+    public Source<ByteBuffer, NotUsed> getSource() {
+        return Source.from(getBytes()).map(ByteString::asByteBuffer);
     }
 
     @Override

@@ -49,6 +49,7 @@ subprojects {
                 'easymock'                         : 'org.easymock:easymock:4.0.1',
                 'jackson-annotations'              : "com.fasterxml.jackson.core:jackson-annotations:${versions['jackson']}",
                 'jackson-databind'                 : "com.fasterxml.jackson.core:jackson-databind:${versions['jackson']}",
+                'jackson-dataformat-avro'          : "com.fasterxml.jackson.dataformat:jackson-dataformat-avro:${versions['jackson']}",
                 'jackson-dataformat-yaml'          : "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${versions['jackson']}",
                 'jackson-datatype-guava'           : "com.fasterxml.jackson.datatype:jackson-datatype-guava:${versions['jackson']}",
                 'jackson-datatype-jdk8'            : "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${versions['jackson']}",

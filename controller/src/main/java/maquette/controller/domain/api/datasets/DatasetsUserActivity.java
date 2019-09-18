@@ -24,7 +24,9 @@ import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.dataset.VersionTag;
 import maquette.controller.domain.values.iam.Authorization;
+import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.iam.UserId;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DatasetsUserActivity implements Datasets {
@@ -53,6 +55,16 @@ public final class DatasetsUserActivity implements Datasets {
     @Override
     public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name) {
         return createDefaultNamespace(executor, d -> d.createDataset(executor, name));
+    }
+
+    @Override
+    public CompletionStage<Token> createDatasetConsumerToken(User executor, UserId forUser, ResourcePath name) {
+        return createDefaultNamespace(executor, d -> d.createDatasetConsumerToken(executor, forUser, name));
+    }
+
+    @Override
+    public CompletionStage<Token> createDatasetProducerToken(User executor, UserId forUser, ResourcePath name) {
+        return createDefaultNamespace(executor, d -> d.createDatasetProducerToken(executor, forUser, name));
     }
 
     @Override
@@ -97,8 +109,9 @@ public final class DatasetsUserActivity implements Datasets {
     }
 
     @Override
-    public CompletionStage<VersionDetails> pushData(User executor, ResourcePath dataset, UID versionId, Records records) {
-        return createDefaultNamespace(executor, d -> d.pushData(executor, dataset, versionId, records));
+    public CompletionStage<VersionDetails> pushData(User executor, ResourcePath dataset, UID versionId,
+                                                    Source<ByteBuffer, NotUsed> data) {
+        return createDefaultNamespace(executor, d -> d.pushData(executor, dataset, versionId, data));
     }
 
     @Override

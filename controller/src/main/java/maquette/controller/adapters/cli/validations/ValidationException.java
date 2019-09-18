@@ -1,4 +1,4 @@
-package maquette.controller.adapters.cli.commands.validations;
+package maquette.controller.adapters.cli.validations;
 
 import maquette.controller.domain.values.exceptions.DomainException;
 

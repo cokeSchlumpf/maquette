@@ -1,14 +1,12 @@
-package maquette.controller.domain.values.core.records;
+package maquette.sdk;
 
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.avro.Schema;
-import org.apache.avro.SchemaBuilder;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
@@ -18,47 +16,29 @@ import org.apache.avro.util.ByteBufferOutputStream;
 
 import com.google.common.collect.ImmutableList;
 
-import akka.NotUsed;
-import akka.stream.javadsl.Source;
 import akka.util.ByteString;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.util.Operators;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-final class AvroRecords implements Records {
+public final class Records {
+
+    private final Schema schema;
 
     private final List<GenericData.Record> records;
 
-    public static AvroRecords apply(List<GenericData.Record> records) {
-        Schema s = null;
-
-        for (GenericData.Record record : records) {
-            if (s != null && !s.equals(record.getSchema())) {
-                throw new IllegalArgumentException("All records must have the same schema!");
-            }
-
-            s = record.getSchema();
-        }
-
-        return new AvroRecords(ImmutableList.copyOf(records));
+    public static Records apply(Schema schema, List<GenericData.Record> records) {
+        return new Records(schema, ImmutableList.copyOf(records));
     }
 
-    @Override
     public Schema getSchema() {
-        if (records.size() > 0) {
-            return records.get(0).getSchema();
-        } else {
-            return SchemaBuilder.builder().nullType();
-        }
+        return schema;
     }
 
-    @Override
     public List<GenericData.Record> getRecords() {
         return records;
     }
 
-    @Override
     public List<ByteString> getBytes() {
         return Operators.suppressExceptions(() -> {
             ByteBufferOutputStream os = new ByteBufferOutputStream();
@@ -73,17 +53,10 @@ final class AvroRecords implements Records {
         });
     }
 
-    @Override
-    public Source<ByteBuffer, NotUsed> getSource() {
-        return Source.from(getBytes()).map(ByteString::asByteBuffer);
-    }
-
-    @Override
     public int size() {
         return records.size();
     }
 
-    @Override
     public void toFile(Path file) {
         Operators.suppressExceptions(() -> {
             try (OutputStream os = Files.newOutputStream(file)) {

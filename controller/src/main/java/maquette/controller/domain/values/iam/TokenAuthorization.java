@@ -5,16 +5,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Value;
 import maquette.controller.domain.values.core.UID;
 
+@Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TokenAuthorization implements  Authorization {
 
+    private static final String TOKEN = "token";
+
+    @JsonProperty(TOKEN)
     private final UID token;
 
     @JsonCreator
     public static TokenAuthorization apply(
-        @JsonProperty("token") UID token) {
+        @JsonProperty(TOKEN) UID token) {
 
         return new TokenAuthorization(token);
     }
@@ -30,6 +35,10 @@ public final class TokenAuthorization implements  Authorization {
 
     private boolean hasAuthorization(TokenAuthenticatedUser user) {
         return user.getToken().getId().equals(token);
+    }
+
+    public String toString() {
+        return String.format("token(%s)", token);
     }
 
 }

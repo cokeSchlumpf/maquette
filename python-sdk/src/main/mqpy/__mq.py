@@ -30,6 +30,43 @@ class EDatasetPrivilege(Enum):
     ADMIN = "admin"
 
 
+class Administration:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def delete_token(name: str, for_user: str = None):
+        resp = client.command('user token delete', {
+            'name': name,
+            'for-user': for_user
+        })
+
+        print(resp['output'])
+
+    @staticmethod
+    def renew_token(name: str, for_user: str = None):
+        resp = client.command('user token renew', {
+            'name': name,
+            'for-user': for_user
+        })
+
+        print(resp['output'])
+
+    @staticmethod
+    def register_token(name: str, for_user: str = None):
+        resp = client.command('user token register', {
+            'name': name,
+            'for-user': for_user
+        })
+
+        print(resp['output'])
+
+    @staticmethod
+    def tokens():
+        resp = client.command('user tokens')
+        return resp['data'][0]
+
 class DatasetVersion:
 
     __namespace: str = None
@@ -38,7 +75,7 @@ class DatasetVersion:
 
     __version: str = None
 
-    def __init__(self, dataset: str, version: Optional[str] = None, namespace: Optional[str] = None):
+    def __init__(self, dataset: str, version: str = None, namespace: str = None):
         self.__namespace = namespace
         self.__dataset = dataset
         self.__version = version
@@ -93,6 +130,26 @@ class Dataset:
 
     def create(self) -> 'Dataset':
         client.command('datasets create', {'dataset': self.__name, 'namespace': self.__namespace})
+        return self
+
+    def create_consumer(self, for_user: str = None) -> 'Dataset':
+        resp = client.command('dataset create consumer', {
+            'dataset': self.__name,
+            'namespace': self.__namespace,
+            'for-user': for_user
+        })
+
+        print(resp['output'])
+        return self
+
+    def create_producer(self, for_user: str = None) -> 'Dataset':
+        resp = client.command('dataset create producer', {
+            'dataset': self.__name,
+            'namespace': self.__namespace,
+            'for-user': for_user
+        })
+
+        print(resp['output'])
         return self
 
     def grant(self, grant: EDatasetPrivilege, to_auth: EAuthorizationType, to_name: str = None) -> 'Dataset':
@@ -201,6 +258,10 @@ class Namespace:
 
     def __repr__(self):
         return self.__str__()
+
+
+def admin() -> Administration:
+    return Administration()
 
 
 def namespaces() -> pd.DataFrame:

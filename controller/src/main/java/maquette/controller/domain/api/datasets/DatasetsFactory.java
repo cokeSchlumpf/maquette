@@ -6,6 +6,7 @@ import akka.stream.Materializer;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
+import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.services.CreateDefaultNamespace;
 import maquette.controller.domain.util.ActorPatterns;
 
@@ -16,6 +17,8 @@ public final class DatasetsFactory {
 
     private final ActorRef<ShardingEnvelope<DatasetMessage>> datasets;
 
+    private final ActorRef<ShardingEnvelope<UserMessage>> users;
+
     private final ActorPatterns patterns;
 
     private final CreateDefaultNamespace createDefaultNamespace;
@@ -23,7 +26,7 @@ public final class DatasetsFactory {
     private final Materializer materializer;
 
     public Datasets create() {
-        DatasetsImpl impl = DatasetsImpl.apply(namespaces, datasets, patterns, materializer);
+        DatasetsImpl impl = DatasetsImpl.apply(namespaces, datasets, users, patterns, materializer);
         DatasetsSecured secured = DatasetsSecured.apply(namespaces, datasets, patterns, impl);
         return DatasetsUserActivity.apply(secured, createDefaultNamespace);
     }

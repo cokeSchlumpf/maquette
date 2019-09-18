@@ -46,8 +46,12 @@ import maquette.controller.domain.entities.namespace.protocol.commands.RegisterD
 import maquette.controller.domain.entities.namespace.protocol.commands.RemoveDataset;
 import maquette.controller.domain.entities.namespace.protocol.events.RegisteredDataset;
 import maquette.controller.domain.entities.namespace.protocol.events.RemovedDataset;
+import maquette.controller.domain.entities.user.protocol.UserMessage;
+import maquette.controller.domain.entities.user.protocol.commands.RegisterAccessToken;
+import maquette.controller.domain.entities.user.protocol.events.RegisteredAccessToken;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.util.Operators;
+import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.records.Records;
@@ -56,7 +60,10 @@ import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.dataset.VersionTag;
 import maquette.controller.domain.values.iam.Authorization;
+import maquette.controller.domain.values.iam.Token;
+import maquette.controller.domain.values.iam.TokenAuthorization;
 import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.iam.UserId;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DatasetsImpl implements Datasets {
@@ -64,6 +71,8 @@ public final class DatasetsImpl implements Datasets {
     private final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaces;
 
     private final ActorRef<ShardingEnvelope<DatasetMessage>> datasets;
+
+    private final ActorRef<ShardingEnvelope<UserMessage>> users;
 
     private final ActorPatterns patterns;
 
@@ -108,6 +117,40 @@ public final class DatasetsImpl implements Datasets {
                     CreateDataset.apply(name, executor, replyTo, errorTo)),
                 CreatedDataset.class))
             .thenCompose(result -> getDetails(name));
+    }
+
+    @Override
+    public CompletionStage<Token> createDatasetConsumerToken(User executor, UserId forUser, ResourcePath name) {
+        ResourceName tokenName = ResourceName.apply(String.format("consumer-%s", UID.apply(8)));
+
+        return patterns
+            .ask(
+                users,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    maquette.controller.domain.entities.user.User.createEntityId(forUser),
+                    RegisterAccessToken.apply(executor, tokenName, replyTo, errorTo)),
+                RegisteredAccessToken.class)
+            .thenCompose(registered -> grantDatasetAccess(
+                executor, name, DatasetPrivilege.CONSUMER,
+                TokenAuthorization.apply(registered.getToken().getDetails().getId()))
+                .thenApply(details -> registered.getToken()));
+    }
+
+    @Override
+    public CompletionStage<Token> createDatasetProducerToken(User executor, UserId forUser, ResourcePath name) {
+        ResourceName tokenName = ResourceName.apply(String.format("producer-%s", UID.apply(8)));
+
+        return patterns
+            .ask(
+                users,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    maquette.controller.domain.entities.user.User.createEntityId(forUser),
+                    RegisterAccessToken.apply(executor, tokenName, replyTo, errorTo)),
+                RegisteredAccessToken.class)
+            .thenCompose(registered -> grantDatasetAccess(
+                executor, name, DatasetPrivilege.PRODUCER,
+                TokenAuthorization.apply(registered.getToken().getDetails().getId()))
+                .thenApply(details -> registered.getToken()));
     }
 
     @Override
@@ -213,7 +256,23 @@ public final class DatasetsImpl implements Datasets {
 
     @Override
     public CompletionStage<VersionDetails> pushData(User executor, ResourcePath dataset, UID versionId,
-                                                    Records records) {
+                                                    Source<ByteBuffer, NotUsed> data) {
+        Path tmpFile = Operators.suppressExceptions(() -> Files.createTempFile("maquette", "upload"));
+
+        return data
+            .map(ByteString::fromByteBuffer)
+            .runWith(FileIO.toPath(tmpFile), materializer)
+            .thenCompose(written -> {
+                try {
+                    Records records = Records.fromFile(tmpFile);
+                    return pushData(executor, dataset, versionId, records);
+                } finally {
+                    Operators.ignoreExceptions(() -> Files.delete(tmpFile));
+                }
+            });
+    }
+
+    private CompletionStage<VersionDetails> pushData(User executor, ResourcePath dataset, UID versionId, Records records) {
         return patterns
             .ask(
                 datasets,
@@ -248,12 +307,16 @@ public final class DatasetsImpl implements Datasets {
             .map(ByteString::fromByteBuffer)
             .runWith(FileIO.toPath(tmpFile), materializer)
             .thenCompose(written -> {
-                Records records = Records.fromFile(tmpFile);
-                Schema schema = records.getSchema();
+                try {
+                    Records records = Records.fromFile(tmpFile);
+                    Schema schema = records.getSchema();
 
-                return createDatasetVersion(executor, dataset, schema)
-                    .thenCompose(uid -> pushData(executor, dataset, uid, records))
-                    .thenCompose(vd -> publishDatasetVersion(executor, dataset, vd.getVersionId(), message));
+                    return createDatasetVersion(executor, dataset, schema)
+                        .thenCompose(uid -> pushData(executor, dataset, uid, records))
+                        .thenCompose(vd -> publishDatasetVersion(executor, dataset, vd.getVersionId(), message));
+                } finally {
+                    Operators.ignoreExceptions(() -> Files.delete(tmpFile));
+                }
             });
     }
 
