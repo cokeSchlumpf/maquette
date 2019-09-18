@@ -1,19 +1,14 @@
 package maquette.util;
 
-import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.generic.GenericRecordBuilder;
-import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
-import maquette.controller.domain.values.core.records.Records;
 
 public final class CountryTestData {
 

@@ -1,4 +1,4 @@
-package maquette.sdk;
+package maquette.sdk.util;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;

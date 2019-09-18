@@ -15,8 +15,8 @@ import com.fasterxml.jackson.dataformat.avro.AvroMapper;
 import com.google.common.collect.Lists;
 
 import lombok.AllArgsConstructor;
-import maquette.sdk.Operators;
-import maquette.sdk.Records;
+import maquette.sdk.util.Operators;
+import maquette.sdk.util.Records;
 
 @AllArgsConstructor(staticName = "apply")
 public final class JacksonAvroSerializer<T> implements AvroSerializer<T> {

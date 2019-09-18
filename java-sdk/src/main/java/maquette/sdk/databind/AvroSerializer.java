@@ -2,7 +2,7 @@ package maquette.sdk.databind;
 
 import org.apache.avro.Schema;
 
-import maquette.sdk.Records;
+import maquette.sdk.util.Records;
 
 public interface AvroSerializer<T> {
 

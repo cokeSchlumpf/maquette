@@ -1,4 +1,4 @@
-package maquette.sdk;
+package maquette.sdk.util;
 
 import java.io.OutputStream;
 import java.nio.file.Files;

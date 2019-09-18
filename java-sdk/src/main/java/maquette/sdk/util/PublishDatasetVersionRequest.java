@@ -1,4 +1,4 @@
-package maquette.sdk;
+package maquette.sdk.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
