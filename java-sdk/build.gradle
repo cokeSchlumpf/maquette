@@ -10,5 +10,6 @@ dependencies {
 
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.2.0'
 
+    testCompile libs['assertj-core']
 
 }

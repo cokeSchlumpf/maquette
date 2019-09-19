@@ -49,7 +49,7 @@ public final class JacksonAvroSerializer<T> implements AvroSerializer<T> {
                 records.add(datumReader.read(null, decoder));
             }
 
-            return Records.apply(getSchema(), records);
+            return Records.apply(records);
         });
     }
 

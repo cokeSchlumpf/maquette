@@ -7,11 +7,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.avro.Schema;
+import org.apache.avro.SchemaBuilder;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
+import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.util.ByteBufferOutputStream;
 
 import com.google.common.collect.ImmutableList;
@@ -22,17 +25,28 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Records {
-
-    private final Schema schema;
-
     private final List<GenericData.Record> records;
 
-    public static Records apply(Schema schema, List<GenericData.Record> records) {
-        return new Records(schema, ImmutableList.copyOf(records));
+    public static Records apply(List<GenericData.Record> records) {
+        Schema s = null;
+
+        for (GenericData.Record record : records) {
+            if (s != null && !s.equals(record.getSchema())) {
+                throw new IllegalArgumentException("All records must have the same schema!");
+            }
+
+            s = record.getSchema();
+        }
+
+        return new Records(ImmutableList.copyOf(records));
     }
 
     public Schema getSchema() {
-        return schema;
+        if (records.size() > 0) {
+            return records.get(0).getSchema();
+        } else {
+            return SchemaBuilder.builder().nullType();
+        }
     }
 
     public List<GenericData.Record> getRecords() {
@@ -65,9 +79,11 @@ public final class Records {
         });
     }
 
-    private void writeToOutputStream(OutputStream os) {
+    public void writeToOutputStream(OutputStream os) {
         Operators.suppressExceptions(() -> {
             DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(getSchema());
+            BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(os, null);
+
             DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
             dataFileWriter.create(getSchema(), os);
 
@@ -75,6 +91,7 @@ public final class Records {
                 dataFileWriter.append(record);
             }
 
+            dataFileWriter.flush();
             dataFileWriter.close();
         });
     }
