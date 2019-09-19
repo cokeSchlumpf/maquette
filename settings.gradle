@@ -8,6 +8,7 @@
  */
 rootProject.name = 'maquette'
 
+include 'common'
 include 'controller'
 include 'java-sdk'
 

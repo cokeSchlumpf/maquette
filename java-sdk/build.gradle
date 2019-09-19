@@ -1,12 +1,6 @@
 dependencies {
 
-    compile libs['akka-streams']
-    compile libs['jackson-annotations']
-    compile libs['jackson-databind']
-    compile libs['jackson-datatype-guava']
-    compile libs['jackson-datatype-jdk8']
-    compile libs['jackson-datatype-sr310']
-    compile libs['jackson-dataformat-avro']
+    compile project(':common')
 
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.2.0'
 

@@ -1,9 +1,6 @@
 package maquette.sdk;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.junit.After;
 import org.junit.Before;
@@ -12,11 +9,6 @@ import org.junit.Test;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
-import akka.stream.javadsl.Source;
-import maquette.sdk.databind.JacksonAvroSerializer;
-import maquette.sdk.databind.ObjectMapperFactory;
-import maquette.sdk.dsl.DatasetProducerFactory;
-import okhttp3.OkHttpClient;
 
 public class DatasetSinkBuilderUTest {
 

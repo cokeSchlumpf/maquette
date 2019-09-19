@@ -43,6 +43,8 @@ dependencies {
     compile libs['springfox-swagger']
     compile libs['springfox-swagger-ui']
 
+    compile project(':common')
+
     testCompile libs['akka-peristence-inmemory']
     testCompile libs['assertj-core']
 

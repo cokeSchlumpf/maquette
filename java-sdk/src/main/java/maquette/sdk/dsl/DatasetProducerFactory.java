@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
@@ -14,16 +16,16 @@ import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Keep;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Wither;
+import maquette.controller.domain.util.Operators;
+import maquette.controller.domain.util.databind.ObjectMapperFactory;
 import maquette.sdk.databind.AvroSerializer;
-import maquette.sdk.databind.JacksonAvroSerializer;
-import maquette.sdk.databind.ObjectMapperFactory;
+import maquette.sdk.databind.ReflectiveAvroSerializer;
 import maquette.sdk.util.MaquetteConfiguration;
 import maquette.sdk.util.MaquetteRequestException;
-import maquette.sdk.util.Operators;
-import maquette.sdk.util.PublishDatasetVersionRequest;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -52,14 +54,14 @@ public final class DatasetProducerFactory {
         return createFlow(
             namespace,
             dataset,
-            JacksonAvroSerializer.apply(ObjectMapperFactory.apply().createAvroMapper(), recordType));
+            ReflectiveAvroSerializer.apply(recordType));
     }
 
     public <T> Flow<T, T, CompletionStage<Done>> createFlow(String namespace, String dataset, AvroSerializer<T> serializer) {
         CompletableFuture<CreatedDatasetVersionRequest<T>> created = new CompletableFuture<>();
 
         return Flow
-            .of(serializer.getRecordType())
+            .of(serializer.getModel())
             .grouped(batchSize)
             .map(DatasetRequest::apply)
             .prepend(Source.single(1).map(i -> createDatasetVersion(namespace, dataset, serializer)))
@@ -86,12 +88,12 @@ public final class DatasetProducerFactory {
     public <T> Sink<T, CompletionStage<Done>> createSink(String namespace, String dataset, Class<T> recordType) {
         return createSink(
             namespace, dataset,
-            JacksonAvroSerializer.apply(ObjectMapperFactory.apply().createAvroMapper(), recordType));
+            ReflectiveAvroSerializer.apply(recordType));
     }
 
     public <T> Sink<T, CompletionStage<Done>> createSink(String namespace, String dataset, AvroSerializer<T> serializer) {
         return Flow
-            .of(serializer.getRecordType())
+            .of(serializer.getModel())
             .viaMat(createFlow(namespace, dataset, serializer), Keep.right())
             .toMat(Sink.ignore(), Keep.left());
     }
@@ -186,6 +188,21 @@ public final class DatasetProducerFactory {
     private static final class PushRecordsRequest<T> implements DatasetRequest<T> {
 
         private final List<T> records;
+
+    }
+
+    @Value
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    private static class PublishDatasetVersionRequest {
+
+        private final String message;
+
+        @JsonCreator
+        public static PublishDatasetVersionRequest apply(
+            @JsonProperty("message") String message) {
+
+            return new PublishDatasetVersionRequest(message);
+        }
 
     }
 

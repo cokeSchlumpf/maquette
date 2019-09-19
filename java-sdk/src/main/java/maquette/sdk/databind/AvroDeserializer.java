@@ -1,8 +1,6 @@
 package maquette.sdk.databind;
 
-import org.apache.avro.Schema;
-
-import maquette.sdk.util.Records;
+import maquette.controller.domain.values.core.records.Records;
 
 public interface AvroDeserializer<T> {
 

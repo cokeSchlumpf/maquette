@@ -8,8 +8,8 @@ import java.util.stream.IntStream;
 
 import org.junit.Test;
 
+import maquette.controller.domain.values.core.records.Records;
 import maquette.sdk.TestType;
-import maquette.sdk.util.Records;
 
 public class JacksonAvroDeserializerUTest {
 
@@ -20,11 +20,11 @@ public class JacksonAvroDeserializerUTest {
             .mapToObj(i -> new TestType("foo", "bar" + i))
             .collect(Collectors.toList());
 
-        JacksonAvroSerializer<TestType> serializer =
-            JacksonAvroSerializer.apply(ObjectMapperFactory.apply().createAvroMapper(), TestType.class);
+        ReflectiveAvroSerializer<TestType> serializer =
+            ReflectiveAvroSerializer.apply(TestType.class);
 
-        JacksonAvroDeserializer<TestType> deserializer =
-            JacksonAvroDeserializer.apply(ObjectMapperFactory.apply().createAvroMapper(), TestType.class);
+        ReflectiveAvroDeserializer<TestType> deserializer =
+            ReflectiveAvroDeserializer.apply(TestType.class);
 
         Records records = serializer.mapRecords(foos);
         Iterable<TestType> foos$decoded = deserializer.mapRecords(records);

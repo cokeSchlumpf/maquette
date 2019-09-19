@@ -1,6 +1,7 @@
-package maquette.sdk.util;
+package maquette.controller.domain.values.core.records;
 
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -12,22 +13,24 @@ import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
-import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.util.ByteBufferOutputStream;
 
 import com.google.common.collect.ImmutableList;
 
+import akka.NotUsed;
+import akka.stream.javadsl.Source;
 import akka.util.ByteString;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import maquette.controller.domain.util.Operators;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class Records {
+final class AvroRecords implements Records {
+
     private final List<GenericData.Record> records;
 
-    public static Records apply(List<GenericData.Record> records) {
+    public static AvroRecords apply(List<GenericData.Record> records) {
         Schema s = null;
 
         for (GenericData.Record record : records) {
@@ -38,9 +41,10 @@ public final class Records {
             s = record.getSchema();
         }
 
-        return new Records(ImmutableList.copyOf(records));
+        return new AvroRecords(ImmutableList.copyOf(records));
     }
 
+    @Override
     public Schema getSchema() {
         if (records.size() > 0) {
             return records.get(0).getSchema();
@@ -49,15 +53,18 @@ public final class Records {
         }
     }
 
+    @Override
     public List<GenericData.Record> getRecords() {
         return records;
     }
 
+    @Override
     public List<ByteString> getBytes() {
         return Operators.suppressExceptions(() -> {
             ByteBufferOutputStream os = new ByteBufferOutputStream();
             writeToOutputStream(os);
 
+            os.flush();
             return ImmutableList
                 .copyOf(os
                             .getBufferList()
@@ -67,10 +74,17 @@ public final class Records {
         });
     }
 
+    @Override
+    public Source<ByteBuffer, NotUsed> getSource() {
+        return Source.from(getBytes()).map(ByteString::asByteBuffer);
+    }
+
+    @Override
     public int size() {
         return records.size();
     }
 
+    @Override
     public void toFile(Path file) {
         Operators.suppressExceptions(() -> {
             try (OutputStream os = Files.newOutputStream(file)) {
@@ -79,11 +93,9 @@ public final class Records {
         });
     }
 
-    public void writeToOutputStream(OutputStream os) {
+    private void writeToOutputStream(OutputStream os) {
         Operators.suppressExceptions(() -> {
             DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(getSchema());
-            BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(os, null);
-
             DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
             dataFileWriter.create(getSchema(), os);
 
@@ -91,7 +103,8 @@ public final class Records {
                 dataFileWriter.append(record);
             }
 
-            dataFileWriter.flush();
+            os.flush();
+            os.close();
             dataFileWriter.close();
         });
     }
