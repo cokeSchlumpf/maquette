@@ -39,6 +39,14 @@ public final class DatasetConsumerFactory {
         return apply(MaquetteConfiguration.apply(), ObjectMapperFactory.apply().create(), new OkHttpClient(), 100);
     }
 
+    public <T> Source<T, NotUsed> createSource(String namespace, String dataset, Class<T> recordType) {
+        return createSource(namespace, dataset, "latest", recordType);
+    }
+
+    public <T> Source<T, NotUsed> createSource(String namespace, String dataset, AvroDeserializer<T> deserializer) {
+        return createSource(namespace, dataset, "latest", deserializer);
+    }
+
     public <T> Source<T, NotUsed> createSource(String namespace, String dataset, String version, Class<T> recordType) {
         return createSource(
             namespace, dataset, version,
