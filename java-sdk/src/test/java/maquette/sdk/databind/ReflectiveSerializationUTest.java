@@ -11,7 +11,7 @@ import org.junit.Test;
 import maquette.controller.domain.values.core.records.Records;
 import maquette.sdk.TestType;
 
-public class JacksonAvroDeserializerUTest {
+public class ReflectiveSerializationUTest {
 
     @Test
     public void test() {

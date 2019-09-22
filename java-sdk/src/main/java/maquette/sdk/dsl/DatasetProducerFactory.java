@@ -64,7 +64,9 @@ public final class DatasetProducerFactory {
             .of(serializer.getModel())
             .grouped(batchSize)
             .map(DatasetRequest::apply)
-            .prepend(Source.single(1).map(i -> createDatasetVersion(namespace, dataset, serializer)))
+            .prepend(Source
+                         .single(1)
+                         .map(i -> createDatasetVersion(namespace, dataset, serializer)))
             .map(request -> {
                 if (request instanceof CreatedDatasetVersionRequest) {
                     created.complete((CreatedDatasetVersionRequest<T>) request);
@@ -124,7 +126,7 @@ public final class DatasetProducerFactory {
         }
     }
 
-    private <T> CreatedDatasetVersionRequest<T> createDatasetVersion(
+    private <T> DatasetRequest<T> createDatasetVersion(
         String namespace, String dataset, AvroSerializer<T> serializer) {
 
         Request request = maquette

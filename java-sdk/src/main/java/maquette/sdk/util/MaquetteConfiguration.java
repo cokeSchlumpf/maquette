@@ -2,9 +2,11 @@ package maquette.sdk.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import lombok.experimental.Wither;
 import okhttp3.Request;
 
 @Value
+@Wither
 @AllArgsConstructor(staticName = "apply")
 public class MaquetteConfiguration {
 

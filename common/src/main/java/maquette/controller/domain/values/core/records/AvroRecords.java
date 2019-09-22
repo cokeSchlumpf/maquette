@@ -103,8 +103,6 @@ final class AvroRecords implements Records {
                 dataFileWriter.append(record);
             }
 
-            os.flush();
-            os.close();
             dataFileWriter.close();
         });
     }
