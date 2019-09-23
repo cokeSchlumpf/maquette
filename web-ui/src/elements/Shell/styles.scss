@@ -1,3 +1,14 @@
+$feature-flags: (
+  grid-columns-16: true,
+  ui-shell: true,
+);
+
+@import 'carbon-components/scss/globals/scss/styles.scss';
+
+.bx--content {
+  padding: 0;
+}
+
 .mq--type-semibold {
   font-weight: 600
 }
