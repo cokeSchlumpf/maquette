@@ -1,0 +1,16 @@
+html
+    head
+        title Peppermint Insurance SSO
+        link(rel="stylesheet" type="text/css" href="/_auth/styles.css")
+    body
+        .login-page
+            .form
+                h3
+                    | Peppermint Insurance<br />
+                    | Single Sign On
+
+                form.login-form(method="POST", action="/_auth")
+                    input(type='text', name='username', placeholder='username')
+                    input(type='password', name='password', placeholder='password')
+                    input(type='hidden', name='redirect', value= redirect)
+                    button login

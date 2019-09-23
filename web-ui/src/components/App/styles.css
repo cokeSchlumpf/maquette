@@ -1,22 +1,16 @@
-.App {
-  text-align: center;
+.mq--type-semibold {
+  font-weight: 600
 }
 
-.App-logo {
-  height: 40vmin;
+/* https://www.carbondesignsystem.com/guidelines/spacing */
+.mq--spacing-05 {
+  margin-bottom: 1em;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.mq--spacing-06 {
+  margin-bottom: 1.5em;
 }
 
-.App-link {
-  color: #09d3ac;
+.mq--spacing-07 {
+  margin-bottom: 2em;
 }
