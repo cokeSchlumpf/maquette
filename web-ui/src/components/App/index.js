@@ -1,16 +1,21 @@
-import React, {Component} from 'react'
-import Shell from '../../elements/Shell'
+import Component from './component';
+import actions from './redux/actions';
+import { connect } from 'react-redux';
 
-class App extends Component {
+const mapStateToProps = (state) => {
+    const s = state.toJS();
+    return s.components.app;
+};
 
-  render() {
-    return <Shell
-        notifications={ 2 }
-        userExpanded={ false }
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onClickUser: () => dispatch(actions.clickUser())
+    };
+};
 
-        onClickNotifications={ () => console.log('notifications clicked') }>{this.props.children}</Shell>;
-  }
+const VisibleComponent = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Component);
 
-}
-
-export default App;
+export default VisibleComponent;

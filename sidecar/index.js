@@ -3,7 +3,7 @@ const express = require('express');
 const cookieSession = require('cookie-session');
 const proxy = require('http-proxy-stream');
 
-const PROXY_URL = process.env.SIDECAR_PROXY_URL || "http://localhost:3000";
+const PROXY_URL = process.env.SIDECAR_PROXY_URL || "http://localhost:8080";
 const PORT = process.env.SIDECAR_PORT || 3030;
 
 /*

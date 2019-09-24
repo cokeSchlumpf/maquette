@@ -27,7 +27,7 @@
     "underscore": "^1.9.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "(cd ../sidecar && npm run start) & react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -47,5 +47,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:8080"
+  "proxy": "http://localhost:3030"
 }

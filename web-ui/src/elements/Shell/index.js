@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 import './styles.scss';
 
@@ -13,38 +14,41 @@ import {
     HeaderGlobalBar,
     HeaderGlobalAction,
     HeaderName,
+    HeaderNavigation,
+    HeaderMenuItem,
     HeaderPanel,
     Switcher,
     SwitcherItem,
     SwitcherItemLink,
 } from 'carbon-components-react';
 
-export default function({
+export default ({
                             children,
                             notifications = 0,
-                            userExpanded = false,
+                            userPanelExpanded = false,
+                            user = {},
 
                             onClickNotifications = () => {},
-                            onClickUser = () => {}}) {
+                            onClickUser = () => {}}) => {
 
     let userPanel = false;
 
-    if (userExpanded) {
+    if (userPanelExpanded) {
         userPanel = (
             <HeaderPanel aria-label="Header Panel" expanded>
                 <Switcher>
                     <SwitcherItem>
-                        <SwitcherItemLink element={Link} href="/profile">You are logged in as Hippo</SwitcherItemLink>
+                        <SwitcherItemLink element={Link} href="/profile" aria-label="User Profile">Signed in as { _.get(user, 'id', 'anonymous') }</SwitcherItemLink>
                     </SwitcherItem>
                     <SwitcherItem>
-                        <SwitcherItemLink element={Link} href="/profile">Your Profile</SwitcherItemLink>
+                        <SwitcherItemLink element={Link} href="/profile" aria-label="User Profile">Your Profile</SwitcherItemLink>
                     </SwitcherItem>
                     <SwitcherItem>
-                        <SwitcherItemLink element={Link} href="/assets">Your Assets</SwitcherItemLink>
+                        <SwitcherItemLink element={Link} href="/assets" aria-label="Your Assets">Your Assets</SwitcherItemLink>
                     </SwitcherItem>
 
                     <SwitcherItem>
-                        <SwitcherItemLink element={Link} href="/_auth/logout">Logout</SwitcherItemLink>
+                        <SwitcherItemLink href="/_auth/logout" aria-label="Logout">Logout</SwitcherItemLink>
                     </SwitcherItem>
                 </Switcher>
             </HeaderPanel>)
@@ -57,6 +61,11 @@ export default function({
                     Data Services
                 </HeaderName>
 
+                <HeaderNavigation aria-label="IBM [Platform]">
+                    <HeaderMenuItem element={Link} to="/">Dashboard</HeaderMenuItem>
+                    <HeaderMenuItem element={Link} to="/assets">Assets</HeaderMenuItem>
+                </HeaderNavigation>
+
                 <HeaderGlobalBar>
 
                     <HeaderGlobalAction
@@ -68,8 +77,8 @@ export default function({
 
                     <HeaderGlobalAction
                         aria-label="User"
-                        isActive={ userExpanded }
-                        onClick={ null }>
+                        isActive={ userPanelExpanded }
+                        onClick={ onClickUser }>
                         <User20 />
                     </HeaderGlobalAction>
 

@@ -5,7 +5,7 @@ import {
 
 import App from './components/App';
 
-import Assets from './views/Assets/component';
+import Assets from './views/Assets';
 import Dashboard from './views/Dashboard';
 import NotFound from './views/NotFound';
 
