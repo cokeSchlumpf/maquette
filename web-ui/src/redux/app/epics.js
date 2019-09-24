@@ -1,16 +1,11 @@
-import 'rxjs';
+import { combineEpics, ofType } from 'redux-observable'
+import { flatMap } from "rxjs/operators";
 
 import actions, { types } from '../actions';
 
-import _ from 'lodash';
-
-export default [
-    // app.INIT -> services.login.INIT
-    /*
+export default combineEpics(
     action$ => action$
-        .ofType(types.app.INIT)
-        .flatMap(action => [
-            actions.services.user.init()
-        ])
-     */
-]
+        .pipe(
+            ofType(types.app.INIT),
+            flatMap(action => [actions.services.user.fetch()]))
+);

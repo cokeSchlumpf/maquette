@@ -52,8 +52,8 @@ export default function({
 
     return (
         <>
-            <Header aria-label="Maquette Data Services">
-                <HeaderName href="#" prefix="Maquette">
+            <Header aria-label="Peppermint Insurance Data Services">
+                <HeaderName href="#" prefix="Peppermint">
                     Data Services
                 </HeaderName>
 

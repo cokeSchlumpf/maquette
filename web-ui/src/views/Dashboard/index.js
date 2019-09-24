@@ -9,7 +9,7 @@ import {
     Tab,
 } from 'carbon-components-react';
 
-export default function() {
+export default () => {
     const props = {
         tabs: {
             selected: 0,

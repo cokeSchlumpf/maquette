@@ -8,25 +8,12 @@ import { createLogger } from 'redux-logger';
 import rootEpic from './epics';
 import rootReducer from './reducers';
 
-const epicMiddleware = createEpicMiddleware(rootEpic);
-
 const composeEnhancers = (typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
 
+const epicMiddleware = createEpicMiddleware();
+
 const logger = createLogger({
-    stateTransformer: (state) => {
-        const newState = {};
-        const stateObj = state.toObject();
-
-        for (const i of Object.keys(stateObj)) {
-            if (!!stateObj.toJS) {
-                newState[i] = stateObj[i].toJS();
-            } else {
-                newState[i] = stateObj[i];
-            }
-        }
-
-        return newState;
-    }
+    stateTransformer: (state) => !!state.toJS ? state.toJS() : state
 });
 
 const store = createStore(
@@ -36,6 +23,7 @@ const store = createStore(
     )
 );
 
+epicMiddleware.run(rootEpic);
 store.dispatch(init());
 
 export default store;

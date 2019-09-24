@@ -1,7 +1,15 @@
-import _ from 'lodash';
-import serviceA from './_template/epics';
-import serviceB from './_template/epics';
+import { combineEpics } from 'redux-observable';
 
-export default _.concat(
-    serviceA,
-    serviceB);
+import _ from 'lodash';
+import app from './app/epics';
+import services from './services/epics';
+import views from './views/epics';
+
+let epics = _.concat(
+    app,
+    services,
+    views);
+
+console.log(epics);
+
+export default combineEpics(app, services);

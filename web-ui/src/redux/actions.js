@@ -1,12 +1,15 @@
-import serviceA, { types as serviceATypes } from './_template/actions';
-import serviceB, { types as serviceBTypes } from './_template/actions';
+import app, { types as appTypes } from './app/actions';
+import services, { types as servicesTypes } from './services/actions';
+import views, { types as viewsTypes } from './views/actions';
 
 export const types = {
-    serviceA: serviceATypes,
-    serviceB: serviceBTypes
+    app: appTypes,
+    services: servicesTypes,
+    views: viewsTypes
 };
 
 export default {
-    serviceA,
-    serviceB
+    app,
+    services,
+    views
 };
