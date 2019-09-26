@@ -18,6 +18,7 @@ import maquette.controller.domain.entities.dataset.Version;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.VersionMessage;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
@@ -28,6 +29,7 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishComm
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
@@ -73,6 +75,31 @@ public final class ActiveDataset implements State {
         DatasetDetails details) {
 
         return apply(actor, effect, store, details, Maps.newHashMap(), Maps.newHashMap());
+    }
+
+    @Override
+    public Effect<DatasetEvent, State> onChangeDatasetDescription(ChangeDatasetDescription change) {
+        ChangedDatasetDescription changed = ChangedDatasetDescription.apply(
+            change.getDataset(), change.getDescription(), change.getExecutor().getUserId(), Instant.now());
+
+        if (details.getDescription().isPresent() && details.getDescription().get().equals(change.getDescription())) {
+            change.getReplyTo().tell(changed);
+            return effect.none();
+        } else {
+            return effect
+                .persist(changed)
+                .thenRun(() -> change.getReplyTo().tell(changed));
+        }
+    }
+
+    @Override
+    public State onChangedDatasetDescription(ChangedDatasetDescription changed) {
+        this.details = details
+            .withDescription(changed.getDescription())
+            .withModifiedBy(changed.getChangedBy())
+            .withModified(changed.getChangedAt());
+
+        return this;
     }
 
     @Override

@@ -10,6 +10,7 @@ import akka.persistence.typed.javadsl.EffectFactories;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
@@ -20,6 +21,7 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishComm
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
@@ -55,6 +57,17 @@ public final class UninitializedDataset implements State {
         DataStorageAdapter store) {
 
         return apply(actor, effect, store,null);
+    }
+
+    @Override
+    public Effect<DatasetEvent, State> onChangeDatasetDescription(ChangeDatasetDescription change) {
+        change.getErrorTo().tell(DatasetDoesNotExistError.apply(change.getDataset()));
+        return effect.none();
+    }
+
+    @Override
+    public State onChangedDatasetDescription(ChangedDatasetDescription changed) {
+        return this;
     }
 
     @Override

@@ -2,6 +2,7 @@ package maquette.controller.domain.values.dataset;
 
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -11,10 +12,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Wither;
-import maquette.controller.domain.values.exceptions.NoVersionException;
-import maquette.controller.domain.values.exceptions.UnknownVersionException;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.exceptions.NoVersionException;
+import maquette.controller.domain.values.exceptions.UnknownVersionException;
 import maquette.controller.domain.values.iam.UserId;
 
 @Value
@@ -26,6 +28,7 @@ public class DatasetDetails {
     private static final String CREATED = "created";
     private static final String CREATED_BY = "created-by";
     private static final String DATASET = "dataset";
+    private static final String DESCRIPTION = "description";
     private static final String MODIFIED = "modified";
     private static final String MODIFIED_BY = "modified-by";
     private static final String VERSIONS = "versions";
@@ -51,6 +54,9 @@ public class DatasetDetails {
     @JsonProperty(ACL)
     private final DatasetACL acl;
 
+    @JsonProperty(DESCRIPTION)
+    private final Markdown description;
+
     @JsonCreator
     public static DatasetDetails apply(
         @JsonProperty(DATASET) ResourcePath dataset,
@@ -59,9 +65,17 @@ public class DatasetDetails {
         @JsonProperty(MODIFIED) Instant modified,
         @JsonProperty(MODIFIED_BY) UserId modifiedBy,
         @JsonProperty(VERSIONS) Set<VersionInfo> versions,
-        @JsonProperty(ACL) DatasetACL acl) {
+        @JsonProperty(ACL) DatasetACL acl,
+        @JsonProperty(DESCRIPTION) Markdown description) {
 
-        return new DatasetDetails(dataset, created, createdBy, modified, modifiedBy, versions, acl);
+        return new DatasetDetails(dataset, created, createdBy, modified, modifiedBy, versions, acl, description);
+    }
+
+    public static DatasetDetails apply(
+        ResourcePath dataset, Instant created, UserId createdBy, Instant modified,
+        UserId modifiedBy, Set<VersionInfo> versions, DatasetACL acl) {
+
+        return apply(dataset, created, createdBy, modified, modifiedBy, versions, acl, null);
     }
 
     public UID findVersionId(VersionTag tag) {
@@ -83,6 +97,10 @@ public class DatasetDetails {
             .max(Comparator.comparing(info -> info.getVersion().get()))
             .map(VersionInfo::getVersionId)
             .orElseThrow(NoVersionException::apply);
+    }
+
+    public Optional<Markdown> getDescription() {
+        return Optional.ofNullable(description);
     }
 
 }
