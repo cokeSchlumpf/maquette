@@ -12,6 +12,7 @@ import akka.persistence.typed.javadsl.EffectFactories;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceEvent;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
+import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespacePrivacy;
 import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.DeleteNamespace;
@@ -19,6 +20,7 @@ import maquette.controller.domain.entities.namespace.protocol.commands.GrantName
 import maquette.controller.domain.entities.namespace.protocol.commands.RegisterDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RemoveDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RevokeNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespacePrivacy;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
@@ -45,6 +47,33 @@ public class ActiveNamespace implements State {
     private final EffectFactories<NamespaceEvent, State> effect;
 
     private NamespaceDetails details;
+
+    @Override
+    public Effect<NamespaceEvent, State> onChangeNamespacePrivacy(ChangeNamespacePrivacy change) {
+        ChangedNamespacePrivacy changed = ChangedNamespacePrivacy.apply(
+            details.getName(), change.isPrivate(), change.getExecutor().getUserId(), Instant.now());
+
+        if (Boolean.valueOf(details.getAcl().isPrivate()).equals(change.isPrivate())) {
+            change.getReplyTo().tell(changed);
+            return effect.none();
+        } else {
+            return effect
+                .persist(changed)
+                .thenRun(() -> change.getReplyTo().tell(changed));
+        }
+    }
+
+    @Override
+    public State onChangedNamespacePrivacy(ChangedNamespacePrivacy changed) {
+        NamespaceACL acl$new = details.getAcl().withPrivacy(changed.isPrivate());
+
+        this.details = details
+            .withAcl(acl$new)
+            .withModified(changed.getChangedAt())
+            .withModifiedBy(changed.getChangedBy());
+
+        return this;
+    }
 
     @Override
     public Effect<NamespaceEvent, State> onChangeOwner(ChangeOwner change) {
@@ -97,7 +126,9 @@ public class ActiveNamespace implements State {
 
     @Override
     public Effect<NamespaceEvent, State> onCreateNamespace(CreateNamespace create) {
-        CreatedNamespace created = CreatedNamespace.apply(details.getName(), details.getCreatedBy(), details.getCreated());
+        CreatedNamespace created = CreatedNamespace.apply(
+            details.getName(), details.getAcl().isPrivate(), details.getCreatedBy(), details.getCreated());
+
         create.getReplyTo().tell(created);
         return effect.none();
     }

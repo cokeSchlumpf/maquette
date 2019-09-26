@@ -15,12 +15,12 @@ import maquette.controller.domain.values.iam.UserId;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreatedNamespace implements NamespaceEvent, NamespacesEvent {
+public class ChangedNamespacePrivacy implements NamespaceEvent, NamespacesEvent {
 
-    private static final String NAMESPACE = "namespace";
     private static final String IS_PRIVATE = "is-private";
-    private static final String CREATED_BY = "created-by";
-    private static final String CREATED_AT = "created-at";
+    private static final String NAMESPACE = "namespace";
+    private static final String CHANGED_AT = "changed-at";
+    private static final String CHANGED_BY = "changed-by";
 
     @JsonProperty(NAMESPACE)
     private final ResourceName namespace;
@@ -28,27 +28,25 @@ public class CreatedNamespace implements NamespaceEvent, NamespacesEvent {
     @JsonProperty(IS_PRIVATE)
     private final boolean isPrivate;
 
-    @JsonProperty(CREATED_BY)
-    private final UserId createdBy;
+    @JsonProperty(CHANGED_BY)
+    private final UserId changedBy;
 
-    @JsonProperty(CREATED_AT)
-    private final Instant createdAt;
+    @JsonProperty(CHANGED_AT)
+    private final Instant changedAt;
 
     @JsonCreator
-    public static CreatedNamespace apply(
+    public static ChangedNamespacePrivacy apply(
         @JsonProperty(NAMESPACE) ResourceName namespace,
         @JsonProperty(IS_PRIVATE) boolean isPrivate,
-        @JsonProperty(CREATED_BY) UserId createdBy,
-        @JsonProperty(CREATED_AT) Instant createdAt) {
+        @JsonProperty(CHANGED_BY) UserId changedBy,
+        @JsonProperty(CHANGED_AT) Instant changedAt) {
 
-        return new CreatedNamespace(namespace, isPrivate, createdBy, createdAt);
+        return new ChangedNamespacePrivacy(namespace, isPrivate, changedBy, changedAt);
     }
 
     @Deprecated
-    public static CreatedNamespace apply(
-        ResourceName namespace, UserId createdBy, Instant createdAt) {
-
-        return new CreatedNamespace(namespace, false, createdBy, createdAt);
+    public static ChangedNamespacePrivacy apply(ResourceName namespace, UserId createdBy, Instant createdAt) {
+        return new ChangedNamespacePrivacy(namespace, false, createdBy, createdAt);
     }
 
 

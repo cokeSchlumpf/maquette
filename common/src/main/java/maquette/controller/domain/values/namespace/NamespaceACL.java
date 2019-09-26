@@ -19,16 +19,28 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class NamespaceACL {
 
+    private static final String OWNER = "owner";
+    private static final String GRANTS = "grants";
+    private static final String IS_PRIVATE = "is-private";
+
     private final GrantedAuthorization owner;
 
     private final Set<NamespaceGrant> grants;
 
+    private final boolean isPrivate;
+
     @JsonCreator
     public static NamespaceACL apply(
-        @JsonProperty("owner") GrantedAuthorization owner,
-        @JsonProperty("grants") Set<NamespaceGrant> grants) {
+        @JsonProperty(OWNER) GrantedAuthorization owner,
+        @JsonProperty(GRANTS) Set<NamespaceGrant> grants,
+        @JsonProperty(IS_PRIVATE) boolean isPrivate) {
 
-        return new NamespaceACL(owner, ImmutableSet.copyOf(grants));
+        return new NamespaceACL(owner, ImmutableSet.copyOf(grants), isPrivate);
+    }
+
+    @Deprecated
+    public static NamespaceACL apply(GrantedAuthorization owner, Set<NamespaceGrant> grants) {
+        return apply(owner, grants, false);
     }
 
     public boolean canChangeOwner(User user) {
@@ -71,7 +83,7 @@ public class NamespaceACL {
         return this.grants
             .stream()
             .filter(grant -> grant.getAuthorization().getAuthorization().hasAuthorization(user) &&
-                grant.getPrivilege().equals(privilege))
+                             grant.getPrivilege().equals(privilege))
             .findFirst();
     }
 
@@ -93,7 +105,9 @@ public class NamespaceACL {
         return findGrant(user, NamespacePrivilege.CONSUMER).isPresent();
     }
 
-    private boolean isMember(User user) { return findGrant(user, NamespacePrivilege.MEMBER).isPresent(); }
+    private boolean isMember(User user) {
+        return findGrant(user, NamespacePrivilege.MEMBER).isPresent();
+    }
 
     private boolean isOwner(User user) {
         return owner.getAuthorization().hasAuthorization(user);
@@ -110,11 +124,15 @@ public class NamespaceACL {
     public NamespaceACL withGrant(NamespaceGrant grant) {
         Set<NamespaceGrant> grants = Sets.newHashSet(this.grants);
         grants.add(grant);
-        return apply(owner, grants);
+        return apply(owner, grants, isPrivate);
     }
 
     public NamespaceACL withOwner(GrantedAuthorization owner) {
-        return apply(owner, grants);
+        return apply(owner, grants, isPrivate);
+    }
+
+    public NamespaceACL withPrivacy(boolean isPrivate) {
+        return apply(owner, grants, isPrivate);
     }
 
     public NamespaceACL withoutGrant(Authorization authorization, NamespacePrivilege privilege) {
@@ -132,7 +150,7 @@ public class NamespaceACL {
     public NamespaceACL withoutGrant(NamespaceGrant grant) {
         Set<NamespaceGrant> grants = Sets.newHashSet(this.grants);
         grants.remove(grant);
-        return apply(owner, grants);
+        return apply(owner, grants, isPrivate);
     }
 
 }

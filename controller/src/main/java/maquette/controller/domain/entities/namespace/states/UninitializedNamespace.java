@@ -10,6 +10,7 @@ import akka.persistence.typed.javadsl.EffectFactories;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceEvent;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
+import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespacePrivacy;
 import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.DeleteNamespace;
@@ -17,6 +18,7 @@ import maquette.controller.domain.entities.namespace.protocol.commands.GrantName
 import maquette.controller.domain.entities.namespace.protocol.commands.RegisterDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RemoveDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RevokeNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespacePrivacy;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
@@ -46,6 +48,17 @@ public class UninitializedNamespace implements State {
         EffectFactories<NamespaceEvent, State> effect) {
 
         return apply(actor, effect, null);
+    }
+
+    @Override
+    public Effect<NamespaceEvent, State> onChangeNamespacePrivacy(ChangeNamespacePrivacy change) {
+        change.getErrorTo().tell(NamespaceDoesNotExist.apply(change.getName()));
+        return effect.none();
+    }
+
+    @Override
+    public State onChangedNamespacePrivacy(ChangedNamespacePrivacy changed) {
+        return this;
     }
 
     @Override
@@ -80,7 +93,8 @@ public class UninitializedNamespace implements State {
 
     @Override
     public Effect<NamespaceEvent, State> onCreateNamespace(CreateNamespace create) {
-        CreatedNamespace created = CreatedNamespace.apply(create.getName(), create.getExecutor().getUserId(), Instant.now());
+        CreatedNamespace created = CreatedNamespace.apply(
+            create.getName(), create.isPrivate(), create.getExecutor().getUserId(), Instant.now());
 
         return effect
             .persist(created)
@@ -100,7 +114,7 @@ public class UninitializedNamespace implements State {
             created.getCreatedAt(),
             created.getCreatedBy(),
             created.getCreatedAt(),
-            NamespaceACL.apply(owner, Sets.newHashSet()),
+            NamespaceACL.apply(owner, Sets.newHashSet(), created.isPrivate()),
             Sets.newHashSet());
 
         return ActiveNamespace.apply(actor, effect, details);
