@@ -27,7 +27,8 @@ import maquette.controller.domain.values.namespace.NamespaceInfo;
 public final class CollectNamespaceInfos {
 
     public static Behavior<Message> create(
-        ActorRef<NamespacesMessage> namespacesRegistry, ActorRef<ShardingEnvelope<NamespaceMessage>> sharding,
+        ActorRef<NamespacesMessage> namespacesRegistry,
+        ActorRef<ShardingEnvelope<NamespaceMessage>> sharding,
         CompletableFuture<Set<NamespaceInfo>> result) {
 
         return Behaviors.setup(actor -> {
