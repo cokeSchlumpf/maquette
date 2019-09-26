@@ -38,7 +38,7 @@ public class CreateDatasetCmd implements Command {
 
         return app
             .datasets()
-            .createDataset(executor, rp)
+            .createDataset(executor, rp, false)
             .thenApply(details -> CommandResult.success());
     }
 

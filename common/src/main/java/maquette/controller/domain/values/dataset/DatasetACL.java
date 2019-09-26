@@ -70,6 +70,10 @@ public class DatasetACL {
         return isAdmin(user) || isOwner(user);
     }
 
+    public boolean canView(User user) {
+        return !isPrivate || canReadDetails(user);
+    }
+
     public Optional<DatasetGrant> findGrant(User user, DatasetPrivilege privilege) {
         return this.grants
             .stream()

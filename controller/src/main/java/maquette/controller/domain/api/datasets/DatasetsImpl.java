@@ -3,7 +3,9 @@ package maquette.controller.domain.api.datasets;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 import org.apache.avro.Schema;
 
@@ -42,6 +44,7 @@ import maquette.controller.domain.entities.dataset.protocol.results.GetDetailsRe
 import maquette.controller.domain.entities.dataset.protocol.results.GetVersionDetailsResult;
 import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
+import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.entities.namespace.protocol.commands.RegisterDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RemoveDataset;
 import maquette.controller.domain.entities.namespace.protocol.events.RegisteredDataset;
@@ -49,6 +52,8 @@ import maquette.controller.domain.entities.namespace.protocol.events.RemovedData
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.entities.user.protocol.commands.RegisterAccessToken;
 import maquette.controller.domain.entities.user.protocol.events.RegisteredAccessToken;
+import maquette.controller.domain.services.CollectDatasets;
+import maquette.controller.domain.services.CollectNamespaceInfos;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.core.ResourceName;
@@ -64,9 +69,12 @@ import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.TokenAuthorization;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserId;
+import maquette.controller.domain.values.namespace.NamespaceInfo;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DatasetsImpl implements Datasets {
+
+    private final ActorRef<NamespacesMessage> namespaceRegistry;
 
     private final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaces;
 
@@ -102,7 +110,7 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
-    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name) {
+    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, boolean isPrivate) {
         return patterns
             .ask(
                 namespaces,
@@ -114,7 +122,7 @@ public final class DatasetsImpl implements Datasets {
                 datasets,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
                     Dataset.createEntityId(name),
-                    CreateDataset.apply(name, executor, replyTo, errorTo)),
+                    CreateDataset.apply(name, executor, isPrivate, replyTo, errorTo)),
                 CreatedDataset.class))
             .thenCompose(result -> getDetails(name));
     }
@@ -181,6 +189,15 @@ public final class DatasetsImpl implements Datasets {
                     RemoveDataset.apply(datasetName.getNamespace(), datasetName.getName(), replyTo, errorTo)),
                 RemovedDataset.class))
             .thenApply(removed -> Done.getInstance());
+    }
+
+    @Override
+    public CompletionStage<Set<DatasetDetails>> findDatasets(User executor, String query) {
+        return listDatasets(executor)
+            .thenApply(datasets -> datasets
+                .stream()
+                .filter(ds -> ds.getDescription().map(desc -> desc.getValue().contains(query)).orElse(false))
+                .collect(Collectors.toSet()));
     }
 
     @Override
@@ -252,6 +269,15 @@ public final class DatasetsImpl implements Datasets {
                     GrantDatasetAccess.apply(datasetName, executor, grant, grantFor, replyTo, errorTo)),
                 GrantedDatasetAccess.class)
             .thenCompose(result -> getDetails(datasetName));
+    }
+
+    @Override
+    public CompletionStage<Set<DatasetDetails>> listDatasets(User executor) {
+        CompletionStage<Set<NamespaceInfo>> namespaceInfos = patterns
+            .process(result -> CollectNamespaceInfos.create(namespaceRegistry, namespaces, result));
+
+        return namespaceInfos
+            .thenCompose(infos -> patterns.process(result -> CollectDatasets.create(infos, datasets, result)));
     }
 
     @Override

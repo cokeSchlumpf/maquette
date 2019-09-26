@@ -51,7 +51,7 @@ public class TestSetup {
         Operators.suppressExceptions(() -> {
             app
                 .datasets()
-                .createDataset(executor, path)
+                .createDataset(executor, path, false)
                 .toCompletableFuture()
                 .get();
         });

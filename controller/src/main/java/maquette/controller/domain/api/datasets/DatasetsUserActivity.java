@@ -1,6 +1,7 @@
 package maquette.controller.domain.api.datasets;
 
 import java.nio.ByteBuffer;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -53,8 +54,8 @@ public final class DatasetsUserActivity implements Datasets {
     }
 
     @Override
-    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name) {
-        return createDefaultNamespace(executor, d -> d.createDataset(executor, name));
+    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, boolean isPrivate) {
+        return createDefaultNamespace(executor, d -> d.createDataset(executor, name, isPrivate));
     }
 
     @Override
@@ -75,6 +76,11 @@ public final class DatasetsUserActivity implements Datasets {
     @Override
     public CompletionStage<Done> deleteDataset(User executor, ResourcePath datasetName) {
         return createDefaultNamespace(executor, d -> d.deleteDataset(executor, datasetName));
+    }
+
+    @Override
+    public CompletionStage<Set<DatasetDetails>> findDatasets(User executor, String query) {
+        return createDefaultNamespace(executor, d -> d.findDatasets(executor, query));
     }
 
     @Override
@@ -106,6 +112,11 @@ public final class DatasetsUserActivity implements Datasets {
     public CompletionStage<DatasetDetails> grantDatasetAccess(User executor, ResourcePath datasetName, DatasetPrivilege grant,
                                                               Authorization grantFor) {
         return createDefaultNamespace(executor, d -> d.grantDatasetAccess(executor, datasetName, grant, grantFor));
+    }
+
+    @Override
+    public CompletionStage<Set<DatasetDetails>> listDatasets(User executor) {
+        return createDefaultNamespace(executor, d -> d.listDatasets(executor));
     }
 
     @Override

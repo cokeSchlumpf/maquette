@@ -87,7 +87,7 @@ public class DatasetsResource {
 
                 return core
                     .datasets()
-                    .createDataset(user, dataset);
+                    .createDataset(user, dataset, false);
             });
     }
 

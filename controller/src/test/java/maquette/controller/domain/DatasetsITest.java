@@ -44,7 +44,7 @@ public class DatasetsITest {
 
         final DatasetDetails datasetDetails = setup.getApp()
                                                    .datasets()
-                                                   .createDataset(setup.getDefaultUser(), dataset01name)
+                                                   .createDataset(setup.getDefaultUser(), dataset01name, false)
                                                    .toCompletableFuture()
                                                    .get();
 
@@ -302,7 +302,7 @@ public class DatasetsITest {
         DatasetDetails datasetDetails01 = setup
             .getApp()
             .datasets()
-            .createDataset(user, datasetResource)
+            .createDataset(user, datasetResource, false)
             .toCompletableFuture()
             .get();
 

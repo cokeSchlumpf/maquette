@@ -86,7 +86,7 @@ public class CoreApplication {
             .create();
 
         final Datasets datasets = DatasetsFactory
-            .apply(namespaceShards, datasetShards, userShards, patterns, createDefaultNamespace, materializer)
+            .apply(namespacesRegistry, namespaceShards, datasetShards, userShards, patterns, createDefaultNamespace, materializer)
             .create();
 
         final Users users = UsersFactory

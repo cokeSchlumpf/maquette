@@ -1,8 +1,10 @@
 package maquette.controller.domain.api.datasets;
 
 import java.nio.ByteBuffer;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 import org.apache.avro.Schema;
 
@@ -140,11 +142,11 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
-    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name) {
+    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, boolean isPrivate) {
         return getNamespaceDetails(name.getNamespace())
             .thenCompose(nsDetails -> {
                 if (nsDetails.getAcl().canCreatedDataset(executor)) {
-                    return delegate.createDataset(executor, name);
+                    return delegate.createDataset(executor, name, isPrivate);
                 } else {
                     throw NotAuthorizedException.apply(executor);
                 }
@@ -214,6 +216,17 @@ public final class DatasetsSecured implements Datasets {
                     throw NotAuthorizedException.apply(executor);
                 }
             });
+    }
+
+    @Override
+    public CompletionStage<Set<DatasetDetails>> findDatasets(User executor, String query) {
+        // TODO: filter repository from private datasets
+        return delegate
+            .findDatasets(executor, query)
+            .thenApply(datasets -> datasets
+                      .stream()
+                      .filter(ds -> ds.getAcl().canView(executor))
+                      .collect(Collectors.toSet()));
     }
 
     @Override
@@ -311,6 +324,16 @@ public final class DatasetsSecured implements Datasets {
                     throw NotAuthorizedException.apply(executor);
                 }
             });
+    }
+
+    @Override
+    public CompletionStage<Set<DatasetDetails>> listDatasets(User executor) {
+        return delegate
+            .listDatasets(executor)
+            .thenApply(datasets -> datasets
+                .stream()
+                .filter(ds -> ds.getAcl().canConsume(executor) || ds.getAcl().canProduce(executor))
+                .collect(Collectors.toSet()));
     }
 
     @Override
