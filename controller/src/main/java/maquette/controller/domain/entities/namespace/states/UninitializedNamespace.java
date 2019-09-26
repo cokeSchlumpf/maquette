@@ -10,6 +10,7 @@ import akka.persistence.typed.javadsl.EffectFactories;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceEvent;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
+import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespaceDescription;
 import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespacePrivacy;
 import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
@@ -18,6 +19,7 @@ import maquette.controller.domain.entities.namespace.protocol.commands.GrantName
 import maquette.controller.domain.entities.namespace.protocol.commands.RegisterDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RemoveDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RevokeNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespaceDescription;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespacePrivacy;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
@@ -48,6 +50,17 @@ public class UninitializedNamespace implements State {
         EffectFactories<NamespaceEvent, State> effect) {
 
         return apply(actor, effect, null);
+    }
+
+    @Override
+    public Effect<NamespaceEvent, State> onChangeNamespaceDescription(ChangeNamespaceDescription change) {
+        change.getErrorTo().tell(NamespaceDoesNotExist.apply(change.getName()));
+        return effect.none();
+    }
+
+    @Override
+    public State onChangedNamespaceDescription(ChangedNamespaceDescription description) {
+        return this;
     }
 
     @Override

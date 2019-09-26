@@ -12,6 +12,7 @@ import akka.persistence.typed.javadsl.EffectFactories;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceEvent;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
+import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespaceDescription;
 import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespacePrivacy;
 import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
@@ -20,6 +21,7 @@ import maquette.controller.domain.entities.namespace.protocol.commands.GrantName
 import maquette.controller.domain.entities.namespace.protocol.commands.RegisterDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RemoveDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RevokeNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespaceDescription;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespacePrivacy;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
@@ -47,6 +49,31 @@ public class ActiveNamespace implements State {
     private final EffectFactories<NamespaceEvent, State> effect;
 
     private NamespaceDetails details;
+
+    @Override
+    public Effect<NamespaceEvent, State> onChangeNamespaceDescription(ChangeNamespaceDescription change) {
+        ChangedNamespaceDescription changed = ChangedNamespaceDescription.apply(
+            change.getName(), change.getDescription(), change.getExecutor().getUserId(), Instant.now());
+
+        if (details.getDescription().isPresent() && details.getDescription().get().equals(change.getDescription())) {
+            change.getReplyTo().tell(changed);
+            return effect.none();
+        } else {
+            return effect
+                .persist(changed)
+                .thenRun(() -> change.getReplyTo().tell(changed));
+        }
+    }
+
+    @Override
+    public State onChangedNamespaceDescription(ChangedNamespaceDescription description) {
+        this.details = this.details
+            .withDescription(description.getDescription())
+            .withModifiedBy(description.getChangedBy())
+            .withModified(description.getChangedAt());
+
+        return this;
+    }
 
     @Override
     public Effect<NamespaceEvent, State> onChangeNamespacePrivacy(ChangeNamespacePrivacy change) {

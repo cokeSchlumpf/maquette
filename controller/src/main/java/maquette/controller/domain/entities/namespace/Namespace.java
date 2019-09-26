@@ -7,6 +7,7 @@ import akka.persistence.typed.javadsl.CommandHandler;
 import akka.persistence.typed.javadsl.EventHandler;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceEvent;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
+import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespaceDescription;
 import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespacePrivacy;
 import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
@@ -15,6 +16,7 @@ import maquette.controller.domain.entities.namespace.protocol.commands.GrantName
 import maquette.controller.domain.entities.namespace.protocol.commands.RegisterDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RemoveDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RevokeNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespaceDescription;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespacePrivacy;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
@@ -60,6 +62,7 @@ public final class Namespace extends EventSourcedEntity<NamespaceMessage, Namesp
     public CommandHandler<NamespaceMessage, NamespaceEvent, State> commandHandler() {
         return newCommandHandlerBuilder()
             .forAnyState()
+            .onCommand(ChangeNamespaceDescription.class, State::onChangeNamespaceDescription)
             .onCommand(ChangeNamespacePrivacy.class, State::onChangeNamespacePrivacy)
             .onCommand(ChangeOwner.class, State::onChangeOwner)
             .onCommand(CreateNamespace.class, State::onCreateNamespace)
@@ -77,6 +80,7 @@ public final class Namespace extends EventSourcedEntity<NamespaceMessage, Namesp
     public EventHandler<State, NamespaceEvent> eventHandler() {
         return newEventHandlerBuilder()
             .forAnyState()
+            .onEvent(ChangedNamespaceDescription.class, State::onChangedNamespaceDescription)
             .onEvent(ChangedNamespacePrivacy.class, State::onChangedNamespacePrivacy)
             .onEvent(ChangedOwner.class, State::onChangedOwner)
             .onEvent(CreatedNamespace.class, State::onCreatedNamespace)
