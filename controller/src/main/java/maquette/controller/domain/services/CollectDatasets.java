@@ -1,16 +1,17 @@
 package maquette.controller.domain.services;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
-import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.cluster.sharding.typed.ShardingEnvelope;
 import lombok.AllArgsConstructor;
@@ -18,10 +19,6 @@ import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.dataset.protocol.results.GetDetailsResult;
-import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
-import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
-import maquette.controller.domain.entities.namespace.protocol.queries.ListNamespaces;
-import maquette.controller.domain.entities.namespace.protocol.results.ListNamespacesResult;
 import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
@@ -29,6 +26,8 @@ import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.namespace.NamespaceInfo;
 
 public final class CollectDatasets {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CollectDatasets.class);
 
     private CollectDatasets() {
 
@@ -64,7 +63,7 @@ public final class CollectDatasets {
             if (count$final > 0) {
                 return Behaviors.withTimers(scheduler -> {
                     scheduler.startSingleTimer("timeout", Timeout.apply(), Duration.ofSeconds(10));
-                    return receive(count$final, Sets.newHashSet(), result);
+                    return receive(count$final, 0, Sets.newHashSet(), result);
                 });
             } else {
                 result.complete(ImmutableSet.of());
@@ -75,6 +74,7 @@ public final class CollectDatasets {
 
     private static Behavior<Message> receive(
         int count,
+        int errors,
         Set<DatasetDetails> collected,
         CompletableFuture<Set<DatasetDetails>> result) {
 
@@ -83,11 +83,23 @@ public final class CollectDatasets {
             .onMessage(GetDetailsResultWrapper.class, (ctx, wrapper) -> {
                 collected.add(wrapper.result.getDetails());
 
-                if (collected.size() >= count) {
+                if (collected.size() >= count + errors) {
                     result.complete(ImmutableSet.copyOf(collected));
                     return Behavior.stopped();
                 } else {
-                    return Behavior.same();
+                    return receive(count, errors, collected, result);
+                }
+            })
+            .onMessage(ErrorMessageWrapper.class, (ctx, wrapper) -> {
+                LOG.debug(String.format(
+                    "Received error message while collecting dataset details: %s",
+                    wrapper.message.toString()));
+
+                if (collected.size() >= count + errors) {
+                    result.complete(ImmutableSet.copyOf(collected));
+                    return Behavior.stopped();
+                } else {
+                    return receive(count, errors + 1, collected, result);
                 }
             })
             .onMessage(Timeout.class, (ctx, timeout) -> {
