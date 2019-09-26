@@ -14,23 +14,36 @@ import lombok.Value;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.namespace.NamespaceGrant;
-import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatasetACL {
 
+    private static final String OWNER = "owner";
+    private static final String GRANTS = "grants";
+    private static final String IS_PRIVATE = "is-private";
+
+    @JsonProperty(OWNER)
     private final GrantedAuthorization owner;
 
+    @JsonProperty(GRANTS)
     private final Set<DatasetGrant> grants;
+
+    @JsonProperty(IS_PRIVATE)
+    private final boolean isPrivate;
 
     @JsonCreator
     public static DatasetACL apply(
-        @JsonProperty("owner") GrantedAuthorization owner,
-        @JsonProperty("grants") Set<DatasetGrant> grants) {
+        @JsonProperty(OWNER) GrantedAuthorization owner,
+        @JsonProperty(GRANTS) Set<DatasetGrant> grants,
+        @JsonProperty(IS_PRIVATE) boolean isPrivate) {
 
-        return new DatasetACL(owner, ImmutableSet.copyOf(grants));
+        return new DatasetACL(owner, ImmutableSet.copyOf(grants), isPrivate);
+    }
+
+    @Deprecated
+    public static DatasetACL apply(GrantedAuthorization owner, Set<DatasetGrant> grants) {
+        return apply(owner, grants, false);
     }
 
     public boolean canChangeOwner(User user) {
@@ -98,7 +111,11 @@ public class DatasetACL {
     public DatasetACL withGrant(DatasetGrant grant) {
         Set<DatasetGrant> grants = Sets.newHashSet(this.grants);
         grants.add(grant);
-        return apply(owner, grants);
+        return apply(owner, grants, isPrivate);
+    }
+
+    public DatasetACL withPrivacy(boolean isPrivate) {
+        return apply(owner, grants, isPrivate);
     }
 
     public DatasetACL withOwner(GrantedAuthorization owner) {
@@ -120,7 +137,7 @@ public class DatasetACL {
     public DatasetACL withoutGrant(DatasetGrant grant) {
         Set<DatasetGrant> grants = Sets.newHashSet(this.grants);
         grants.remove(grant);
-        return apply(owner, grants);
+        return apply(owner, grants, isPrivate);
     }
 
 }

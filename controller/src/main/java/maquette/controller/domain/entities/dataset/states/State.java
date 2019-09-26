@@ -2,6 +2,7 @@ package maquette.controller.domain.entities.dataset.states;
 
 import akka.persistence.typed.javadsl.Effect;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
@@ -11,20 +12,23 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishComm
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
-import maquette.controller.domain.entities.dataset.protocol.events.CommittedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
-import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
 
 public interface State {
+
+    Effect<DatasetEvent, State> onChangeDatasetPrivacy(ChangeDatasetPrivacy change);
+
+    State onChangedDatasetPrivacy(ChangedDatasetPrivacy changed);
 
     Effect<DatasetEvent, State> onChangeOwner(ChangeOwner change);
 

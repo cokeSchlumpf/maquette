@@ -10,6 +10,7 @@ import akka.persistence.typed.javadsl.EffectFactories;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
@@ -19,6 +20,7 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishComm
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
@@ -56,6 +58,17 @@ public final class UninitializedDataset implements State {
     }
 
     @Override
+    public Effect<DatasetEvent, State> onChangeDatasetPrivacy(ChangeDatasetPrivacy change) {
+        change.getErrorTo().tell(DatasetDoesNotExistError.apply(change.getDataset()));
+        return effect.none();
+    }
+
+    @Override
+    public State onChangedDatasetPrivacy(ChangedDatasetPrivacy changed) {
+        return this;
+    }
+
+    @Override
     public Effect<DatasetEvent, State> onChangeOwner(ChangeOwner change) {
         change.getErrorTo().tell(DatasetDoesNotExistError.apply(change.getDataset()));
         return effect.none();
@@ -70,6 +83,7 @@ public final class UninitializedDataset implements State {
     public Effect<DatasetEvent, State> onCreateDataset(CreateDataset create) {
         CreatedDataset created = CreatedDataset.apply(
             create.getDataset(),
+            create.isPrivate(),
             create.getExecutor().getUserId(),
             Instant.now());
 
@@ -92,7 +106,7 @@ public final class UninitializedDataset implements State {
             Instant.now(),
             created.getCreatedBy(),
             Sets.newHashSet(),
-            DatasetACL.apply(granted, Sets.newHashSet()));
+            DatasetACL.apply(granted, Sets.newHashSet(), created.isPrivate()));
 
         return ActiveDataset.apply(actor, effect, store, details);
     }

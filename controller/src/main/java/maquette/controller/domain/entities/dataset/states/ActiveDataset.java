@@ -18,6 +18,7 @@ import maquette.controller.domain.entities.dataset.Version;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.VersionMessage;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
@@ -27,6 +28,7 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishComm
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
@@ -74,6 +76,33 @@ public final class ActiveDataset implements State {
     }
 
     @Override
+    public Effect<DatasetEvent, State> onChangeDatasetPrivacy(ChangeDatasetPrivacy change) {
+        ChangedDatasetPrivacy changed =
+            ChangedDatasetPrivacy.apply(details.getDataset(), change.isPrivate(), change.getExecutor().getUserId(), Instant.now());
+
+        if (Boolean.valueOf(details.getAcl().isPrivate()).equals(change.isPrivate())) {
+            change.getReplyTo().tell(changed);
+            return effect.none();
+        } else {
+            return effect
+                .persist(changed)
+                .thenRun(() -> change.getReplyTo().tell(changed));
+        }
+    }
+
+    @Override
+    public State onChangedDatasetPrivacy(ChangedDatasetPrivacy changed) {
+        DatasetACL acl$new = this.details.getAcl().withPrivacy(changed.isPrivate());
+
+        this.details = this.details
+            .withAcl(acl$new)
+            .withModified(changed.getChangedAt())
+            .withModifiedBy(changed.getChangedBy());
+
+        return this;
+    }
+
+    @Override
     public Effect<DatasetEvent, State> onChangeOwner(ChangeOwner change) {
         if (change.getOwner().equals(details.getAcl().getOwner().getAuthorization())) {
             ChangedOwner changed = ChangedOwner.apply(details.getDataset(), details.getAcl().getOwner());
@@ -106,7 +135,7 @@ public final class ActiveDataset implements State {
 
     @Override
     public Effect<DatasetEvent, State> onCreateDataset(CreateDataset create) {
-        CreatedDataset created = CreatedDataset.apply(details.getDataset(), details.getCreatedBy(), details.getCreated());
+        CreatedDataset created = CreatedDataset.apply(details.getDataset(), details.getAcl().isPrivate(), details.getCreatedBy(), details.getCreated());
         create.getReplyTo().tell(created);
         return effect.none();
     }

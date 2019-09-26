@@ -14,10 +14,10 @@ import maquette.controller.domain.values.iam.UserId;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreatedDataset implements DatasetEvent {
+public class ChangedDatasetPrivacy implements DatasetEvent {
 
-    private static final String CREATED_AT = "created-at";
-    private static final String CREATED_BY = "created-by";
+    private static final String CHANGED_AT = "changed-at";
+    private static final String CHANGED_BY = "changed-by";
     private static final String IS_PRIVATE = "is-private";
     private static final String DATASET = "dataset";
 
@@ -27,25 +27,20 @@ public class CreatedDataset implements DatasetEvent {
     @JsonProperty(IS_PRIVATE)
     private final boolean isPrivate;
 
-    @JsonProperty(CREATED_BY)
-    private final UserId createdBy;
+    @JsonProperty(CHANGED_BY)
+    private final UserId changedBy;
 
-    @JsonProperty(CREATED_AT)
-    private final Instant createdAt;
+    @JsonProperty(CHANGED_AT)
+    private final Instant changedAt;
 
     @JsonCreator
-    public static CreatedDataset apply(
+    public static ChangedDatasetPrivacy apply(
         @JsonProperty(DATASET) ResourcePath dataset,
         @JsonProperty(IS_PRIVATE) boolean isPrivate,
-        @JsonProperty(CREATED_BY) UserId createdBy,
-        @JsonProperty(CREATED_AT) Instant createdAt) {
+        @JsonProperty(CHANGED_BY) UserId changedBy,
+        @JsonProperty(CHANGED_AT) Instant changedAt) {
 
-        return new CreatedDataset(dataset, isPrivate, createdBy, createdAt);
-    }
-
-    @Deprecated
-    public static CreatedDataset apply(ResourcePath dataset, UserId createdBy, Instant createdAt) {
-        return new CreatedDataset(dataset, false, createdBy, createdAt);
+        return new ChangedDatasetPrivacy(dataset, isPrivate, changedBy, changedAt);
     }
 
 }
