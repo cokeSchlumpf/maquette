@@ -222,7 +222,7 @@ class Namespace:
         return self
 
     def datasets(self) -> pd.DataFrame:
-        resp = client.command('datasets', {'namespace': self.__name})
+        resp = client.command('namespace datasets', {'namespace': self.__name})
         return resp['data'][0]
 
     def dataset(self, name: str) -> Dataset:
@@ -263,6 +263,11 @@ class Namespace:
 
 def admin() -> Administration:
     return Administration()
+
+
+def datasets() -> pd.DataFrame:
+    resp = client.command('datasets')
+    return resp['data'][0]
 
 
 def namespaces() -> pd.DataFrame:

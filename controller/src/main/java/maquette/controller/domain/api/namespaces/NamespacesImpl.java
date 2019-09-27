@@ -3,10 +3,13 @@ package maquette.controller.domain.api.namespaces;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
+import com.google.common.collect.Sets;
+
 import akka.Done;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
 import lombok.AllArgsConstructor;
+import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
@@ -24,9 +27,11 @@ import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespa
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceInfo;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceDetailsResult;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceInfoResult;
+import maquette.controller.domain.services.CollectDatasets;
 import maquette.controller.domain.services.CollectNamespaceInfos;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
+import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.User;
@@ -40,6 +45,8 @@ public final class NamespacesImpl implements Namespaces {
     private final ActorRef<NamespacesMessage> namespaces;
 
     private final ActorRef<ShardingEnvelope<NamespaceMessage>> shards;
+
+    private final ActorRef<ShardingEnvelope<DatasetMessage>> datasets;
 
     private final ActorPatterns patterns;
 
@@ -101,6 +108,18 @@ public final class NamespacesImpl implements Namespaces {
                     (replyTo, errorTo) -> DeleteNamespace.apply(namespaceName, executor, replyTo, errorTo),
                     DeletedNamespace.class))
             .thenApply(deleted -> Done.getInstance());
+    }
+
+    @Override
+    public CompletionStage<Set<DatasetDetails>> getDatasets(User executor, ResourceName namespace) {
+        return getNamespaceDetails(executor, namespace)
+            .thenCompose(details -> {
+                NamespaceInfo info =
+                    NamespaceInfo.apply(details.getName(), details.getModified(), details.getAcl(), details.getDatasets());
+                Set<NamespaceInfo> infos = Sets.newHashSet(info);
+
+                return patterns.process(result -> CollectDatasets.create(infos, datasets, result));
+            });
     }
 
     @Override

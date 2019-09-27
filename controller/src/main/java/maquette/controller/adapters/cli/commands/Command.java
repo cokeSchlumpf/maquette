@@ -12,6 +12,7 @@ import maquette.controller.adapters.cli.commands.datasets.CreateDatasetProducerT
 import maquette.controller.adapters.cli.commands.datasets.GrantDatasetAccessCmd;
 import maquette.controller.adapters.cli.commands.datasets.ListDatasetVersionsCmd;
 import maquette.controller.adapters.cli.commands.datasets.ListDatasetsCmd;
+import maquette.controller.adapters.cli.commands.datasets.ListNamespaceDatasetsCmd;
 import maquette.controller.adapters.cli.commands.datasets.PrintDatasetDetailsCmd;
 import maquette.controller.adapters.cli.commands.datasets.PrintDatasetVersionDetailsCmd;
 import maquette.controller.adapters.cli.commands.datasets.RevokeDatasetAccessCmd;
@@ -46,6 +47,7 @@ import maquette.controller.domain.values.iam.User;
         @JsonSubTypes.Type(value = CreateNamespaceCmd.class, name = "namespaces create"),
         @JsonSubTypes.Type(value = GrantNamespaceAccessCmd.class, name = "namespace grant"),
         @JsonSubTypes.Type(value = ListNamespacesCmd.class, name = "namespaces"),
+        @JsonSubTypes.Type(value = ListNamespaceDatasetsCmd.class, name = "namespace datasets"),
         @JsonSubTypes.Type(value = PrintNamespaceDetailsCmd.class, name = "namespace show"),
         @JsonSubTypes.Type(value = RevokeNamespaceAccessCmd.class, name = "namespace revoke"),
 

@@ -15,17 +15,22 @@ import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ListDatasetsCmd implements Command {
+public final class ListNamespaceDatasetsCmd implements Command {
+
+    private final String namespace;
+
     @JsonCreator
-    public static ListDatasetsCmd apply() {
-        return new ListDatasetsCmd();
+    public static ListNamespaceDatasetsCmd apply(@JsonProperty("namespace") String namespace) {
+        return new ListNamespaceDatasetsCmd(namespace);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
+        ResourceName resource = ResourceName.apply(executor, namespace);
+
         return app
-            .datasets()
-            .listDatasets(executor)
+            .namespaces()
+            .getDatasets(executor, resource)
             .thenApply(datasets -> CommandResult.success(DataTables.createDatasets(datasets)));
     }
 

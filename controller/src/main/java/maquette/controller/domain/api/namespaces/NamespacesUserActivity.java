@@ -14,6 +14,7 @@ import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.services.CreateDefaultNamespace;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
+import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.User;
@@ -45,6 +46,11 @@ public final class NamespacesUserActivity implements Namespaces {
     @Override
     public CompletionStage<Done> deleteNamespace(User executor, ResourceName namespaceName) {
         return createDefaultNamespace(executor, n -> n.deleteNamespace(executor, namespaceName));
+    }
+
+    @Override
+    public CompletionStage<Set<DatasetDetails>> getDatasets(User executor, ResourceName namespace) {
+        return createDefaultNamespace(executor, n -> n.getDatasets(executor, namespace));
     }
 
     @Override

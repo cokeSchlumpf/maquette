@@ -13,6 +13,7 @@ import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceDetails;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceDetailsResult;
+import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.exceptions.NotAuthorizedException;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
@@ -74,6 +75,18 @@ public final class NamespacesSecured implements Namespaces {
             .thenCompose(details -> {
                 if (details.getAcl().canDeleteNamespace(executor)) {
                     return delegate.deleteNamespace(executor, namespaceName);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
+    }
+
+    @Override
+    public CompletionStage<Set<DatasetDetails>> getDatasets(User executor, ResourceName namespace) {
+        return getDetails(namespace)
+            .thenCompose(details -> {
+                if (details.getAcl().canReadDetails(executor)) {
+                    return delegate.getDatasets(executor, namespace);
                 } else {
                     throw NotAuthorizedException.apply(executor);
                 }

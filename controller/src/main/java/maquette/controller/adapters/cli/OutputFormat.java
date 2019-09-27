@@ -32,6 +32,9 @@ public final class OutputFormat {
             return dateFormat.format((Date) value);
         } else if (value instanceof Instant) {
             return dateFormat.format(Date.from((Instant) value));
+        } else if (value instanceof Boolean) {
+            boolean b = (Boolean) value;
+            return b ? "yes" : "no";
         } else {
             return String.valueOf(value);
         }

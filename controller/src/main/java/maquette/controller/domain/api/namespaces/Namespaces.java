@@ -5,6 +5,7 @@ import java.util.concurrent.CompletionStage;
 
 import akka.Done;
 import maquette.controller.domain.values.core.ResourceName;
+import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.User;
@@ -21,6 +22,8 @@ public interface Namespaces {
                                                    ResourceName name);
 
     CompletionStage<Done> deleteNamespace(User executor, ResourceName namespaceName);
+
+    CompletionStage<Set<DatasetDetails>> getDatasets(User executor, ResourceName namespace);
 
     CompletionStage<NamespaceDetails> getNamespaceDetails(User executor, ResourceName namespace);
 

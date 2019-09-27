@@ -82,7 +82,7 @@ public class CoreApplication {
             namespacesRegistry, namespaceShards, patterns);
 
         final Namespaces namespaces = NamespacesFactory
-            .apply(namespacesRegistry, namespaceShards, patterns, createDefaultNamespace)
+            .apply(namespacesRegistry, namespaceShards, datasetShards, patterns, createDefaultNamespace)
             .create();
 
         final Datasets datasets = DatasetsFactory
