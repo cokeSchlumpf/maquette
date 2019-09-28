@@ -10,13 +10,13 @@ import akka.cluster.sharding.typed.ShardingEnvelope;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
-import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceDetails;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceDetailsResult;
+import maquette.controller.domain.util.ActorPatterns;
+import maquette.controller.domain.values.core.Markdown;
+import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.exceptions.NotAuthorizedException;
-import maquette.controller.domain.util.ActorPatterns;
-import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
@@ -27,8 +27,6 @@ import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @AllArgsConstructor(staticName = "apply")
 public final class NamespacesSecured implements Namespaces {
-
-    private final ActorRef<NamespacesMessage> namespaces;
 
     private final ActorRef<ShardingEnvelope<NamespaceMessage>> shards;
 
@@ -49,6 +47,18 @@ public final class NamespacesSecured implements Namespaces {
     }
 
     @Override
+    public CompletionStage<NamespaceInfo> changeDescription(User executor, ResourceName namespace, Markdown description) {
+        return getDetails(namespace)
+            .thenCompose(details -> {
+                if (details.getAcl().canManage(executor)) {
+                    return delegate.changeDescription(executor, namespace, description);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
+    }
+
+    @Override
     public CompletionStage<NamespaceInfo> changeOwner(User executor, ResourceName namespaceName, Authorization owner) {
         return getDetails(namespaceName)
             .thenCompose(details -> {
@@ -61,9 +71,21 @@ public final class NamespacesSecured implements Namespaces {
     }
 
     @Override
-    public CompletionStage<NamespaceInfo> createNamespace(User executor, ResourceName name) {
+    public CompletionStage<NamespaceInfo> changePrivacy(User executor, ResourceName namespaceName, boolean isPrivate) {
+        return getDetails(namespaceName)
+            .thenCompose(details -> {
+                if (details.getAcl().canManage(executor)) {
+                    return delegate.changePrivacy(executor, namespaceName, isPrivate);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
+    }
+
+    @Override
+    public CompletionStage<NamespaceInfo> createNamespace(User executor, ResourceName name, boolean isPrivate) {
         if (executor instanceof AuthenticatedUser) {
-            return delegate.createNamespace(executor, name);
+            return delegate.createNamespace(executor, name, isPrivate);
         } else {
             throw NotAuthorizedException.apply(executor);
         }

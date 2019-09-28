@@ -13,11 +13,15 @@ import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
+import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespaceDescription;
+import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespacePrivacy;
 import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.DeleteNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.GrantNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.commands.RevokeNamespaceAccess;
+import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespaceDescription;
+import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespacePrivacy;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
@@ -30,6 +34,7 @@ import maquette.controller.domain.entities.namespace.protocol.results.GetNamespa
 import maquette.controller.domain.services.CollectDatasets;
 import maquette.controller.domain.services.CollectNamespaceInfos;
 import maquette.controller.domain.util.ActorPatterns;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.Authorization;
@@ -50,27 +55,45 @@ public final class NamespacesImpl implements Namespaces {
 
     private final ActorPatterns patterns;
 
+    private CompletionStage<NamespaceInfo> getNamespaceInfo(ResourceName namespace) {
+        return patterns
+            .ask(
+                shards,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Namespace.createEntityId(namespace),
+                    GetNamespaceInfo.apply(namespace, replyTo, errorTo)),
+                GetNamespaceInfoResult.class)
+            .thenApply(GetNamespaceInfoResult::getNamespaceInfo);
+    }
+
     @Override
-    public CompletionStage<maquette.controller.domain.values.namespace.NamespaceInfo> createNamespace(User executor,
-                                                                                                      ResourceName name) {
+    public CompletionStage<NamespaceInfo> createNamespace(
+        User executor, ResourceName name, boolean isPrivate) {
+
         return patterns
             .ask(
                 namespaces,
-                (replyTo, errorTo) -> CreateNamespace.apply(name, executor, replyTo, errorTo),
+                (replyTo, errorTo) -> CreateNamespace.apply(name, executor, isPrivate, replyTo, errorTo),
                 CreatedNamespace.class)
             .thenCompose(createdNamespace -> patterns.ask(
                 shards,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
                     Namespace.createEntityId(name),
-                    CreateNamespace.apply(name, executor, replyTo, errorTo)),
+                    CreateNamespace.apply(name, executor, isPrivate, replyTo, errorTo)),
                 CreatedNamespace.class))
-            .thenCompose(createdNamespace -> patterns.ask(
+            .thenCompose(createdNamespace -> getNamespaceInfo(name));
+    }
+
+    @Override
+    public CompletionStage<NamespaceInfo> changeDescription(User executor, ResourceName namespace, Markdown description) {
+        return patterns
+            .ask(
                 shards,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
-                    Namespace.createEntityId(name),
-                    GetNamespaceInfo.apply(name, replyTo, errorTo)),
-                GetNamespaceInfoResult.class))
-            .thenApply(GetNamespaceInfoResult::getNamespaceInfo);
+                    Namespace.createEntityId(namespace),
+                    ChangeNamespaceDescription.apply(namespace, executor, description, replyTo, errorTo)),
+                ChangedNamespaceDescription.class)
+            .thenCompose(changed -> getNamespaceInfo(namespace));
     }
 
     @Override
@@ -84,13 +107,19 @@ public final class NamespacesImpl implements Namespaces {
                     Namespace.createEntityId(namespaceName),
                     ChangeOwner.apply(namespaceName, executor, owner, replyTo, errorTo)),
                 ChangedOwner.class)
-            .thenCompose(changedOwner -> patterns.ask(
+            .thenCompose(changedOwner -> getNamespaceInfo(namespaceName));
+    }
+
+    @Override
+    public CompletionStage<NamespaceInfo> changePrivacy(User executor, ResourceName namespaceName, boolean isPrivate) {
+        return patterns
+            .ask(
                 shards,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
                     Namespace.createEntityId(namespaceName),
-                    GetNamespaceInfo.apply(namespaceName, replyTo, errorTo)),
-                GetNamespaceInfoResult.class))
-            .thenApply(GetNamespaceInfoResult::getNamespaceInfo);
+                    ChangeNamespacePrivacy.apply(namespaceName, executor, isPrivate, replyTo, errorTo)),
+                ChangedNamespacePrivacy.class)
+            .thenCompose(changed -> getNamespaceInfo(namespaceName));
     }
 
     @Override

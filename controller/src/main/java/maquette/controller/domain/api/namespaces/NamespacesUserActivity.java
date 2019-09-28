@@ -5,14 +5,9 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 import akka.Done;
-import akka.actor.typed.ActorRef;
-import akka.cluster.sharding.typed.ShardingEnvelope;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
-import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.services.CreateDefaultNamespace;
-import maquette.controller.domain.util.ActorPatterns;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.Authorization;
@@ -34,13 +29,23 @@ public final class NamespacesUserActivity implements Namespaces {
     }
 
     @Override
+    public CompletionStage<NamespaceInfo> changeDescription(User executor, ResourceName namespace, Markdown description) {
+        return createDefaultNamespace(executor, n -> n.changeDescription(executor, namespace, description));
+    }
+
+    @Override
     public CompletionStage<NamespaceInfo> changeOwner(User executor, ResourceName namespaceName, Authorization owner) {
         return createDefaultNamespace(executor, n -> n.changeOwner(executor, namespaceName, owner));
     }
 
     @Override
-    public CompletionStage<NamespaceInfo> createNamespace(User executor, ResourceName name) {
-        return createDefaultNamespace(executor, n -> n.createNamespace(executor, name));
+    public CompletionStage<NamespaceInfo> changePrivacy(User executor, ResourceName namespaceName, boolean isPrivate) {
+        return createDefaultNamespace(executor, n -> n.changePrivacy(executor, namespaceName, isPrivate));
+    }
+
+    @Override
+    public CompletionStage<NamespaceInfo> createNamespace(User executor, ResourceName name, boolean isPrivate) {
+        return createDefaultNamespace(executor, n -> n.createNamespace(executor, name, isPrivate));
     }
 
     @Override

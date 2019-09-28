@@ -24,7 +24,7 @@ public final class NamespacesFactory {
 
     public Namespaces create() {
         NamespacesImpl impl = NamespacesImpl.apply(namespaces, shards, datasets, patterns);
-        NamespacesSecured secured = NamespacesSecured.apply(namespaces, shards, patterns, impl);
+        NamespacesSecured secured = NamespacesSecured.apply(shards, patterns, impl);
         return NamespacesUserActivity.apply(secured, createDefaultNamespace);
     }
 
