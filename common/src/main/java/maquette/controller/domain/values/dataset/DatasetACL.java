@@ -46,15 +46,15 @@ public class DatasetACL {
         return apply(owner, grants, false);
     }
 
-    public boolean canChangeOwner(User user) {
-        return isAdmin(user) || isOwner(user);
-    }
-
     public boolean canConsume(User user) {
         return isConsumer(user) || isOwner(user);
     }
 
     public boolean canGrantDatasetAccess(User user) {
+        return isAdmin(user) || isOwner(user);
+    }
+
+    public boolean canManage(User user) {
         return isAdmin(user) || isOwner(user);
     }
 

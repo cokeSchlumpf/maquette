@@ -9,6 +9,7 @@ import org.apache.avro.Schema;
 import akka.Done;
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.records.Records;
@@ -22,6 +23,10 @@ import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserId;
 
 public interface Datasets {
+
+    CompletionStage<DatasetDetails> changeDescription(User executor, ResourcePath dataset, Markdown description);
+
+    CompletionStage<DatasetDetails> changePrivacy(User executor, ResourcePath dataset, boolean isPrivate);
 
     CompletionStage<DatasetDetails> changeOwner(User executor, ResourcePath dataset, Authorization owner);
 

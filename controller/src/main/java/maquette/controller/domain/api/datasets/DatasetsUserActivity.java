@@ -17,6 +17,7 @@ import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.services.CreateDefaultNamespace;
 import maquette.controller.domain.util.ActorPatterns;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.records.Records;
@@ -46,6 +47,16 @@ public final class DatasetsUserActivity implements Datasets {
 
     private <T> CompletionStage<T> createDefaultNamespace(User executor, Function<Datasets, CompletionStage<T>> andThen) {
         return createDefaultNamespace.run(executor, () -> andThen.apply(delegate));
+    }
+
+    @Override
+    public CompletionStage<DatasetDetails> changeDescription(User executor, ResourcePath dataset, Markdown description) {
+        return createDefaultNamespace(executor, d -> d.changeDescription(executor, dataset, description));
+    }
+
+    @Override
+    public CompletionStage<DatasetDetails> changePrivacy(User executor, ResourcePath dataset, boolean isPrivate) {
+        return createDefaultNamespace(executor, d -> d.changePrivacy(executor, dataset, isPrivate));
     }
 
     @Override

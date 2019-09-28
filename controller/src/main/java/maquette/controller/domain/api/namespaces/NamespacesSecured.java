@@ -52,7 +52,7 @@ public final class NamespacesSecured implements Namespaces {
     public CompletionStage<NamespaceInfo> changeOwner(User executor, ResourceName namespaceName, Authorization owner) {
         return getDetails(namespaceName)
             .thenCompose(details -> {
-                if (details.getAcl().canChangeOwner(executor)) {
+                if (details.getAcl().canManage(executor)) {
                     return delegate.changeOwner(executor, namespaceName, owner);
                 } else {
                     throw NotAuthorizedException.apply(executor);

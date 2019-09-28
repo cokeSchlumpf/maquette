@@ -132,7 +132,8 @@ gradle-app.setting
 journal/**/*
 */**/journal
 
-**/*/.DS_Store
+.DS_Store
+*/**/.DS_Store
 public/**
 
 # Python

@@ -20,6 +20,8 @@ import akka.util.ByteString;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetDescription;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
@@ -28,6 +30,8 @@ import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatase
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
@@ -56,6 +60,7 @@ import maquette.controller.domain.services.CollectDatasets;
 import maquette.controller.domain.services.CollectNamespaceInfos;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.util.Operators;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
@@ -95,6 +100,30 @@ public final class DatasetsImpl implements Datasets {
                     GetDetails.apply(dataset, replyTo, errorTo)),
                 GetDetailsResult.class)
             .thenApply(GetDetailsResult::getDetails);
+    }
+
+    @Override
+    public CompletionStage<DatasetDetails> changeDescription(User executor, ResourcePath dataset, Markdown description) {
+        return patterns
+            .ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    ChangeDatasetDescription.apply(dataset, executor, description, replyTo, errorTo)),
+                ChangedDatasetDescription.class)
+            .thenCompose(result -> getDetails(dataset));
+    }
+
+    @Override
+    public CompletionStage<DatasetDetails> changePrivacy(User executor, ResourcePath dataset, boolean isPrivate) {
+        return patterns
+            .ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    ChangeDatasetPrivacy.apply(dataset, executor, isPrivate, replyTo, errorTo)),
+                ChangedDatasetPrivacy.class)
+            .thenCompose(result -> getDetails(dataset));
     }
 
     @Override

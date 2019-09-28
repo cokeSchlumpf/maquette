@@ -43,10 +43,6 @@ public class NamespaceACL {
         return apply(owner, grants, false);
     }
 
-    public boolean canChangeOwner(User user) {
-        return isOwner(user) || isAdmin(user);
-    }
-
     public boolean canConsume(User user) {
         return isConsumer(user) || isOwner(user) || isMember(user);
     }
@@ -64,6 +60,10 @@ public class NamespaceACL {
     }
 
     public boolean canGrantNamespaceAccess(User user) {
+        return isOwner(user) || isAdmin(user);
+    }
+
+    public boolean canManage(User user) {
         return isOwner(user) || isAdmin(user);
     }
 

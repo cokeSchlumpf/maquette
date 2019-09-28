@@ -23,6 +23,7 @@ import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceDetails;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceDetailsResult;
 import maquette.controller.domain.util.ActorPatterns;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
@@ -69,6 +70,18 @@ public final class DatasetsSecured implements Datasets {
                 } else {
                     return getNamespaceDetails(datasetName.getNamespace())
                         .thenApply(nsDetails -> nsDetails.getAcl().canGrantNamespaceAccess(executor));
+                }
+            });
+    }
+
+    private CompletionStage<Boolean> canManage(ResourcePath dataset, User executor) {
+        return getDatasetDetails(dataset)
+            .thenCompose(dsDetails -> {
+                if (dsDetails.getAcl().canManage(executor)) {
+                    return CompletableFuture.completedFuture(true);
+                } else {
+                    return getNamespaceDetails(dataset.getNamespace())
+                        .thenApply(nsDetails -> nsDetails.getAcl().canManage(executor));
                 }
             });
     }
@@ -121,14 +134,38 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
+    public CompletionStage<DatasetDetails> changeDescription(User executor, ResourcePath dataset, Markdown description) {
+        return canManage(dataset, executor)
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.changeDescription(executor, dataset, description);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
+    }
+
+    @Override
+    public CompletionStage<DatasetDetails> changePrivacy(User executor, ResourcePath dataset, boolean isPrivate) {
+        return canManage(dataset, executor)
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.changePrivacy(executor, dataset, isPrivate);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
+    }
+
+    @Override
     public CompletionStage<DatasetDetails> changeOwner(User executor, ResourcePath dataset, Authorization owner) {
         return getDatasetDetails(dataset)
             .thenCompose(dsDetails -> {
-                if (dsDetails.getAcl().canChangeOwner(executor)) {
+                if (dsDetails.getAcl().canManage(executor)) {
                     return CompletableFuture.completedFuture(true);
                 } else {
                     return getNamespaceDetails(dataset.getNamespace())
-                        .thenApply(nsDetails -> nsDetails.getAcl().canChangeOwner(executor));
+                        .thenApply(nsDetails -> nsDetails.getAcl().canManage(executor));
                 }
             })
             .thenCompose(canDo -> {
@@ -224,9 +261,9 @@ public final class DatasetsSecured implements Datasets {
         return delegate
             .findDatasets(executor, query)
             .thenApply(datasets -> datasets
-                      .stream()
-                      .filter(ds -> ds.getAcl().canView(executor))
-                      .collect(Collectors.toSet()));
+                .stream()
+                .filter(ds -> ds.getAcl().canView(executor))
+                .collect(Collectors.toSet()));
     }
 
     @Override
