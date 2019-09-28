@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import maquette.controller.adapters.cli.CommandResult;
+import maquette.controller.adapters.cli.commands.datasets.ChangeDatasetDescriptionCmd;
+import maquette.controller.adapters.cli.commands.datasets.ChangeDatasetPrivacyCmd;
 import maquette.controller.adapters.cli.commands.datasets.CreateDatasetCmd;
 import maquette.controller.adapters.cli.commands.datasets.CreateDatasetConsumerToken;
 import maquette.controller.adapters.cli.commands.datasets.CreateDatasetProducerToken;
@@ -16,6 +18,8 @@ import maquette.controller.adapters.cli.commands.datasets.ListNamespaceDatasetsC
 import maquette.controller.adapters.cli.commands.datasets.PrintDatasetDetailsCmd;
 import maquette.controller.adapters.cli.commands.datasets.PrintDatasetVersionDetailsCmd;
 import maquette.controller.adapters.cli.commands.datasets.RevokeDatasetAccessCmd;
+import maquette.controller.adapters.cli.commands.namespaces.ChangeNamespaceDescriptionCmd;
+import maquette.controller.adapters.cli.commands.namespaces.ChangeNamespacePrivacyCmd;
 import maquette.controller.adapters.cli.commands.namespaces.CreateNamespaceCmd;
 import maquette.controller.adapters.cli.commands.namespaces.GrantNamespaceAccessCmd;
 import maquette.controller.adapters.cli.commands.namespaces.ListNamespacesCmd;
@@ -34,6 +38,8 @@ import maquette.controller.domain.values.iam.User;
     property = "command")
 @JsonSubTypes(
     {
+        @JsonSubTypes.Type(value = ChangeDatasetDescriptionCmd.class, name = "dataset change description"),
+        @JsonSubTypes.Type(value = ChangeDatasetPrivacyCmd.class, name = "dataset change privacy"),
         @JsonSubTypes.Type(value = CreateDatasetCmd.class, name = "datasets create"),
         @JsonSubTypes.Type(value = CreateDatasetConsumerToken.class, name = "dataset create consumer"),
         @JsonSubTypes.Type(value = CreateDatasetProducerToken.class, name = "dataset create producer"),
@@ -44,6 +50,8 @@ import maquette.controller.domain.values.iam.User;
         @JsonSubTypes.Type(value = PrintDatasetVersionDetailsCmd.class, name = "dataset version show"),
         @JsonSubTypes.Type(value = RevokeDatasetAccessCmd.class, name = "dataset revoke"),
 
+        @JsonSubTypes.Type(value = ChangeNamespaceDescriptionCmd.class, name = "namespace change description"),
+        @JsonSubTypes.Type(value = ChangeNamespacePrivacyCmd.class, name = "namespace change privacy"),
         @JsonSubTypes.Type(value = CreateNamespaceCmd.class, name = "namespaces create"),
         @JsonSubTypes.Type(value = GrantNamespaceAccessCmd.class, name = "namespace grant"),
         @JsonSubTypes.Type(value = ListNamespacesCmd.class, name = "namespaces"),

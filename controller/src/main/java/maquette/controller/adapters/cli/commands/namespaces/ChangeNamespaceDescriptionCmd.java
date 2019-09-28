@@ -11,28 +11,29 @@ import lombok.Value;
 import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateNamespaceCmd implements Command {
+public class ChangeNamespaceDescriptionCmd implements Command {
 
     private static final String NAMESPACE = "namespace";
-    private static final String IS_PRIVATE = "is-private";
+    private static final String DESCRIPTION = "description";
 
     @JsonProperty(NAMESPACE)
     private final String namespace;
 
-    @JsonProperty(IS_PRIVATE)
-    private final boolean isPrivate;
+    @JsonProperty(DESCRIPTION)
+    private final Markdown description;
 
     @JsonCreator
-    public static CreateNamespaceCmd apply(
+    public static ChangeNamespaceDescriptionCmd apply(
         @JsonProperty(NAMESPACE) String namespace,
-        @JsonProperty(IS_PRIVATE) boolean isPrivate) {
+        @JsonProperty(DESCRIPTION) Markdown description) {
 
-        return new CreateNamespaceCmd(namespace, isPrivate);
+        return new ChangeNamespaceDescriptionCmd(namespace, description);
     }
 
     @Override
@@ -41,7 +42,7 @@ public class CreateNamespaceCmd implements Command {
 
         return app
             .namespaces()
-            .createNamespace(executor, resource, isPrivate)
+            .changeDescription(executor, resource, description)
             .thenApply(info -> CommandResult.success());
     }
 

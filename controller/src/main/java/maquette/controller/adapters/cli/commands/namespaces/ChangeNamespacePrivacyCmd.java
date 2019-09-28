@@ -16,7 +16,7 @@ import maquette.controller.domain.values.iam.User;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateNamespaceCmd implements Command {
+public class ChangeNamespacePrivacyCmd implements Command {
 
     private static final String NAMESPACE = "namespace";
     private static final String IS_PRIVATE = "is-private";
@@ -28,11 +28,11 @@ public class CreateNamespaceCmd implements Command {
     private final boolean isPrivate;
 
     @JsonCreator
-    public static CreateNamespaceCmd apply(
+    public static ChangeNamespacePrivacyCmd apply(
         @JsonProperty(NAMESPACE) String namespace,
         @JsonProperty(IS_PRIVATE) boolean isPrivate) {
 
-        return new CreateNamespaceCmd(namespace, isPrivate);
+        return new ChangeNamespacePrivacyCmd(namespace, isPrivate);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class CreateNamespaceCmd implements Command {
 
         return app
             .namespaces()
-            .createNamespace(executor, resource, isPrivate)
+            .changePrivacy(executor, resource, isPrivate)
             .thenApply(info -> CommandResult.success());
     }
 
