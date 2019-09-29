@@ -129,8 +129,8 @@ class Dataset:
         self.__name = name
         self.__namespace = namespace
 
-    def create(self) -> 'Dataset':
-        client.command('datasets create', {'dataset': self.__name, 'namespace': self.__namespace})
+    def create(self, is_private: bool = False) -> 'Dataset':
+        client.command('datasets create', {'dataset': self.__name, 'namespace': self.__namespace, 'is-private': is_private})
         return self
 
     def create_consumer(self, for_user: str = None) -> 'Dataset':
@@ -217,8 +217,8 @@ class Namespace:
     def __init__(self, name: str = None):
         self.__name = name
 
-    def create(self) -> 'Namespace':
-        client.command('namespaces create', {'namespace': self.__name})
+    def create(self, is_private: bool = False) -> 'Namespace':
+        client.command('namespaces create', {'namespace': self.__name, 'is-private': is_private})
         return self
 
     def datasets(self) -> pd.DataFrame:

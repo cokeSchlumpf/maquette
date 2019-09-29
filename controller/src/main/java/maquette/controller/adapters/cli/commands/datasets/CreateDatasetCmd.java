@@ -19,16 +19,26 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateDatasetCmd implements Command {
 
+    private static final String NAMESPACE = "namespace";
+    private static final String DATASET = "dataset";
+    private static final String IS_PRIVATE = "is-private";
+
+    @JsonProperty(NAMESPACE)
     private final String namespace;
 
+    @JsonProperty(DATASET)
     private final String dataset;
+
+    @JsonProperty(IS_PRIVATE)
+    private final boolean isPrivate;
 
     @JsonCreator
     public static CreateDatasetCmd apply(
-        @JsonProperty("namespace") String namespace,
-        @JsonProperty("dataset") String dataset) {
+        @JsonProperty(NAMESPACE) String namespace,
+        @JsonProperty(DATASET) String dataset,
+        @JsonProperty(IS_PRIVATE) boolean isPrivate) {
 
-        return new CreateDatasetCmd(namespace, dataset);
+        return new CreateDatasetCmd(namespace, dataset, isPrivate);
     }
 
     @Override
@@ -38,7 +48,7 @@ public class CreateDatasetCmd implements Command {
 
         return app
             .datasets()
-            .createDataset(executor, rp, false)
+            .createDataset(executor, rp, isPrivate)
             .thenApply(details -> CommandResult.success());
     }
 
