@@ -41,7 +41,7 @@ public class GeneralSetupSteps {
     }
 
     @Given("user {string} has the following datasets in his private namespace")
-    public void userHasTheFollowingDatasetsInHisPrivateNamespace(String arg0) {
+    public void userHasTheFollowingDatasetsInHisPrivateNamespace(String user, DataTable dataTable) {
 
     }
 

@@ -1,6 +1,5 @@
 package maquette.cucumber.setup;
 
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 
 import cucumber.api.CucumberOptions;
