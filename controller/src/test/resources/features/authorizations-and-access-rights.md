@@ -21,14 +21,22 @@ Feature: Authorizations and Access Rights
       | b-team-space          | b-team              | no      |
     
     Given namespace "a-team-space-public" contains the following datasets
-      | Dataset       | Created by          | Description
-      | ds-a-1        | clair               | Sample data for A1
-      | ds-a-2        | bob                 | Sample data for A2
-      
+      | Dataset       | Created by          | Description         | Private |
+      | ds-a-1        | clair               | Sample data for A1  | yes     |
+      | ds-a-2        | bob                 | Sample data for A2  | no      |
     And namespace "a-team-space-private" contains the following datasets
-      | Datasets      | Created by          | Description
-      | ds-a-3        | bob                 | Private sample data A3
-      | ds-a-4        | bob                 | Private sample data A4
+      | Datasets      | Created by          | Description             | Private |
+      | ds-a-3        | bob                 | Private sample data A3  | no      |
+      | ds-a-4        | bob                 | Private sample data A4  | yes     |
+    And namespace "b-team-space" contains the following datasets
+      | Dataset       | Created by          | Description         | Private |
+      | ds-b-1        | debra               | Sample data for B1  | no      |
+      | ds-b-2        | bob                 | Sample data for B2  | yes     |
+      
+    Given user "bob" has the following datasets in his private namespace
+      | Dataset       | Description         | Private |
+      | ds-bob-1      | Sample data for Bob | yes     |
+      | ds-bob-2      | Sample data for Bob | no      |
 ```
 
 ```gherkin
