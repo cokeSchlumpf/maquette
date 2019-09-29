@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 
+import com.typesafe.config.ConfigFactory;
+
 import maquette.controller.adapters.storage.InMemoryDataStorageAdapter;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
@@ -266,6 +268,12 @@ public class NamespacesITest {
         }).hasMessageContaining("does not exist");
 
         setup.getApp().terminate();
+    }
+
+    @Test
+    public void someTest() {
+        System.out.println(ConfigFactory.load().getString("akka.persistence.journal.plugin"));
+        System.out.println(ConfigFactory.load().getString("akka.actor.provider"));
     }
 
 }

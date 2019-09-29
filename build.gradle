@@ -45,6 +45,7 @@ subprojects {
                 'assertj-core'                     : 'org.assertj:assertj-core:3.9.1',
                 'avro'                             : 'org.apache.avro:avro:1.9.1',
                 'cucumber-java'                    : 'io.cucumber:cucumber-java:4.2.5',
+                'cucumber-junit'                   : 'io.cucumber:cucumber-junit:4.2.5',
                 'cucumber-picocontainer'           : 'io.cucumber:cucumber-picocontainer:4.2.6',
                 'easymock'                         : 'org.easymock:easymock:4.0.1',
                 'jackson-annotations'              : "com.fasterxml.jackson.core:jackson-annotations:${versions['jackson']}",

@@ -47,31 +47,9 @@ dependencies {
 
     testCompile libs['akka-peristence-inmemory']
     testCompile libs['assertj-core']
+
     testCompile libs['cucumber-java']
+    testCompile libs['cucumber-junit']
     testCompile libs['cucumber-picocontainer']
 
-}
-
-configurations {
-    cucumberRuntime {
-        extendsFrom testRuntime
-    }
-}
-
-println(configurations)
-
-task cucumber() {
-    dependsOn assemble, compileTestJava
-    doLast {
-        javaexec {
-            main = "maquette.util.ExtractFeatures"
-            classpath = configurations.runtime + configurations.testRuntime + sourceSets.main.output + sourceSets.test.output
-        }
-
-        javaexec {
-            main = "cucumber.api.cli.Main"
-            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
-            args = ['--plugin', 'pretty', '--glue', 'maquette.cucumber', 'src/test/resources']
-        }
-    }
 }

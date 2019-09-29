@@ -1,7 +1,6 @@
-package maquette.util;
+package maquette.cucumber.setup;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,18 +12,18 @@ import lombok.AllArgsConstructor;
 import maquette.controller.domain.util.Operators;
 
 @AllArgsConstructor(staticName = "apply")
-public class ExtractFeatures {
+public class CucumberExtractFeatures {
 
     private final Path basePath;
 
     public static void main(String... args) {
-        ExtractFeatures
+        CucumberExtractFeatures
             .apply(new File(".").toPath())
             .clean()
             .extract();
     }
 
-    private ExtractFeatures clean() {
+    private CucumberExtractFeatures clean() {
         return Operators.suppressExceptions(() -> {
             Files
                 .walk(basePath.resolve("src/test/resources/features"))
@@ -35,7 +34,7 @@ public class ExtractFeatures {
         });
     }
 
-    private ExtractFeatures extract() {
+    private CucumberExtractFeatures extract() {
         return Operators.suppressExceptions(() -> {
             Files
                 .walk(basePath.resolve("src/test/resources/features"))
@@ -71,6 +70,9 @@ public class ExtractFeatures {
 
             if (ftLines.size() > 0) {
                 Path featurePath = markdown.resolveSibling(markdown.getFileName().toString() + ".feature");
+
+                System.out.println("Saving " + featurePath + " ...");
+
                 Files.write(featurePath, ftLines, StandardCharsets.UTF_8);
             }
         });
