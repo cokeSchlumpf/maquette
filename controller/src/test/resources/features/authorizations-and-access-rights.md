@@ -39,6 +39,10 @@ Feature: Authorizations and Access Rights
       | ds-bob-2      | Sample data for Bob | no      |
 ```
 
+## Listing Namespaces
+
+When listing own datasets, a user should see all datasets where she is the owner or is member of a role who is owner of the dataset. The list should also include the datasets where ... 
+
 ```gherkin
   Scenario: Some first scenario
     Given today is Sunday
