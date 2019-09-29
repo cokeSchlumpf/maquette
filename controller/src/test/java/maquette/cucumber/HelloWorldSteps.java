@@ -3,15 +3,18 @@ package maquette.cucumber;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import maquette.util.TestSetup;
+import lombok.AllArgsConstructor;
+import lombok.Value;
 
+@Value
+@AllArgsConstructor
 public class HelloWorldSteps {
 
-    private TestSetup setup;
+    private TestContext ctx;
 
     @Given("today is Sunday")
     public void today_is_Sunday() {
-
+        System.out.println(ctx.getSetup().getDefaultUser());
     }
 
     @When("I ask whether it's Friday yet")
