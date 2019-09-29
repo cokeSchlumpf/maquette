@@ -29,7 +29,7 @@ public class NamespacesITest {
 
         NamespaceInfo namespaceInfo = app
             .namespaces()
-            .createNamespace(user, namespaceName)
+            .createNamespace(user, namespaceName, false)
             .toCompletableFuture()
             .get();
 

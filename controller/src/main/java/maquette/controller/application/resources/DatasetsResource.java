@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
@@ -78,6 +79,7 @@ public class DatasetsResource {
     public CompletionStage<DatasetDetails> create(
         @PathVariable("namespace") String namespace,
         @PathVariable("name") String name,
+        @RequestParam("private") boolean isPrivate,
         ServerWebExchange exchange) {
 
         return ctx
@@ -87,7 +89,7 @@ public class DatasetsResource {
 
                 return core
                     .datasets()
-                    .createDataset(user, dataset, false);
+                    .createDataset(user, dataset, isPrivate);
             });
     }
 

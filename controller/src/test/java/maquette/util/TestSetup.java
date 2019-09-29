@@ -63,7 +63,7 @@ public class TestSetup {
         Operators.suppressExceptions(() -> {
             app
                 .namespaces()
-                .createNamespace(executor, ResourceName.apply(name))
+                .createNamespace(executor, ResourceName.apply(name), false)
                 .toCompletableFuture()
                 .get();
         });
