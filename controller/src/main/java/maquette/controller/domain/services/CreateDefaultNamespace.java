@@ -26,6 +26,9 @@ public final class CreateDefaultNamespace {
     private final ActorPatterns patterns;
 
     public <T> CompletionStage<T> run(User executor, Supplier<CompletionStage<T>> andThen) {
+        // TODO: Check whether namespace really belongs to user (or not if it already existed before)
+        // TODO: Configure namespace in user entity
+
         if (executor instanceof AuthenticatedUser) {
             final ResourceName defaultNamespace = ResourceName.apply(executor.getUserId().getId());
 

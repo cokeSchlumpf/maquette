@@ -1,5 +1,6 @@
 package maquette.controller.domain.values.iam;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,6 +21,7 @@ public class UserDetails {
 
     private static final String ID = "id";
     private static final String ACCESS_TOKENS = "access-tokens";
+    private static final String NAMESPACE = "namespace";
 
     @JsonProperty(ID)
     private final UserId id;
@@ -27,12 +29,20 @@ public class UserDetails {
     @JsonProperty(ACCESS_TOKENS)
     private final Set<Token> accessTokens;
 
+    @JsonProperty(NAMESPACE)
+    private final ResourceName namespace;
+
     @JsonCreator
     public static UserDetails apply(
         @JsonProperty(ID) UserId id,
-        @JsonProperty(ACCESS_TOKENS) Set<Token> accessTokens) {
+        @JsonProperty(ACCESS_TOKENS) Set<Token> accessTokens,
+        @JsonProperty(NAMESPACE) ResourceName namespace) {
 
-        return new UserDetails(id, ImmutableSet.copyOf(accessTokens));
+        return new UserDetails(id, ImmutableSet.copyOf(accessTokens), namespace);
+    }
+
+    public static UserDetails apply(UserId id, Set<Token> accessTokens) {
+        return apply(id, accessTokens, null);
     }
 
     public TokenAuthenticatedUser authenticateWithToken(UID secret) {
@@ -51,6 +61,14 @@ public class UserDetails {
 
     public boolean canManageTokens(User executor) {
         return (executor instanceof AuthenticatedUser && executor.getUserId().equals(id)) || executor.isAdministrator();
+    }
+
+    public Optional<ResourceName> getNamespace() {
+        return Optional.ofNullable(namespace);
+    }
+
+    public UserDetails withNamespace(ResourceName namespace) {
+        return apply(id, accessTokens, namespace);
     }
 
     public UserDetails withToken(Token token) {

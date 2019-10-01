@@ -7,15 +7,18 @@ import akka.persistence.typed.javadsl.Effect;
 import akka.persistence.typed.javadsl.EffectFactories;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.user.protocol.UserEvent;
+import maquette.controller.domain.entities.user.protocol.commands.ConfigureNamespace;
 import maquette.controller.domain.entities.user.protocol.commands.RegisterAccessToken;
 import maquette.controller.domain.entities.user.protocol.commands.RemoveAccessToken;
 import maquette.controller.domain.entities.user.protocol.commands.RenewAccessTokenSecret;
+import maquette.controller.domain.entities.user.protocol.events.ConfiguredNamespace;
 import maquette.controller.domain.entities.user.protocol.events.RegisteredAccessToken;
 import maquette.controller.domain.entities.user.protocol.events.RemovedAccessToken;
 import maquette.controller.domain.entities.user.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.user.protocol.results.GetDetailsResult;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.dataset.UserNamespaceAlreadyConfiguredError;
 import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.TokenDetails;
 import maquette.controller.domain.values.iam.UserDetails;
@@ -26,6 +29,29 @@ public final class ActiveUser implements State {
     private final EffectFactories<UserEvent, State> effect;
 
     private UserDetails details;
+
+    @Override
+    public Effect<UserEvent, State> onConfigureNamespace(ConfigureNamespace configure) {
+        ConfiguredNamespace configured = ConfiguredNamespace.apply(configure.getNamespace());
+
+        if (details.getNamespace().isPresent() && details.getNamespace().get().equals(configure.getNamespace())) {
+            configure.getReplyTo().tell(configured);
+            return effect.none();
+        } else if (details.getNamespace().isPresent()) {
+            configure.getErrorTo().tell(UserNamespaceAlreadyConfiguredError.apply());
+            return effect.none();
+        } else {
+            return effect
+                .persist(configured)
+                .thenRun(() -> configure.getReplyTo().tell(configured));
+        }
+    }
+
+    @Override
+    public State onConfiguredNamespace(ConfiguredNamespace configured) {
+        details = details.withNamespace(configured.getNamespace());
+        return this;
+    }
 
     @Override
     public Effect<UserEvent, State> onGetDetails(GetDetails get) {

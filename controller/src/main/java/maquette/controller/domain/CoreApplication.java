@@ -14,8 +14,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.api.datasets.Datasets;
 import maquette.controller.domain.api.datasets.DatasetsFactory;
-import maquette.controller.domain.api.namespaces.Namespaces;
-import maquette.controller.domain.api.namespaces.NamespacesFactory;
+import maquette.controller.domain.api.namespaces.NamespaceContainer;
 import maquette.controller.domain.api.users.Users;
 import maquette.controller.domain.api.users.UsersFactory;
 import maquette.controller.domain.entities.dataset.Dataset;
@@ -38,7 +37,7 @@ public class CoreApplication {
 
     private final ActorSystem system;
 
-    private final Namespaces namespaces;
+    private final NamespaceContainer namespaces;
 
     private final Datasets datasets;
 
@@ -81,7 +80,7 @@ public class CoreApplication {
         final CreateDefaultNamespace createDefaultNamespace = CreateDefaultNamespace.apply(
             namespacesRegistry, namespaceShards, patterns);
 
-        final Namespaces namespaces = NamespacesFactory
+        final NamespaceContainer namespaces = NamespacesFactory
             .apply(namespacesRegistry, namespaceShards, datasetShards, patterns, createDefaultNamespace)
             .create();
 
@@ -101,7 +100,7 @@ public class CoreApplication {
         return datasets;
     }
 
-    public Namespaces namespaces() {
+    public NamespaceContainer namespaces() {
         return namespaces;
     }
 

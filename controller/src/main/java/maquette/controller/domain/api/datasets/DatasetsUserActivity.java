@@ -1,13 +1,11 @@
 package maquette.controller.domain.api.datasets;
 
 import java.nio.ByteBuffer;
-import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 import org.apache.avro.Schema;
 
-import akka.Done;
 import akka.NotUsed;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
@@ -65,11 +63,6 @@ public final class DatasetsUserActivity implements Datasets {
     }
 
     @Override
-    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, boolean isPrivate) {
-        return createDefaultNamespace(executor, d -> d.createDataset(executor, name, isPrivate));
-    }
-
-    @Override
     public CompletionStage<Token> createDatasetConsumerToken(User executor, UserId forUser, ResourcePath name) {
         return createDefaultNamespace(executor, d -> d.createDatasetConsumerToken(executor, forUser, name));
     }
@@ -82,16 +75,6 @@ public final class DatasetsUserActivity implements Datasets {
     @Override
     public CompletionStage<UID> createDatasetVersion(User executor, ResourcePath dataset, Schema schema) {
         return createDefaultNamespace(executor, d -> d.createDatasetVersion(executor, dataset, schema));
-    }
-
-    @Override
-    public CompletionStage<Done> deleteDataset(User executor, ResourcePath datasetName) {
-        return createDefaultNamespace(executor, d -> d.deleteDataset(executor, datasetName));
-    }
-
-    @Override
-    public CompletionStage<Set<DatasetDetails>> findDatasets(User executor, String query) {
-        return createDefaultNamespace(executor, d -> d.findDatasets(executor, query));
     }
 
     @Override
@@ -123,11 +106,6 @@ public final class DatasetsUserActivity implements Datasets {
     public CompletionStage<DatasetDetails> grantDatasetAccess(User executor, ResourcePath datasetName, DatasetPrivilege grant,
                                                               Authorization grantFor) {
         return createDefaultNamespace(executor, d -> d.grantDatasetAccess(executor, datasetName, grant, grantFor));
-    }
-
-    @Override
-    public CompletionStage<Set<DatasetDetails>> listDatasets(User executor) {
-        return createDefaultNamespace(executor, d -> d.listDatasets(executor));
     }
 
     @Override

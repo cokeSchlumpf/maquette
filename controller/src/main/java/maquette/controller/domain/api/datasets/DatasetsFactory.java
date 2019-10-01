@@ -14,8 +14,6 @@ import maquette.controller.domain.util.ActorPatterns;
 @AllArgsConstructor(staticName = "apply")
 public final class DatasetsFactory {
 
-    private final ActorRef<NamespacesMessage> namespaceRegistry;
-
     private final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaces;
 
     private final ActorRef<ShardingEnvelope<DatasetMessage>> datasets;
@@ -29,7 +27,7 @@ public final class DatasetsFactory {
     private final Materializer materializer;
 
     public Datasets create() {
-        DatasetsImpl impl = DatasetsImpl.apply(namespaceRegistry, namespaces, datasets, users, patterns, materializer);
+        DatasetsImpl impl = DatasetsImpl.apply(datasets, users, patterns, materializer);
         DatasetsSecured secured = DatasetsSecured.apply(namespaces, datasets, patterns, impl);
         return DatasetsUserActivity.apply(secured, createDefaultNamespace);
     }

@@ -15,7 +15,7 @@ import maquette.controller.domain.entities.project.states.State;
 import maquette.controller.domain.entities.project.states.UninitializedProject;
 import maquette.controller.domain.values.core.ResourceName;
 
-public class Project extends EventSourcedEntity<ProjectMessage, ProjectEvent, State> {
+public final class Project extends EventSourcedEntity<ProjectMessage, ProjectEvent, State> {
 
     public static EntityTypeKey<ProjectMessage> ENTITY_KEY = EntityTypeKey.create(ProjectMessage.class, "project");
 

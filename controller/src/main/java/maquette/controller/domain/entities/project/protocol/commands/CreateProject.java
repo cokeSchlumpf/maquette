@@ -16,6 +16,7 @@ import maquette.controller.domain.entities.project.protocol.events.CreatedProjec
 import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.project.ProjectProperties;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -23,7 +24,7 @@ public class CreateProject implements ProjectMessage, ProjectsMessage {
 
     private static final String EXECUTOR = "executor";
     private static final String NAME = "name";
-    private static final String IS_PRIVATE = "is-private";
+    private static final String PROPERTIES = "properties";
     private static final String REPLY_TO = "reply-to";
     private static final String ERROR_TO = "error-to";
 
@@ -33,8 +34,8 @@ public class CreateProject implements ProjectMessage, ProjectsMessage {
     @JsonProperty(EXECUTOR)
     private final User executor;
 
-    @JsonProperty(IS_PRIVATE)
-    private final boolean isPrivate;
+    @JsonProperty(PROPERTIES)
+    private final ProjectProperties properties;
 
     @JsonProperty(REPLY_TO)
     private final ActorRef<CreatedProject> replyTo;
@@ -46,11 +47,11 @@ public class CreateProject implements ProjectMessage, ProjectsMessage {
     public static CreateProject apply(
         @JsonProperty(NAME) ResourceName name,
         @JsonProperty(EXECUTOR) User executor,
-        @JsonProperty(IS_PRIVATE) boolean isPrivate,
+        @JsonProperty(PROPERTIES) ProjectProperties properties,
         @JsonProperty(REPLY_TO) ActorRef<CreatedProject> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 
-        return new CreateProject(name, executor, isPrivate, replyTo, errorTo);
+        return new CreateProject(name, executor, properties, replyTo, errorTo);
     }
 
 }

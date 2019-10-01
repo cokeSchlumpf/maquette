@@ -19,7 +19,9 @@ import maquette.controller.domain.entities.user.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.user.protocol.results.GetDetailsResult;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
+import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.TokenAuthenticatedUser;
 import maquette.controller.domain.values.iam.TokenDetails;
@@ -32,6 +34,23 @@ final class UsersImpl implements Users {
 
     private final ActorRef<ShardingEnvelope<UserMessage>> users;
     private final ActorPatterns patterns;
+
+
+
+    @Override
+    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, boolean isPrivate) {
+        return null;
+    }
+
+    @Override
+    public CompletionStage<Done> deleteDataset(User executor, ResourcePath dataset) {
+        return null;
+    }
+
+    @Override
+    public CompletionStage<Set<DatasetDetails>> getDatasets(User executor, ResourceName name) {
+        return null;
+    }
 
     private CompletionStage<UserDetails> getDetails(UserId forUser) {
         return patterns

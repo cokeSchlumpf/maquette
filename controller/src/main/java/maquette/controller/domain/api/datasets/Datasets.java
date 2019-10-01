@@ -1,12 +1,10 @@
 package maquette.controller.domain.api.datasets;
 
 import java.nio.ByteBuffer;
-import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 import org.apache.avro.Schema;
 
-import akka.Done;
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
 import maquette.controller.domain.values.core.Markdown;
@@ -30,17 +28,11 @@ public interface Datasets {
 
     CompletionStage<DatasetDetails> changeOwner(User executor, ResourcePath dataset, Authorization owner);
 
-    CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, boolean isPrivate);
-
     CompletionStage<Token> createDatasetConsumerToken(User executor, UserId forUser, ResourcePath name);
 
     CompletionStage<Token> createDatasetProducerToken(User executor, UserId forUser, ResourcePath name);
 
     CompletionStage<UID> createDatasetVersion(User executor, ResourcePath dataset, Schema schema);
-
-    CompletionStage<Done> deleteDataset(User executor, ResourcePath datasetName);
-
-    CompletionStage<Set<DatasetDetails>> findDatasets(User executor, String query);
 
     CompletionStage<Records> getData(User executor, ResourcePath dataset);
 
@@ -54,8 +46,6 @@ public interface Datasets {
 
     CompletionStage<DatasetDetails> grantDatasetAccess(
         User executor, ResourcePath datasetName, DatasetPrivilege grant, Authorization grantFor);
-
-    CompletionStage<Set<DatasetDetails>> listDatasets(User executor);
 
     CompletionStage<VersionDetails> pushData(
         User executor, ResourcePath dataset, UID versionId, Source<ByteBuffer, NotUsed> data);
