@@ -5,8 +5,8 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 
 import akka.actor.ExtendedActorSystem;
-import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespaceDescription;
-import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespacePrivacy;
+import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectDescription;
+import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectPrivacy;
 import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.DeleteNamespace;
@@ -14,8 +14,8 @@ import maquette.controller.domain.entities.namespace.protocol.commands.GrantName
 import maquette.controller.domain.entities.namespace.protocol.commands.RegisterDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RemoveDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RevokeNamespaceAccess;
-import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespaceDescription;
-import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespacePrivacy;
+import maquette.controller.domain.entities.project.protocol.events.ChangedProjectDescription;
+import maquette.controller.domain.entities.project.protocol.events.ChangedProjectPrivacy;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
@@ -41,8 +41,6 @@ public final class MessageSerializer extends AbstractMessageSerializer {
     protected Map<String, Class<?>> getManifestToClass() {
         Map<String, Class<?>> m = Maps.newHashMap();
 
-        m.put("namespace/commands/namespace-description/v1", ChangeNamespaceDescription.class);
-        m.put("namespace/commands/change-namespace-privacy/v1", ChangeNamespacePrivacy.class);
         m.put("namespace/commands/change-owner/v1", ChangeOwner.class);
         m.put("namespace/commands/create-namespace/v1", CreateNamespace.class);
         m.put("namespace/commands/delete-namespace/v1", DeleteNamespace.class);
@@ -51,8 +49,6 @@ public final class MessageSerializer extends AbstractMessageSerializer {
         m.put("namespaces/commands/remove-dataset/v1", RemoveDataset.class);
         m.put("namespace/commands/revoke-namespace-access/v1", RevokeNamespaceAccess.class);
 
-        m.put("namespace/events/changed-namespace-description/v1", ChangedNamespaceDescription.class);
-        m.put("namespace/events/changed-namespace-privacy/v1", ChangedNamespacePrivacy.class);
         m.put("namespace/events/changed-owner/v1", ChangedOwner.class);
         m.put("namespace/events/created-namespace/v1", CreatedNamespace.class);
         m.put("namespace/events/deleted-namespace/v1", DeletedNamespace.class);

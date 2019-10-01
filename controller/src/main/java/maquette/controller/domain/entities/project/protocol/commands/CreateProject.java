@@ -1,4 +1,4 @@
-package maquette.controller.domain.entities.namespace.protocol.commands;
+package maquette.controller.domain.entities.project.protocol.commands;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,14 +9,17 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
-import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespacePrivacy;
+import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
+import maquette.controller.domain.entities.project.protocol.ProjectMessage;
+import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
+import maquette.controller.domain.entities.project.protocol.events.CreatedProject;
 import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ChangeNamespacePrivacy implements NamespaceMessage, NamespacesMessage {
+public class CreateProject implements ProjectMessage, ProjectsMessage {
 
     private static final String EXECUTOR = "executor";
     private static final String NAME = "name";
@@ -34,26 +37,20 @@ public class ChangeNamespacePrivacy implements NamespaceMessage, NamespacesMessa
     private final boolean isPrivate;
 
     @JsonProperty(REPLY_TO)
-    private final ActorRef<ChangedNamespacePrivacy> replyTo;
+    private final ActorRef<CreatedProject> replyTo;
 
     @JsonProperty(ERROR_TO)
     private final ActorRef<ErrorMessage> errorTo;
 
     @JsonCreator
-    public static ChangeNamespacePrivacy apply(
+    public static CreateProject apply(
         @JsonProperty(NAME) ResourceName name,
         @JsonProperty(EXECUTOR) User executor,
         @JsonProperty(IS_PRIVATE) boolean isPrivate,
-        @JsonProperty(REPLY_TO) ActorRef<ChangedNamespacePrivacy> replyTo,
+        @JsonProperty(REPLY_TO) ActorRef<CreatedProject> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 
-        return new ChangeNamespacePrivacy(name, executor, isPrivate, replyTo, errorTo);
-    }
-
-    @Deprecated
-    public static ChangeNamespacePrivacy apply(
-        ResourceName name, User executor, ActorRef<ChangedNamespacePrivacy> replyTo, ActorRef<ErrorMessage> errorTo) {
-        return apply(name, executor, false, replyTo, errorTo);
+        return new CreateProject(name, executor, isPrivate, replyTo, errorTo);
     }
 
 }

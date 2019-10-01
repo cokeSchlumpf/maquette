@@ -13,15 +13,15 @@ import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
-import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespaceDescription;
-import maquette.controller.domain.entities.namespace.protocol.commands.ChangeNamespacePrivacy;
+import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectDescription;
+import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectPrivacy;
 import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.DeleteNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.GrantNamespaceAccess;
 import maquette.controller.domain.entities.namespace.protocol.commands.RevokeNamespaceAccess;
-import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespaceDescription;
-import maquette.controller.domain.entities.namespace.protocol.events.ChangedNamespacePrivacy;
+import maquette.controller.domain.entities.project.protocol.events.ChangedProjectDescription;
+import maquette.controller.domain.entities.project.protocol.events.ChangedProjectPrivacy;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;
@@ -91,8 +91,8 @@ public final class NamespacesImpl implements Namespaces {
                 shards,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
                     Namespace.createEntityId(namespace),
-                    ChangeNamespaceDescription.apply(namespace, executor, description, replyTo, errorTo)),
-                ChangedNamespaceDescription.class)
+                    ChangeProjectDescription.apply(namespace, executor, description, replyTo, errorTo)),
+                ChangedProjectDescription.class)
             .thenCompose(changed -> getNamespaceInfo(namespace));
     }
 
@@ -117,8 +117,8 @@ public final class NamespacesImpl implements Namespaces {
                 shards,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
                     Namespace.createEntityId(namespaceName),
-                    ChangeNamespacePrivacy.apply(namespaceName, executor, isPrivate, replyTo, errorTo)),
-                ChangedNamespacePrivacy.class)
+                    ChangeProjectPrivacy.apply(namespaceName, executor, isPrivate, replyTo, errorTo)),
+                ChangedProjectPrivacy.class)
             .thenCompose(changed -> getNamespaceInfo(namespaceName));
     }
 
