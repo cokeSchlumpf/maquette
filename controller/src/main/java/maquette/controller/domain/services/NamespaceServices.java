@@ -1,4 +1,4 @@
-package maquette.controller.domain.api.namespaces;
+package maquette.controller.domain.services;
 
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -51,7 +51,7 @@ import maquette.controller.domain.values.namespace.NamespaceInfo;
 import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @AllArgsConstructor(staticName = "apply")
-public final class NamespaceContainerImpl {
+public final class NamespaceServices {
 
     private final ActorRef<NamespacesMessage> namespacesRegistry;
 

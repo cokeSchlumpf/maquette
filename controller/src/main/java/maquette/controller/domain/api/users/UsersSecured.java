@@ -13,6 +13,7 @@ import maquette.controller.domain.entities.user.protocol.results.GetDetailsResul
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.exceptions.NotAuthorizedException;
 import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.TokenAuthenticatedUser;
@@ -44,6 +45,22 @@ final class UsersSecured implements Users {
     @Override
     public CompletionStage<TokenAuthenticatedUser> authenticate(UserId id, UID secret) {
         return delegate.authenticate(id, secret);
+    }
+
+    @Override
+    public CompletionStage<DatasetDetails> createDataset(User executor, ResourceName dataset, boolean isPrivate) {
+        return delegate.createDataset(executor, dataset, isPrivate);
+    }
+
+    @Override
+    public CompletionStage<Done> deleteDataset(User executor, ResourceName dataset) {
+        return delegate.deleteDataset(executor, dataset);
+    }
+
+    @Override
+    public CompletionStage<Set<DatasetDetails>> getDatasets(User executor) {
+        // TODO: Other users can read datasets of another user if they are not private.
+        return delegate.getDatasets(executor);
     }
 
     @Override

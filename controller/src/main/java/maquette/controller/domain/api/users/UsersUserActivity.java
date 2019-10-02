@@ -5,15 +5,11 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 import akka.Done;
-import akka.actor.typed.ActorRef;
-import akka.cluster.sharding.typed.ShardingEnvelope;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.services.CreateDefaultNamespace;
-import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.TokenAuthenticatedUser;
 import maquette.controller.domain.values.iam.TokenDetails;
@@ -34,6 +30,21 @@ public final class UsersUserActivity implements Users {
     @Override
     public CompletionStage<TokenAuthenticatedUser> authenticate(UserId id, UID secret) {
         return delegate.authenticate(id, secret);
+    }
+
+    @Override
+    public CompletionStage<DatasetDetails> createDataset(User executor, ResourceName dataset, boolean isPrivate) {
+        return createDefaultNamespace(executor, u -> u.createDataset(executor, dataset, isPrivate));
+    }
+
+    @Override
+    public CompletionStage<Done> deleteDataset(User executor, ResourceName dataset) {
+        return createDefaultNamespace(executor, u -> u.deleteDataset(executor, dataset));
+    }
+
+    @Override
+    public CompletionStage<Set<DatasetDetails>> getDatasets(User executor) {
+        return createDefaultNamespace(executor, u -> u.getDatasets(executor));
     }
 
     @Override

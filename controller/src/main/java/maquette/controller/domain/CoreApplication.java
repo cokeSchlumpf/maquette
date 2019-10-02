@@ -14,7 +14,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.api.datasets.Datasets;
 import maquette.controller.domain.api.datasets.DatasetsFactory;
-import maquette.controller.domain.api.namespaces.NamespaceContainer;
 import maquette.controller.domain.api.users.Users;
 import maquette.controller.domain.api.users.UsersFactory;
 import maquette.controller.domain.entities.dataset.Dataset;

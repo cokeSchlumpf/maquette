@@ -7,7 +7,7 @@ import akka.Done;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.api.namespaces.NamespaceContainerImpl;
+import maquette.controller.domain.services.NamespaceServices;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
@@ -55,8 +55,8 @@ public final class ProjectsImpl implements Projects {
 
     private final ActorPatterns patterns;
 
-    private NamespaceContainerImpl createContainerImpl(ResourceName namespace) {
-        return NamespaceContainerImpl.apply(namespacesRegistry, namespaces, datasets, patterns, namespace);
+    private NamespaceServices createContainerImpl(ResourceName namespace) {
+        return NamespaceServices.apply(namespacesRegistry, namespaces, datasets, patterns, namespace);
     }
 
     private CompletionStage<NamespaceDetails> getNamespaceDetails(ResourceName project) {
