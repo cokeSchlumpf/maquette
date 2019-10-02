@@ -7,14 +7,9 @@ import java.util.function.Function;
 import org.apache.avro.Schema;
 
 import akka.NotUsed;
-import akka.actor.typed.ActorRef;
-import akka.cluster.sharding.typed.ShardingEnvelope;
 import akka.stream.javadsl.Source;
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
-import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.services.CreateDefaultNamespace;
-import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
@@ -34,14 +29,6 @@ public final class DatasetsUserActivity implements Datasets {
     private final Datasets delegate;
 
     private final CreateDefaultNamespace createDefaultNamespace;
-
-    public static DatasetsUserActivity apply(
-        ActorRef<NamespacesMessage> namespacesMgr, ActorRef<ShardingEnvelope<NamespaceMessage>> namespaces,
-        ActorPatterns patterns, Datasets delegate) {
-
-        CreateDefaultNamespace cdn = CreateDefaultNamespace.apply(namespacesMgr, namespaces, patterns);
-        return apply(delegate, cdn);
-    }
 
     private <T> CompletionStage<T> createDefaultNamespace(User executor, Function<Datasets, CompletionStage<T>> andThen) {
         return createDefaultNamespace.run(executor, () -> andThen.apply(delegate));

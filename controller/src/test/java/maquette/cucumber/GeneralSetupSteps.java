@@ -21,25 +21,6 @@ public class GeneralSetupSteps {
 
     private TestContext ctx;
 
-    private void createNamespaceForRole(String namespace, String role, boolean isPrivate) {
-        CoreApplication app = ctx.getSetup().getApp();
-        AuthenticatedUser admin = ctx.getSetup().getDefaultUser();
-
-        Operators.suppressExceptions(() -> {
-            app
-                .namespaces()
-                .createNamespace(admin, ResourceName.apply(namespace), isPrivate)
-                .toCompletableFuture()
-                .get();
-
-            app
-                .namespaces()
-                .changeOwner(admin, ResourceName.apply(namespace), RoleAuthorization.apply(role))
-                .toCompletableFuture()
-                .get();
-        });
-    }
-
     @Given("user {string} has the following datasets in his private namespace")
     public void userHasTheFollowingDatasetsInHisPrivateNamespace(String user, DataTable dataTable) {
 

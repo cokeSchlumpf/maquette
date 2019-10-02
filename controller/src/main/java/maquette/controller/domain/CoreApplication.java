@@ -72,14 +72,14 @@ public class CoreApplication {
         final ActorRef<ProjectsMessage> projectsRegistry = singleton.init(ProjectsRegistry.create());
 
         final CreateDefaultNamespace createDefaultNamespace = CreateDefaultNamespace.apply(
-            namespacesRegistry, namespaceShards, patterns);
+            namespacesRegistry, namespaceShards, userShards, patterns);
 
         final Datasets datasets = DatasetsFactory
             .apply(namespaceShards, datasetShards, userShards, patterns, createDefaultNamespace, materializer)
             .create();
 
         final Users users = UsersFactory
-            .apply(namespaceShards, userShards, patterns, createDefaultNamespace)
+            .apply(namespacesRegistry, namespaceShards, datasetShards, userShards, patterns, createDefaultNamespace)
             .create();
 
         final Projects projects = ProjectsFactory

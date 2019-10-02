@@ -48,26 +48,10 @@ public class TestSetup {
     public TestSetup withDataset(ResourcePath path, User executor) {
         withNamespace(path.getNamespace().getValue(), executor);
 
-        Operators.suppressExceptions(() -> {
-            app
-                .datasets()
-                .createDataset(executor, path, false)
-                .toCompletableFuture()
-                .get();
-        });
-
         return this;
     }
 
     public TestSetup withNamespace(String name, User executor) {
-        Operators.suppressExceptions(() -> {
-            app
-                .namespaces()
-                .createNamespace(executor, ResourceName.apply(name), false)
-                .toCompletableFuture()
-                .get();
-        });
-
         return this;
     }
 
@@ -81,14 +65,6 @@ public class TestSetup {
     }
 
     public TestSetup withNamespaceOwner(String namespace, Authorization owner, User executor) {
-        Operators.suppressExceptions(() -> {
-            app
-                .namespaces()
-                .changeOwner(executor, ResourceName.apply(namespace), owner)
-                .toCompletableFuture()
-                .get();
-        });
-
         return this;
     }
 

@@ -64,7 +64,7 @@ public final class ProjectsRegistry extends EventSourcedBehavior<ProjectsMessage
 
     private Effect<ProjectsEvent, State> onCreateProject(State state, CreateProject create) {
         CreatedProject created = CreatedProject.apply(
-            create.getName(), create.isPrivate(), create.getExecutor().getUserId(), Instant.now());
+            create.getName(), create.getProperties(), create.getExecutor().getUserId(), Instant.now());
 
         if (state.getProjects().contains(create.getName())) {
             create.getReplyTo().tell(created);

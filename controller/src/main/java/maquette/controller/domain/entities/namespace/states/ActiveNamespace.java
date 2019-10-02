@@ -97,8 +97,7 @@ public class ActiveNamespace implements State {
 
     @Override
     public Effect<NamespaceEvent, State> onCreateNamespace(CreateNamespace create) {
-        CreatedNamespace created = CreatedNamespace.apply(
-            details.getName(), details.getAcl().isPrivate(), details.getCreatedBy(), details.getCreated());
+        CreatedNamespace created = CreatedNamespace.apply(details.getName(), details.getCreatedBy(), details.getCreated());
 
         create.getReplyTo().tell(created);
         return effect.none();

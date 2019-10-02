@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
@@ -35,7 +34,6 @@ import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.dataset.VersionTag;
-import maquette.controller.domain.values.iam.Authorization;
 import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
@@ -46,52 +44,6 @@ public class DatasetsResource {
     private final CoreApplication core;
 
     private final ContextUtils ctx;
-
-    @RequestMapping(
-        path = "{namespace}/{name}/settings/owner",
-        method = RequestMethod.POST,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ApiOperation(
-        value = "Change the owner of a dataset")
-    public CompletionStage<DatasetDetails> changeOwner(
-        @PathVariable("namespace") String namespace,
-        @PathVariable("name") String name,
-        @RequestBody Authorization owner,
-        ServerWebExchange exchange) {
-
-        return ctx
-            .getUser(exchange)
-            .thenCompose(user -> {
-                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
-
-                return core
-                    .datasets()
-                    .changeOwner(user, dataset, owner);
-            });
-    }
-
-    @RequestMapping(
-        path = "{namespace}/{name}",
-        method = RequestMethod.PUT,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ApiOperation(
-        value = "Create a new dataset")
-    public CompletionStage<DatasetDetails> create(
-        @PathVariable("namespace") String namespace,
-        @PathVariable("name") String name,
-        @RequestParam("private") boolean isPrivate,
-        ServerWebExchange exchange) {
-
-        return ctx
-            .getUser(exchange)
-            .thenCompose(user -> {
-                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
-
-                return core
-                    .datasets()
-                    .createDataset(user, dataset, isPrivate);
-            });
-    }
 
     @RequestMapping(
         path = "{namespace}/{name}/versions",
@@ -113,29 +65,6 @@ public class DatasetsResource {
                 return core
                     .datasets()
                     .createDatasetVersion(user, dataset, schema);
-            });
-    }
-
-    @RequestMapping(
-        path = "{namespace}/{name}",
-        method = RequestMethod.DELETE,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ApiOperation(
-        value = "Delete an existing dataset")
-    public CompletionStage<Void> delete(
-        @PathVariable("namespace") String namespace,
-        @PathVariable("name") String name,
-        ServerWebExchange exchange) {
-
-        return ctx
-            .getUser(exchange)
-            .thenCompose(user -> {
-                ResourcePath dataset = ResourcePath.apply(user, namespace, name);
-
-                return core
-                    .datasets()
-                    .deleteDataset(user, dataset)
-                    .thenRun(() -> {});
             });
     }
 
