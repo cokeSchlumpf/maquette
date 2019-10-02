@@ -1,4 +1,4 @@
-package maquette.controller.adapters.cli.commands.namespaces;
+package maquette.controller.adapters.cli.commands.projects;
 
 import java.util.concurrent.CompletionStage;
 
@@ -19,39 +19,47 @@ import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class RevokeNamespaceAccessCmd implements Command {
+public final class RevokeProjectAccessCmd implements Command {
 
-    private final String namespace;
+    private static final String AUTHORIZATION = "authorization";
+    private static final String FROM = "from";
+    private static final String PRIVILEGE = "privilege";
+    private static final String PROJECT = "project";
 
+    @JsonProperty(PROJECT)
+    private final ResourceName project;
+
+    @JsonProperty(AUTHORIZATION)
     private final EAuthorizationType authorization;
 
+    @JsonProperty(PRIVILEGE)
     private final NamespacePrivilege privilege;
 
+    @JsonProperty(FROM)
     private final String from;
 
     @JsonCreator
-    public static RevokeNamespaceAccessCmd apply(
-        @JsonProperty("namespace") String namespace,
-        @JsonProperty("authorization") EAuthorizationType authorization,
-        @JsonProperty("privilege") NamespacePrivilege privilege,
-        @JsonProperty("from") String from) {
+    public static RevokeProjectAccessCmd apply(
+        @JsonProperty(PROJECT) ResourceName project,
+        @JsonProperty(AUTHORIZATION) EAuthorizationType authorization,
+        @JsonProperty(PRIVILEGE) NamespacePrivilege privilege,
+        @JsonProperty(FROM) String from) {
 
-        return new RevokeNamespaceAccessCmd(namespace, authorization, privilege, from);
+        return new RevokeProjectAccessCmd(project, authorization, privilege, from);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ObjectValidation.notNull().validate(privilege, "privilege");
+        ObjectValidation.notNull().validate(project, PROJECT);
+        ObjectValidation.notNull().validate(privilege, PRIVILEGE);
         ObjectValidation
             .validAuthorization(from)
             .and(ObjectValidation.notNull())
-            .validate(authorization, "authorization");
-
-        ResourceName resource = ResourceName.apply(executor, namespace);
+            .validate(authorization, AUTHORIZATION);
 
         return app
-            .namespaces()
-            .revokeNamespaceAccess(executor, resource, privilege, authorization.asAuthorization(from))
+            .projects()
+            .revokeNamespaceAccess(executor, project, privilege, authorization.asAuthorization(from))
             .thenApply(granted -> CommandResult.success());
     }
 

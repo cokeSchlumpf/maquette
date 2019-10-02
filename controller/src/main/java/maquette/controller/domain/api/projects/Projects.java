@@ -31,7 +31,7 @@ public interface Projects {
 
     CompletionStage<Done> deleteProject(User executor, ResourceName project);
 
-    CompletionStage<Set<DatasetDetails>> getDatasets(User executor, ResourceName name);
+    CompletionStage<Set<DatasetDetails>> getDatasets(User executor, ResourceName project);
 
     CompletionStage<ProjectDetails> getDetails(User executor, ResourceName project);
 

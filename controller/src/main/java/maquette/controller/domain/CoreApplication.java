@@ -14,6 +14,10 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.api.datasets.Datasets;
 import maquette.controller.domain.api.datasets.DatasetsFactory;
+import maquette.controller.domain.api.projects.Projects;
+import maquette.controller.domain.api.projects.ProjectsFactory;
+import maquette.controller.domain.api.shop.Shop;
+import maquette.controller.domain.api.shop.ShopFactory;
 import maquette.controller.domain.api.users.Users;
 import maquette.controller.domain.api.users.UsersFactory;
 import maquette.controller.domain.entities.dataset.Dataset;
@@ -22,6 +26,10 @@ import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.NamespacesRegistry;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
+import maquette.controller.domain.entities.project.Project;
+import maquette.controller.domain.entities.project.ProjectsRegistry;
+import maquette.controller.domain.entities.project.protocol.ProjectMessage;
+import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
 import maquette.controller.domain.entities.user.User;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.ports.DataStorageAdapter;
@@ -36,11 +44,13 @@ public class CoreApplication {
 
     private final ActorSystem system;
 
-    private final NamespaceContainer namespaces;
-
     private final Datasets datasets;
 
     private final Users users;
+
+    private final Projects projects;
+
+    private final Shop shop;
 
     public static CoreApplication apply(DataStorageAdapter storageAdapter) {
         return apply(ActorSystem.apply("maquette"), storageAdapter);
@@ -54,54 +64,77 @@ public class CoreApplication {
         final ActorPatterns patterns = ActorPatterns.apply(system);
         final ActorMaterializer materializer = ActorMaterializer.create(system);
 
-        final Entity<DatasetMessage, ShardingEnvelope<DatasetMessage>> datasetEntity = Entity
-            .ofPersistentEntity(
-                Dataset.ENTITY_KEY,
-                ctx -> Dataset.create(ctx.getActorContext(), storageAdapter, ResourcePath.apply(ctx.getEntityId())));
-        final ActorRef<ShardingEnvelope<DatasetMessage>> datasetShards = sharding.init(datasetEntity);
-
-        // initialize namespace shards
-        final Entity<NamespaceMessage, ShardingEnvelope<NamespaceMessage>> namespaceEntity = Entity
-            .ofPersistentEntity(
-                Namespace.ENTITY_KEY,
-                ctx -> Namespace.create(ctx.getActorContext(), ResourceName.apply(ctx.getEntityId())));
-        final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaceShards = sharding.init(namespaceEntity);
-
-        final Entity<UserMessage, ShardingEnvelope<UserMessage>> userEntity = Entity
-            .ofPersistentEntity(
-                User.ENTITY_KEY,
-                ctx -> User.create(User.fromEntityId(ctx.getEntityId())));
-        final ActorRef<ShardingEnvelope<UserMessage>> userShards = sharding.init(userEntity);
-
-        // initialize namespace registry
+        final ActorRef<ShardingEnvelope<DatasetMessage>> datasetShards = createDatasetSharding(sharding, storageAdapter);
+        final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaceShards = createNamespaceSharding(sharding);
+        final ActorRef<ShardingEnvelope<UserMessage>> userShards = createUserSharding(sharding);
+        final ActorRef<ShardingEnvelope<ProjectMessage>> projectShards = createProjectSharding(sharding);
         final ActorRef<NamespacesMessage> namespacesRegistry = singleton.init(NamespacesRegistry.create());
+        final ActorRef<ProjectsMessage> projectsRegistry = singleton.init(ProjectsRegistry.create());
 
         final CreateDefaultNamespace createDefaultNamespace = CreateDefaultNamespace.apply(
             namespacesRegistry, namespaceShards, patterns);
 
-        final NamespaceContainer namespaces = NamespacesFactory
-            .apply(namespacesRegistry, namespaceShards, datasetShards, patterns, createDefaultNamespace)
-            .create();
-
         final Datasets datasets = DatasetsFactory
-            .apply(namespacesRegistry, namespaceShards, datasetShards, userShards, patterns, createDefaultNamespace, materializer)
+            .apply(namespaceShards, datasetShards, userShards, patterns, createDefaultNamespace, materializer)
             .create();
 
         final Users users = UsersFactory
             .apply(namespaceShards, userShards, patterns, createDefaultNamespace)
             .create();
 
+        final Projects projects = ProjectsFactory
+            .apply(projectsRegistry, namespacesRegistry, projectShards, namespaceShards, datasetShards, patterns, createDefaultNamespace)
+            .create();
+
+        final Shop shop = ShopFactory
+            .apply(projectsRegistry, namespacesRegistry, projectShards, namespaceShards, datasetShards, patterns, createDefaultNamespace)
+            .create();
+
         // initialize application
-        return CoreApplication.apply(system, namespaces, datasets, users);
+        return CoreApplication.apply(system, datasets, users, projects, shop);
+    }
+
+    private static ActorRef<ShardingEnvelope<DatasetMessage>> createDatasetSharding(ClusterSharding sharding, DataStorageAdapter storageAdapter) {
+        final Entity<DatasetMessage, ShardingEnvelope<DatasetMessage>> datasetEntity = Entity
+            .ofPersistentEntity(
+                Dataset.ENTITY_KEY,
+                ctx -> Dataset.create(ctx.getActorContext(), storageAdapter, ResourcePath.apply(ctx.getEntityId())));
+        return sharding.init(datasetEntity);
+    }
+
+    private static ActorRef<ShardingEnvelope<NamespaceMessage>> createNamespaceSharding(ClusterSharding sharding) {
+        final Entity<NamespaceMessage, ShardingEnvelope<NamespaceMessage>> namespaceEntity = Entity
+            .ofPersistentEntity(
+                Namespace.ENTITY_KEY,
+                ctx -> Namespace.create(ctx.getActorContext(), ResourceName.apply(ctx.getEntityId())));
+        return sharding.init(namespaceEntity);
+    }
+
+    private static ActorRef<ShardingEnvelope<UserMessage>> createUserSharding(ClusterSharding sharding) {
+        final Entity<UserMessage, ShardingEnvelope<UserMessage>> userEntity = Entity
+            .ofPersistentEntity(
+                User.ENTITY_KEY,
+                ctx -> User.create(User.fromEntityId(ctx.getEntityId())));
+
+        return sharding.init(userEntity);
+    }
+
+    private static ActorRef<ShardingEnvelope<ProjectMessage>> createProjectSharding(ClusterSharding sharding) {
+        final Entity<ProjectMessage, ShardingEnvelope<ProjectMessage>> projectEntity = Entity
+            .ofPersistentEntity(
+                Project.ENTITY_KEY,
+                ctx -> Project.create(Project.fromEntityId(ctx.getEntityId())));
+
+        return sharding.init(projectEntity);
     }
 
     public Datasets datasets() {
         return datasets;
     }
 
-    public NamespaceContainer namespaces() {
-        return namespaces;
-    }
+    public Projects projects() { return projects; }
+
+    public Shop shop() { return shop; }
 
     public Users users() {
         return users;

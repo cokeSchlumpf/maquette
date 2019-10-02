@@ -1,4 +1,4 @@
-package maquette.controller.adapters.cli.commands.datasets;
+package maquette.controller.adapters.cli.commands.projects;
 
 import java.util.concurrent.CompletionStage;
 
@@ -12,44 +12,38 @@ import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
-import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateDatasetCmd implements Command {
+public class ChangeProjectPrivacyCmd implements Command {
 
-    private static final String NAMESPACE = "namespace";
-    private static final String DATASET = "dataset";
+    private static final String PROJECT = "project";
     private static final String IS_PRIVATE = "is-private";
 
-    @JsonProperty(NAMESPACE)
-    private final String namespace;
-
-    @JsonProperty(DATASET)
-    private final String dataset;
+    @JsonProperty(PROJECT)
+    private final ResourceName project;
 
     @JsonProperty(IS_PRIVATE)
     private final boolean isPrivate;
 
     @JsonCreator
-    public static CreateDatasetCmd apply(
-        @JsonProperty(NAMESPACE) String namespace,
-        @JsonProperty(DATASET) String dataset,
+    public static ChangeProjectPrivacyCmd apply(
+        @JsonProperty(PROJECT) ResourceName project,
         @JsonProperty(IS_PRIVATE) boolean isPrivate) {
 
-        return new CreateDatasetCmd(namespace, dataset, isPrivate);
+        return new ChangeProjectPrivacyCmd(project, isPrivate);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ObjectValidation.notNull().validate(dataset, "dataset");
-        ResourcePath rp = ResourcePath.apply(executor, namespace, dataset);
+        ObjectValidation.notNull().validate(project, PROJECT);
 
         return app
-            .datasets()
-            .createDataset(executor, rp, isPrivate)
-            .thenApply(details -> CommandResult.success());
+            .projects()
+            .changePrivacy(executor, project, isPrivate)
+            .thenApply(info -> CommandResult.success());
     }
 
 }

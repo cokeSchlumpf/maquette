@@ -1,4 +1,4 @@
-package maquette.controller.adapters.cli.commands.namespaces;
+package maquette.controller.adapters.cli.commands.projects;
 
 import java.util.concurrent.CompletionStage;
 
@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.adapters.cli.commands.Command;
+import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
@@ -17,32 +18,32 @@ import maquette.controller.domain.values.iam.User;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ChangeNamespaceDescriptionCmd implements Command {
+public class ChangeProjectDescriptionCmd implements Command {
 
-    private static final String NAMESPACE = "namespace";
+    private static final String PROJECT = "project";
     private static final String DESCRIPTION = "description";
 
-    @JsonProperty(NAMESPACE)
-    private final String namespace;
+    @JsonProperty(PROJECT)
+    private final ResourceName project;
 
     @JsonProperty(DESCRIPTION)
     private final Markdown description;
 
     @JsonCreator
-    public static ChangeNamespaceDescriptionCmd apply(
-        @JsonProperty(NAMESPACE) String namespace,
+    public static ChangeProjectDescriptionCmd apply(
+        @JsonProperty(PROJECT) ResourceName project,
         @JsonProperty(DESCRIPTION) Markdown description) {
 
-        return new ChangeNamespaceDescriptionCmd(namespace, description);
+        return new ChangeProjectDescriptionCmd(project, description);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ResourceName resource = ResourceName.apply(executor, namespace);
+        ObjectValidation.notNull().validate(project, PROJECT);
 
         return app
-            .namespaces()
-            .changeDescription(executor, resource, description)
+            .projects()
+            .changeDescription(executor, project, description)
             .thenApply(info -> CommandResult.success());
     }
 

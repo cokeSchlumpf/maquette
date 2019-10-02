@@ -1,7 +1,5 @@
-package maquette.controller.adapters.cli.commands.namespaces;
+package maquette.controller.adapters.cli.commands.shop;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -19,35 +17,37 @@ import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.namespace.NamespaceInfo;
+import maquette.controller.domain.values.project.ProjectDetails;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ListNamespacesCmd implements Command {
+public final class ListProjectsCmd implements Command {
 
     @JsonCreator
-    public static ListNamespacesCmd apply() {
-        return new ListNamespacesCmd();
+    public static ListProjectsCmd apply() {
+        return new ListProjectsCmd();
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
         return app
-            .namespaces()
-            .listNamespaces(executor)
-            .thenApply(namespaces -> Operators.suppressExceptions(() -> {
-                DataTable dt = DataTable.apply("name", "owner", "modified", "datasets");
+            .shop()
+            .listProjects(executor)
+            .thenApply(project -> Operators.suppressExceptions(() -> {
+                DataTable dt = DataTable.apply("name", "owner", "private", "modified", "datasets");
 
-                List<NamespaceInfo> sorted = namespaces
+                List<ProjectDetails> sorted = project
                     .stream()
-                    .sorted(Comparator.comparing(ns -> ns.getName().getValue()))
+                    .sorted(Comparator.comparing(p -> p.getProperties().getName().getValue()))
                     .collect(Collectors.toList());
 
-                for (NamespaceInfo info : sorted) {
+                for (ProjectDetails info : sorted) {
                     dt = dt.withRow(
-                        info.getName(),
-                        info.getAcl().getOwner().getAuthorization(),
-                        info.getModified(),
-                        info.getDatasets().size());
+                        info.getProperties().getName(),
+                        info.getDetails().getAcl().getOwner().getAuthorization(),
+                        info.getProperties().isPrivate(),
+                        info.getDetails().getModified(),
+                        info.getDetails().getDatasets().size());
                 }
 
                 return CommandResult.success(dt.toAscii(), dt);

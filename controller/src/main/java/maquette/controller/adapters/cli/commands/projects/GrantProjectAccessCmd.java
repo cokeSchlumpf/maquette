@@ -1,4 +1,4 @@
-package maquette.controller.adapters.cli.commands.namespaces;
+package maquette.controller.adapters.cli.commands.projects;
 
 import java.util.concurrent.CompletionStage;
 
@@ -19,39 +19,47 @@ import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class GrantNamespaceAccessCmd implements Command {
+public final class GrantProjectAccessCmd implements Command {
 
-    private final String namespace;
+    private static final String AUTHORIZATION = "authorization";
+    private static final String PRIVILEGE = "privilege";
+    private static final String PROJECT = "project";
+    private static final String TO = "to";
 
+    @JsonProperty(PROJECT)
+    private final ResourceName project;
+
+    @JsonProperty(AUTHORIZATION)
     private final EAuthorizationType authorization;
 
+    @JsonProperty(PRIVILEGE)
     private final NamespacePrivilege privilege;
 
+    @JsonProperty(TO)
     private final String to;
 
     @JsonCreator
-    public static GrantNamespaceAccessCmd apply(
-        @JsonProperty("namespace") String namespace,
-        @JsonProperty("authorization") EAuthorizationType authorization,
-        @JsonProperty("privilege") NamespacePrivilege privilege,
-        @JsonProperty("to") String to) {
+    public static GrantProjectAccessCmd apply(
+        @JsonProperty(PROJECT) ResourceName project,
+        @JsonProperty(AUTHORIZATION) EAuthorizationType authorization,
+        @JsonProperty(PRIVILEGE) NamespacePrivilege privilege,
+        @JsonProperty(TO) String to) {
 
-        return new GrantNamespaceAccessCmd(namespace, authorization, privilege, to);
+        return new GrantProjectAccessCmd(project, authorization, privilege, to);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ObjectValidation.notNull().validate(privilege, "privilege");
+        ObjectValidation.notNull().validate(project, PROJECT);
+        ObjectValidation.notNull().validate(privilege, PRIVILEGE);
         ObjectValidation
             .validAuthorization(to)
             .and(ObjectValidation.notNull())
-            .validate(authorization, "authorization");
-
-        ResourceName resource = ResourceName.apply(executor, namespace);
+            .validate(authorization, AUTHORIZATION);
 
         return app
-            .namespaces()
-            .grantNamespaceAccess(executor, resource, privilege, authorization.asAuthorization(to))
+            .projects()
+            .grantAccess(executor, project, privilege, authorization.asAuthorization(to))
             .thenApply(granted -> CommandResult.success());
     }
 

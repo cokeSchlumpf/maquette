@@ -13,7 +13,10 @@ import maquette.controller.domain.entities.project.protocol.events.ChangedProjec
 import maquette.controller.domain.entities.project.protocol.queries.GetProjectProperties;
 import maquette.controller.domain.entities.project.states.State;
 import maquette.controller.domain.entities.project.states.UninitializedProject;
+import maquette.controller.domain.util.Operators;
+import maquette.controller.domain.util.databind.ObjectMapperFactory;
 import maquette.controller.domain.values.core.ResourceName;
+import maquette.controller.domain.values.iam.UserId;
 
 public final class Project extends EventSourcedEntity<ProjectMessage, ProjectEvent, State> {
 
@@ -31,6 +34,10 @@ public final class Project extends EventSourcedEntity<ProjectMessage, ProjectEve
 
     public static String createEntityId(ResourceName namespaceName) {
         return namespaceName.getValue();
+    }
+
+    public static ResourceName fromEntityId(String entityId) {
+        return Operators.suppressExceptions(() -> ResourceName.apply(entityId));
     }
 
     @Override
