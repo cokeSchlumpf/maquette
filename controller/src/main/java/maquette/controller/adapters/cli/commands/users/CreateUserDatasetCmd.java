@@ -24,14 +24,14 @@ public class CreateUserDatasetCmd implements Command {
     private static final String IS_PRIVATE = "is-private";
 
     @JsonProperty(DATASET)
-    private final String dataset;
+    private final ResourceName dataset;
 
     @JsonProperty(IS_PRIVATE)
     private final boolean isPrivate;
 
     @JsonCreator
     public static CreateUserDatasetCmd apply(
-        @JsonProperty(DATASET) String dataset,
+        @JsonProperty(DATASET) ResourceName dataset,
         @JsonProperty(IS_PRIVATE) boolean isPrivate) {
 
         return new CreateUserDatasetCmd(dataset, isPrivate);
@@ -39,11 +39,11 @@ public class CreateUserDatasetCmd implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ObjectValidation.notNull().validate(dataset, "dataset");
+        ObjectValidation.notNull().validate(dataset, DATASET);
 
         return app
             .users()
-            .createDataset(executor, ResourceName.apply(dataset), isPrivate)
+            .createDataset(executor, dataset, isPrivate)
             .thenApply(details -> CommandResult.success());
     }
 
