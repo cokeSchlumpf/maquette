@@ -16,6 +16,7 @@ import maquette.controller.adapters.cli.commands.datasets.PrintDatasetDetailsCmd
 import maquette.controller.adapters.cli.commands.datasets.PrintDatasetVersionDetailsCmd;
 import maquette.controller.adapters.cli.commands.datasets.RevokeDatasetAccessCmd;
 import maquette.controller.adapters.cli.commands.projects.ChangeProjectDescriptionCmd;
+import maquette.controller.adapters.cli.commands.projects.ChangeProjectOwnerCmd;
 import maquette.controller.adapters.cli.commands.projects.ChangeProjectPrivacyCmd;
 import maquette.controller.adapters.cli.commands.projects.CreateProjectCmd;
 import maquette.controller.adapters.cli.commands.projects.GrantProjectAccessCmd;
@@ -49,6 +50,7 @@ import maquette.controller.domain.values.iam.User;
         @JsonSubTypes.Type(value = RevokeDatasetAccessCmd.class, name = "dataset revoke"),
 
         @JsonSubTypes.Type(value = ChangeProjectDescriptionCmd.class, name = "project change description"),
+        @JsonSubTypes.Type(value = ChangeProjectOwnerCmd.class, name = "project change owner"),
         @JsonSubTypes.Type(value = ChangeProjectPrivacyCmd.class, name = "project change privacy"),
         @JsonSubTypes.Type(value = CreateProjectCmd.class, name = "project create"),
         @JsonSubTypes.Type(value = GrantProjectAccessCmd.class, name = "project grant"),

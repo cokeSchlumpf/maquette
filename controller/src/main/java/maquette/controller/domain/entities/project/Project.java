@@ -8,8 +8,12 @@ import maquette.controller.domain.entities.project.protocol.ProjectEvent;
 import maquette.controller.domain.entities.project.protocol.ProjectMessage;
 import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectDescription;
 import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectPrivacy;
+import maquette.controller.domain.entities.project.protocol.commands.CreateProject;
+import maquette.controller.domain.entities.project.protocol.commands.DeleteProject;
 import maquette.controller.domain.entities.project.protocol.events.ChangedProjectDescription;
 import maquette.controller.domain.entities.project.protocol.events.ChangedProjectPrivacy;
+import maquette.controller.domain.entities.project.protocol.events.CreatedProject;
+import maquette.controller.domain.entities.project.protocol.events.DeletedProject;
 import maquette.controller.domain.entities.project.protocol.queries.GetProjectProperties;
 import maquette.controller.domain.entities.project.states.State;
 import maquette.controller.domain.entities.project.states.UninitializedProject;
@@ -51,6 +55,8 @@ public final class Project extends EventSourcedEntity<ProjectMessage, ProjectEve
             .forAnyState()
             .onCommand(ChangeProjectDescription.class, State::onChangeProjectDescription)
             .onCommand(ChangeProjectPrivacy.class, State::onChangeProjectPrivacy)
+            .onCommand(CreateProject.class, State::onCreateProject)
+            .onCommand(DeleteProject.class, State::onDeleteProject)
             .onCommand(GetProjectProperties.class, State::onGetProjectProperties)
             .build();
     }
@@ -61,6 +67,8 @@ public final class Project extends EventSourcedEntity<ProjectMessage, ProjectEve
             .forAnyState()
             .onEvent(ChangedProjectDescription.class, State::onChangedProjectDescription)
             .onEvent(ChangedProjectPrivacy.class, State::onChangedProjectPrivacy)
+            .onEvent(CreatedProject.class, State::onCreatedProject)
+            .onEvent(DeletedProject.class, State::onDeletedProject)
             .build();
     }
 

@@ -8,8 +8,12 @@ import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.project.protocol.ProjectEvent;
 import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectDescription;
 import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectPrivacy;
+import maquette.controller.domain.entities.project.protocol.commands.CreateProject;
+import maquette.controller.domain.entities.project.protocol.commands.DeleteProject;
 import maquette.controller.domain.entities.project.protocol.events.ChangedProjectDescription;
 import maquette.controller.domain.entities.project.protocol.events.ChangedProjectPrivacy;
+import maquette.controller.domain.entities.project.protocol.events.CreatedProject;
+import maquette.controller.domain.entities.project.protocol.events.DeletedProject;
 import maquette.controller.domain.entities.project.protocol.queries.GetProjectProperties;
 import maquette.controller.domain.entities.project.protocol.results.GetProjectPropertiesResult;
 import maquette.controller.domain.values.project.ProjectProperties;
@@ -61,6 +65,35 @@ public final class ActiveProject implements State {
     public State onChangedProjectPrivacy(ChangedProjectPrivacy changed) {
         this.properties = properties.withPrivate(changed.isPrivate());
         return this;
+    }
+
+    @Override
+    public Effect<ProjectEvent, State> onCreateProject(CreateProject create) {
+        CreatedProject created = CreatedProject.apply(
+            create.getName(), create.getProperties(), create.getExecutor().getUserId(), Instant.now());
+
+        create.getReplyTo().tell(created);
+
+        return effect.none();
+    }
+
+    @Override
+    public State onCreatedProject(CreatedProject created) {
+        return this;
+    }
+
+    @Override
+    public Effect<ProjectEvent, State> onDeleteProject(DeleteProject delete) {
+        DeletedProject deleted = DeletedProject.apply(delete.getName(), delete.getExecutor().getUserId(), Instant.now());
+
+        return effect
+            .persist(deleted)
+            .thenRun(() -> delete.getReplyTo().tell(deleted));
+    }
+
+    @Override
+    public State onDeletedProject(DeletedProject deleted) {
+        return UninitializedProject.apply(effect);
     }
 
     @Override

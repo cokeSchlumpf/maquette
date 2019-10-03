@@ -10,47 +10,51 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.adapters.cli.commands.Command;
+import maquette.controller.adapters.cli.commands.EAuthorizationType;
 import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
-import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.project.ProjectProperties;
+import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateProjectCmd implements Command {
+public final class ChangeProjectOwnerCmd implements Command {
 
-    private static final String DESCRIPTION = "description";
+    private static final String AUTHORIZATION = "authorization";
     private static final String PROJECT = "project";
-    private static final String IS_PRIVATE = "is-private";
+    private static final String TO = "to";
 
     @JsonProperty(PROJECT)
     private final ResourceName project;
 
-    @JsonProperty(DESCRIPTION)
-    private final Markdown description;
+    @JsonProperty(AUTHORIZATION)
+    private final EAuthorizationType authorization;
 
-    @JsonProperty(IS_PRIVATE)
-    private final boolean isPrivate;
+    @JsonProperty(TO)
+    private final String to;
 
     @JsonCreator
-    public static CreateProjectCmd apply(
+    public static ChangeProjectOwnerCmd apply(
         @JsonProperty(PROJECT) ResourceName project,
-        @JsonProperty(DESCRIPTION) Markdown description,
-        @JsonProperty(IS_PRIVATE) boolean isPrivate) {
+        @JsonProperty(AUTHORIZATION) EAuthorizationType authorization,
+        @JsonProperty(TO) String to) {
 
-        return new CreateProjectCmd(project, description, isPrivate);
+        return new ChangeProjectOwnerCmd(project, authorization, to);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
         ObjectValidation.notNull().validate(project, PROJECT);
+        ObjectValidation
+            .validAuthorization(to)
+            .and(ObjectValidation.notNull())
+            .validate(authorization, AUTHORIZATION);
 
         return app
             .projects()
-            .createProject(executor, project, ProjectProperties.apply(project, isPrivate, description))
-            .thenApply(info -> CommandResult.success());
+            .changeOwner(executor, project, authorization.asAuthorization(to))
+            .thenApply(granted -> CommandResult.success());
     }
 
 }
