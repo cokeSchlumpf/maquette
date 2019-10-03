@@ -20,6 +20,8 @@ public class TestSetup {
 
     private final String commonRole;
 
+    private final AuthenticatedUser adminUser;
+
     private final AuthenticatedUser defaultUser;
 
     private final AuthenticatedUser otherUser;
@@ -27,10 +29,11 @@ public class TestSetup {
     public static TestSetup apply(DataStorageAdapter storageAdapter) {
         CoreApplication app = CoreApplication.apply(storageAdapter);
         String commonRole = "common-role";
+        AuthenticatedUser adminUser = AuthenticatedUser.apply("admin", "Administrator", commonRole, "admin");
         AuthenticatedUser defaultUser = AuthenticatedUser.apply("hippo", "Hippo Ewen-Wellner", commonRole);
         AuthenticatedUser otherUser = AuthenticatedUser.apply("egon", "Egon Olsen", commonRole);
 
-        return TestSetup.apply(app, commonRole, defaultUser, otherUser);
+        return TestSetup.apply(app, commonRole, adminUser, defaultUser, otherUser);
     }
 
     public static TestSetup apply() {

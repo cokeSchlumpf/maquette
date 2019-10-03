@@ -44,7 +44,7 @@ public class NamespaceACL {
     }
 
     public boolean canConsume(User user) {
-        return isConsumer(user) || isOwner(user) || isMember(user);
+        return isConsumer(user) || isOwner(user) || isMember(user) || isAdmin(user);
     }
 
     public boolean canCreatedDataset(User user) {
@@ -68,7 +68,7 @@ public class NamespaceACL {
     }
 
     public boolean canProduce(User user) {
-        return isProducer(user) || isOwner(user) || isMember(user);
+        return isProducer(user) || isOwner(user) || isMember(user) || isAdmin(user);
     }
 
     public boolean canReadDetails(User user) {
@@ -98,7 +98,7 @@ public class NamespaceACL {
     }
 
     private boolean isAdmin(User user) {
-        return findGrant(user, NamespacePrivilege.ADMIN).isPresent();
+        return user.isAdministrator() || findGrant(user, NamespacePrivilege.ADMIN).isPresent();
     }
 
     private boolean isConsumer(User user) {

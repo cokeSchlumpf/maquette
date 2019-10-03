@@ -7,6 +7,11 @@ import akka.Done;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
 import lombok.AllArgsConstructor;
+import maquette.controller.domain.entities.dataset.Dataset;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
+import maquette.controller.domain.entities.dataset.protocol.results.GetDetailsResult;
 import maquette.controller.domain.services.NamespaceServices;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.namespace.Namespace;
@@ -57,6 +62,17 @@ public final class ProjectsImpl implements Projects {
 
     private NamespaceServices createContainerImpl(ResourceName namespace) {
         return NamespaceServices.apply(namespacesRegistry, namespaces, datasets, patterns, namespace);
+    }
+
+    private CompletionStage<DatasetDetails> getDatasetDetails(ResourcePath dataset) {
+        return patterns
+            .ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    GetDetails.apply(dataset, replyTo, errorTo)),
+                GetDetailsResult.class)
+            .thenApply(GetDetailsResult::getDetails);
     }
 
     private CompletionStage<NamespaceDetails> getNamespaceDetails(ResourceName project) {
@@ -146,9 +162,22 @@ public final class ProjectsImpl implements Projects {
 
     @Override
     public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath dataset, boolean isPrivate) {
-        return getProjectProperties(dataset.getNamespace())
-            .thenCompose(properties -> createContainerImpl(properties.getName())
-                .createDataset(executor, dataset.getName(), isPrivate));
+        return getProjectDetails(dataset.getNamespace())
+            .thenCompose(details -> createContainerImpl(details.getDetails().getName())
+                .createDataset(executor, dataset.getName(), isPrivate)
+                .thenCompose(ds -> patterns
+                    .ask(
+                        datasets,
+                        (replyTo, errorTo) -> ShardingEnvelope.apply(
+                            Dataset.createEntityId(dataset),
+                            ChangeOwner.apply(
+                                executor,
+                                dataset,
+                                details.getDetails().getAcl().getOwner().getAuthorization(),
+                                replyTo,
+                                errorTo)),
+                        ChangedOwner.class)))
+            .thenCompose(changed -> getDatasetDetails(dataset));
     }
 
     @Override

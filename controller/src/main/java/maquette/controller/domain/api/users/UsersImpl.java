@@ -8,6 +8,8 @@ import akka.Done;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
 import lombok.AllArgsConstructor;
+import maquette.controller.domain.services.CollectDatasets;
+import maquette.controller.domain.services.CollectNamespaceInfos;
 import maquette.controller.domain.services.NamespaceServices;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
@@ -32,6 +34,7 @@ import maquette.controller.domain.values.iam.TokenDetails;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserDetails;
 import maquette.controller.domain.values.iam.UserId;
+import maquette.controller.domain.values.namespace.NamespaceInfo;
 
 @AllArgsConstructor(staticName = "apply")
 final class UsersImpl implements Users {
@@ -81,7 +84,16 @@ final class UsersImpl implements Users {
 
     @Override
     public CompletionStage<Set<DatasetDetails>> getDatasets(User executor) {
-        return withNamespace(executor.getUserId()).thenCompose(NamespaceServices::getDatasets);
+        CompletionStage<Set<NamespaceInfo>> namespaceInfos = patterns
+            .process(result -> CollectNamespaceInfos.create(namespacesRegistry, namespaces, result));
+
+        CompletionStage<Set<DatasetDetails>> allDatasets = namespaceInfos
+            .thenCompose(infos -> patterns.process(result -> CollectDatasets.create(infos, datasets, result)));
+
+        return allDatasets.thenApply(datasets -> datasets
+            .stream()
+            .filter(ds -> ds.getAcl().canManage(executor))
+            .collect(Collectors.toSet()));
     }
 
     @Override

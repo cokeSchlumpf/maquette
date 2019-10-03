@@ -15,6 +15,7 @@ import maquette.controller.adapters.cli.DataTable;
 import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.VersionInfo;
 import maquette.controller.domain.values.dataset.VersionTag;
@@ -23,20 +24,23 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ListDatasetVersionsCmd implements Command {
 
-    private final String namespace;
+    private static final String NAMESPACE = "namespace";
+    private static final String DATASET = "dataset";
 
-    private final String dataset;
+    private final ResourceName namespace;
+
+    private final ResourceName dataset;
 
     @JsonCreator
     public static ListDatasetVersionsCmd apply(
-        @JsonProperty("namespace") String namespace,
-        @JsonProperty("dataset") String dataset) {
+        @JsonProperty("namespace") ResourceName namespace,
+        @JsonProperty("dataset") ResourceName dataset) {
         return new ListDatasetVersionsCmd(namespace, dataset);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ObjectValidation.notNull().validate(dataset, "dataset");
+        ObjectValidation.notNull().validate(dataset, DATASET);
         ResourcePath datasetResource = ResourcePath.apply(executor, namespace, dataset);
 
 
@@ -66,7 +70,7 @@ public final class ListDatasetVersionsCmd implements Command {
                         v.getVersionId());
                 }
 
-                return CommandResult.success(dt);
+                return CommandResult.success(dt.toAscii(), dt);
             });
     }
 

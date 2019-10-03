@@ -56,6 +56,14 @@ public final class ResourcePath {
         return apply(Objects.isNull(namespace) || namespace.equals("_") ? executor.getUserId().getId() : namespace, name);
     }
 
+    public static ResourcePath apply(
+        User executor,
+        ResourceName namespace,
+        ResourceName name) {
+
+        return apply(Objects.isNull(namespace) || namespace.getValue().equals("_") ? executor.getUserId().getId() : namespace.getValue(), name.getValue());
+    }
+
     public static ResourcePath apply(String s) {
         try {
             String[] parts = s.split("/");

@@ -53,7 +53,7 @@ public final class AuthenticatedUser implements User {
 
     @Override
     public boolean isAdministrator() {
-        return false;
+        return roles.contains("admin");
     }
 
     @Override

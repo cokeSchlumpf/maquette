@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.util.concurrent.CompletionStage;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AccessLevel;
@@ -14,6 +15,7 @@ import maquette.controller.adapters.cli.DataTable;
 import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.DatasetGrant;
 import maquette.controller.domain.values.iam.User;
@@ -21,20 +23,25 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PrintDatasetDetailsCmd implements Command {
 
-    private final String namespace;
+    private static final String NAMESPACE = "namespace";
+    private static final String DATASET = "dataset";
 
-    private final String dataset;
+    @JsonProperty(NAMESPACE)
+    private final ResourceName namespace;
+
+    @JsonProperty(DATASET)
+    private final ResourceName dataset;
 
     @JsonCreator
     public static PrintDatasetDetailsCmd apply(
-        @JsonProperty("namespace") String namespace,
-        @JsonProperty("dataset") String dataset) {
+        @JsonProperty(NAMESPACE) ResourceName namespace,
+        @JsonProperty(DATASET) ResourceName dataset) {
         return new PrintDatasetDetailsCmd(namespace, dataset);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ObjectValidation.notNull().validate(dataset, "dataset");
+        ObjectValidation.notNull().validate(dataset, DATASET);
         ResourcePath datasetResource = ResourcePath.apply(executor, namespace, dataset);
 
 
@@ -66,6 +73,11 @@ public final class PrintDatasetDetailsCmd implements Command {
                         grant.getAuthorization().getBy(),
                         grant.getAuthorization().getAt());
                 }
+
+                details.getDescription().ifPresent(description -> {
+                    out.println(description.getValue());
+                    out.println();
+                });
 
                 out.println("PROPERTIES");
                 out.println("----------");

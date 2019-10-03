@@ -19,7 +19,7 @@ public final class ProjectSteps {
 
     TestContext ctx;
 
-    @Given("we have the following additional role-owned projects")
+    @Given("we have the following role-owned projects")
     public void we_have_the_following_additional_role_owned_projects(DataTable dataTable)
         throws ExecutionException, InterruptedException {
 

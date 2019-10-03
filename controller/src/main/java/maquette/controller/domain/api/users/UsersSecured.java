@@ -59,7 +59,6 @@ final class UsersSecured implements Users {
 
     @Override
     public CompletionStage<Set<DatasetDetails>> getDatasets(User executor) {
-        // TODO: Other users can read datasets of another user if they are not private.
         return delegate.getDatasets(executor);
     }
 

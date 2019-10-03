@@ -47,7 +47,7 @@ public class DatasetACL {
     }
 
     public boolean canConsume(User user) {
-        return isConsumer(user) || isOwner(user);
+        return isConsumer(user) || isOwner(user) || isAdmin(user);
     }
 
     public boolean canGrantDatasetAccess(User user) {
@@ -63,7 +63,7 @@ public class DatasetACL {
     }
 
     public boolean canProduce(User user) {
-        return isProducer(user) ||isOwner(user);
+        return isProducer(user) || isOwner(user) ||isAdmin(user);
     }
 
     public boolean canRevokeDatasetAccess(User user) {
@@ -93,7 +93,7 @@ public class DatasetACL {
     }
 
     private boolean isAdmin(User user) {
-        return findGrant(user, DatasetPrivilege.ADMIN).isPresent();
+        return user.isAdministrator() || findGrant(user, DatasetPrivilege.ADMIN).isPresent();
     }
 
     private boolean isConsumer(User user) {

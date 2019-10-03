@@ -13,6 +13,7 @@ import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.Markdown;
+import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.iam.User;
 
@@ -25,18 +26,18 @@ public class ChangeDatasetDescriptionCmd implements Command {
     private static final String DESCRIPTION = "description";
 
     @JsonProperty(NAMESPACE)
-    private final String namespace;
+    private final ResourceName namespace;
 
     @JsonProperty(DATASET)
-    private final String dataset;
+    private final ResourceName dataset;
 
     @JsonProperty(DESCRIPTION)
     private final Markdown description;
 
     @JsonCreator
     public static ChangeDatasetDescriptionCmd apply(
-        @JsonProperty(NAMESPACE) String namespace,
-        @JsonProperty(DATASET) String dataset,
+        @JsonProperty(NAMESPACE) ResourceName namespace,
+        @JsonProperty(DATASET) ResourceName dataset,
         @JsonProperty(DESCRIPTION) Markdown description) {
 
         return new ChangeDatasetDescriptionCmd(namespace, dataset, description);
@@ -44,7 +45,9 @@ public class ChangeDatasetDescriptionCmd implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ObjectValidation.notNull().validate(dataset, "dataset");
+        ObjectValidation.notNull().validate(dataset, DATASET);
+        ObjectValidation.notNull().validate(description, DESCRIPTION);
+
         ResourcePath rp = ResourcePath.apply(executor, namespace, dataset);
 
         return app
