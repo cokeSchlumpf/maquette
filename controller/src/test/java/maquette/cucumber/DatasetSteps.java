@@ -85,6 +85,12 @@ public final class DatasetSteps {
                  .anyMatch(line -> line.contains("OWNER") && line.contains(role))).isTrue();
     }
 
+    @Then("{string} should be able to see details of dataset {string}")
+    public void should_be_able_to_see_details_of_dataset(String string, String string2) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
+
     @Then("{string} should find {string} when listing his own datasets")
     public void should_find_when_listing_his_own_datasets(String username, String datasetName)
         throws ExecutionException, InterruptedException {

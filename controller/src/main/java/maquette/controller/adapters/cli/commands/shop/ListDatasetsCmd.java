@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.controller.adapters.cli.CommandResult;
+import maquette.controller.adapters.cli.DataTable;
 import maquette.controller.adapters.cli.DataTables;
 import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.domain.CoreApplication;
@@ -24,7 +25,10 @@ public final class ListDatasetsCmd implements Command {
         return app
             .shop()
             .listDatasets(executor)
-            .thenApply(datasets -> CommandResult.success(DataTables.createDatasets(datasets)));
+            .thenApply(datasets -> {
+                DataTable dt = DataTables.createDatasets(datasets);
+                return CommandResult.success(dt.toAscii(), dt);
+            });
     }
 
 }

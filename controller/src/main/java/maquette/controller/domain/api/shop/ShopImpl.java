@@ -61,7 +61,7 @@ public final class ShopImpl implements Shop {
 
         return allDatasets.thenApply(datasets -> datasets
             .stream()
-            .filter(ds -> ds.getAcl().canConsume(executor) || ds.getAcl().canProduce(executor))
+            .filter(ds -> !ds.getAcl().isPrivate() || ds.getAcl().canConsume(executor) || ds.getAcl().canProduce(executor))
             .collect(Collectors.toSet()));
     }
 

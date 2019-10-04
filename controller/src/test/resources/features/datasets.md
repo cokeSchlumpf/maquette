@@ -107,7 +107,17 @@ Now when adding data with a different schema, we expect that the major version i
 
 ## Reading data from a dataset
 
+Data from datasets can be retrieved by requesting a specified version; or by just requesting data from a dataset version which defaults to the latest version of the dataset. Data is retrieved in Avro format in general. When using the Python SDK Avro format is implicitly converted to Pandas DataFrames. When using the Java SDK the Avro Records can be easily mapped to Java POJOs.
 
+```gherkin
+    When we read data from dataset "some-data"
+    Then we expect that we received 4 tuples
+    
+    When we read data from dataset "some-data" with version "1.1.0"
+    Then we expect that we received 6 tuples
+    
+    When receiving data from version "3.0.0" we expect an exception
+```
 
 ## Description
 
@@ -135,4 +145,29 @@ Datasets can have a description which might be written in Markdown and which can
     Then the dataset details should contain this description.
 ```
 
-## Access control
+## Access Control
+
+Datasets have various options to allow or restrict access to their data and details.
+
+### Private Datasets
+
+Private Datasets can only be discovered and seen by users which have granted access to the dataset. By default a dataset is not private; this allows users to find the dataset and read their metadata (e.g. description, schema, existing versions), but not the data itself.
+
+In the following example `clair` can find the dataset of `b-team` and read its metadata, but she can not read or produce data from the dataset.
+
+```gherkin
+  Scenario: Private datasets
+    Given we have the following role-owned projects
+      | Project               | Owned by            | Private |
+      | some-project          | b-team              | no      |
+    And we have the following datasets in project "some-project"
+      | Dataset               | Private |
+      | some-data             | no      |
+    And dataset "some-data" contains 2 versions
+      
+    Then "clair" should be able to see dataset "some-data" when browsing available datasets
+    And "clair" should be able to see details of dataset "some-data"
+    
+    When "clair" receives data from dataset "some-data" we expect an exception
+    When "clair" produces data to dataset "some-data" we expect an exception
+```

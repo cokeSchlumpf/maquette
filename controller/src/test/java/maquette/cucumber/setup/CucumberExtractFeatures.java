@@ -75,6 +75,8 @@ public class CucumberExtractFeatures {
 
                 Files.write(featurePath, ftLines, StandardCharsets.UTF_8);
             }
+
+            System.out.println("Done\n\n");
         });
     }
 
