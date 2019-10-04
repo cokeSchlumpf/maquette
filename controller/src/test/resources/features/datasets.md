@@ -74,7 +74,40 @@ To identify the version of a dataset, version numbers are calculated based on th
     Then we expect 2 existing version(s) in the dataset
     And we expect that version "1.1.0" exists in the dataset
     And we expect that version "1.1.0" contains 6 tuples
-``` 
+```
+
+Now when adding data with a different schema, we expect that the major version increases.
+
+```gherkin
+    Given we have a dataset of the following schema:
+      """
+      {
+         "namespace": "example.avro",
+         "type": "record",
+         "name": "Feedback",
+         "fields": [
+            {"name": "id", "type": "string"},
+            {"name": "country",  "type": "string"},
+            {"name": "capital", "type": "string"}
+         ] 
+      }
+      """
+    And we have the following data:
+      | id    | country        | capital          |
+      | 0     | Germany        | Berlin           |
+      | 1     | Switzerland    | Berne            |
+      | 2     | Austria        | Vienna           |
+      | 3     | France         | Paris            |
+      
+    When we push this data to dataset "some-data"
+    Then we expect 3 existing version(s) in the dataset
+    And we expect that version "2.0.0" exists in the dataset
+    And we expect that version "2.0.0" contains 4 tuples
+```
+
+## Reading data from a dataset
+
+
 
 ## Description
 
@@ -101,3 +134,5 @@ Datasets can have a description which might be written in Markdown and which can
       """
     Then the dataset details should contain this description.
 ```
+
+## Access control

@@ -8,7 +8,7 @@ The data shop can be used to find the right data and to easily request access to
 
 * **Data-Streams** provide a mechanism to publish and store events for a provided retention time.
 
-* **Data-Sets** allow providers to share immutable sets of data. A dataset may contain multiple versions of the data.
+* **Datasets** allow providers to share immutable sets of data. A dataset may contain multiple versions of the data. Detailed concepts can be found in th [Dataset features](controller/src/test/resources/features/datasets.md).
 
 * **Data-Collections** allow providers to share collections of raw binary files.
 
