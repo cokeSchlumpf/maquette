@@ -12,6 +12,7 @@ import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.iam.User;
 
@@ -24,18 +25,18 @@ public class ChangeDatasetPrivacyCmd implements Command {
     private static final String IS_PRIVATE = "is-private";
 
     @JsonProperty(NAMESPACE)
-    private final String namespace;
+    private final ResourceName namespace;
 
     @JsonProperty(DATASET)
-    private final String dataset;
+    private final ResourceName dataset;
 
     @JsonProperty(IS_PRIVATE)
     private final boolean isPrivate;
 
     @JsonCreator
     public static ChangeDatasetPrivacyCmd apply(
-        @JsonProperty(NAMESPACE) String namespace,
-        @JsonProperty(DATASET) String dataset,
+        @JsonProperty(NAMESPACE) ResourceName namespace,
+        @JsonProperty(DATASET) ResourceName dataset,
         @JsonProperty(IS_PRIVATE) boolean isPrivate) {
 
         return new ChangeDatasetPrivacyCmd(namespace, dataset, isPrivate);
@@ -43,7 +44,7 @@ public class ChangeDatasetPrivacyCmd implements Command {
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ObjectValidation.notNull().validate(dataset, "dataset");
+        ObjectValidation.notNull().validate(dataset, DATASET);
         ResourcePath rp = ResourcePath.apply(executor, namespace, dataset);
 
         return app

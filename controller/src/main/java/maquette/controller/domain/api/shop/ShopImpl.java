@@ -47,7 +47,7 @@ public final class ShopImpl implements Shop {
                 .collect(Collectors.toSet()))
             .thenApply(datasets -> datasets
                 .stream()
-                .filter(ds -> ds.getAcl().canView(executor))
+                .filter(ds -> ds.getAcl().canReadDetails(executor))
                 .collect(Collectors.toSet()));
     }
 

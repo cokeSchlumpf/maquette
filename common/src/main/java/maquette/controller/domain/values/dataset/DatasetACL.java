@@ -59,7 +59,7 @@ public class DatasetACL {
     }
 
     public boolean canReadDetails(User user) {
-        return isAdmin(user) || isConsumer(user) || isProducer(user) || isOwner(user);
+        return !isPrivate || isAdmin(user) || isConsumer(user) || isProducer(user) || isOwner(user);
     }
 
     public boolean canProduce(User user) {
@@ -68,10 +68,6 @@ public class DatasetACL {
 
     public boolean canRevokeDatasetAccess(User user) {
         return isAdmin(user) || isOwner(user);
-    }
-
-    public boolean canView(User user) {
-        return !isPrivate || canReadDetails(user);
     }
 
     public Optional<DatasetGrant> findGrant(User user, DatasetPrivilege privilege) {

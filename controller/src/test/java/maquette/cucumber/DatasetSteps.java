@@ -1,6 +1,7 @@
 package maquette.cucumber;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -16,10 +17,14 @@ import cucumber.api.java.en.Then;
 import io.cucumber.datatable.DataTable;
 import lombok.AllArgsConstructor;
 import maquette.controller.adapters.cli.CommandResult;
+import maquette.controller.adapters.cli.commands.EAuthorizationType;
 import maquette.controller.adapters.cli.commands.datasets.ChangeDatasetDescriptionCmd;
+import maquette.controller.adapters.cli.commands.datasets.ChangeDatasetPrivacyCmd;
+import maquette.controller.adapters.cli.commands.datasets.GrantDatasetAccessCmd;
 import maquette.controller.adapters.cli.commands.datasets.ListDatasetVersionsCmd;
 import maquette.controller.adapters.cli.commands.datasets.PrintDatasetDetailsCmd;
 import maquette.controller.adapters.cli.commands.datasets.PrintDatasetVersionDetailsCmd;
+import maquette.controller.adapters.cli.commands.datasets.RevokeDatasetAccessCmd;
 import maquette.controller.adapters.cli.commands.projects.CreateProjectDatasetCmd;
 import maquette.controller.adapters.cli.commands.users.CreateUserDatasetCmd;
 import maquette.controller.adapters.cli.commands.users.ListUserDatasetsCmd;
@@ -27,6 +32,7 @@ import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.records.Records;
+import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionTag;
 import maquette.controller.domain.values.iam.User;
 
@@ -36,6 +42,41 @@ public final class DatasetSteps {
     private static final Logger LOG = LoggerFactory.getLogger(DatasetSteps.class);
 
     private final TestContext ctx;
+
+    @Given("{string} becomes a consumer of dataset {string}")
+    public void becomes_a_consumer_of_dataset(String username, String datasetName) throws ExecutionException, InterruptedException {
+        ResourcePath dataset = ctx.getKnownDataset(datasetName);
+
+        GrantDatasetAccessCmd
+            .apply(dataset.getNamespace(), dataset.getName(), EAuthorizationType.USER, DatasetPrivilege.CONSUMER, username)
+            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
+            .toCompletableFuture()
+            .get();
+    }
+
+    @Given("{string} becomes a producer of dataset {string}")
+    public void becomes_a_producer_of_dataset(String username, String datasetName) throws ExecutionException, InterruptedException {
+        ResourcePath dataset = ctx.getKnownDataset(datasetName);
+
+        GrantDatasetAccessCmd
+            .apply(dataset.getNamespace(), dataset.getName(), EAuthorizationType.USER, DatasetPrivilege.PRODUCER, username)
+            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
+            .toCompletableFuture()
+            .get();
+    }
+
+    @Then("{string} cannot see details of the dataset")
+    public void cannot_see_details_of_the_dataset(String username) throws ExecutionException, InterruptedException {
+        String datasetName = ctx.getVariable("dataset", String.class);
+        User user = ctx.getUser(username);
+        ResourcePath dataset = ctx.getKnownDataset(datasetName);
+
+        assertThatThrownBy(() -> PrintDatasetDetailsCmd
+            .apply(dataset.getNamespace(), dataset.getName())
+            .run(user, ctx.getSetup().getApp())
+            .toCompletableFuture()
+            .get()).hasMessageContaining("not authorized");
+    }
 
     @Given("{string} creates a dataset called {string}")
     public void creates_a_dataset_called(String username, String dataset) throws ExecutionException, InterruptedException {
@@ -65,6 +106,33 @@ public final class DatasetSteps {
             .get();
     }
 
+    @Given("consumer access for dataset {string} is revoked from {string}")
+    public void consumer_access_for_dataset_is_revoked_from(String datasetName, String username)
+        throws ExecutionException, InterruptedException {
+
+        ResourcePath dataset = ctx.getKnownDataset(datasetName);
+
+        RevokeDatasetAccessCmd
+            .apply(dataset.getNamespace(), dataset.getName(), EAuthorizationType.USER, DatasetPrivilege.CONSUMER, username)
+            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
+            .toCompletableFuture()
+            .get();
+    }
+
+    @Given("dataset {string} is set to be private")
+    public void dataset_is_set_to_be_private(String datasetName) throws ExecutionException, InterruptedException {
+        ResourcePath dataset = ctx.getKnownDataset(datasetName);
+        User user = ctx.getSetup().getAdminUser();
+
+        ChangeDatasetPrivacyCmd
+            .apply(dataset.getNamespace(), dataset.getName(), true)
+            .run(user, ctx.getSetup().getApp())
+            .toCompletableFuture()
+            .get();
+
+        ctx.setVariable("dataset", datasetName);
+    }
+
     @Then("dataset {string} of project {string} should be owned by role {string}")
     public void dataset_of_project_should_be_owned_by_role(String datasetName, String projectName, String role)
         throws ExecutionException, InterruptedException {
@@ -86,9 +154,20 @@ public final class DatasetSteps {
     }
 
     @Then("{string} should be able to see details of dataset {string}")
-    public void should_be_able_to_see_details_of_dataset(String string, String string2) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+    public void should_be_able_to_see_details_of_dataset(String username, String datasetName)
+        throws ExecutionException, InterruptedException {
+        User user = ctx.getUser(username);
+        ResourcePath dataset = ctx.getKnownDataset(datasetName);
+
+        CommandResult result = PrintDatasetDetailsCmd
+            .apply(dataset.getNamespace(), dataset.getName())
+            .run(user, ctx.getSetup().getApp())
+            .toCompletableFuture()
+            .get();
+
+        LOG.debug(String.format("& datasets details\n%s", result.getOutput()));
+
+        assertThat(result.getOutput()).contains("PROPERTIES");
     }
 
     @Then("{string} should find {string} when listing his own datasets")

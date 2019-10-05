@@ -13,6 +13,7 @@ import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.adapters.cli.commands.EAuthorizationType;
 import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.iam.User;
@@ -21,35 +22,47 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RevokeDatasetAccessCmd implements Command {
 
-    private final String namespace;
+    private static final String NAMESPACE = "namespace";
+    private static final String DATASET = "dataset";
+    private static final String AUTHORIZATION = "authorization";
+    private static final String PRIVILEGE = "privilege";
+    private static final String FROM = "from";
 
-    private final String dataset;
+    @JsonProperty(NAMESPACE)
+    private final ResourceName namespace;
 
+    @JsonProperty(DATASET)
+    private final ResourceName dataset;
+
+    @JsonProperty(AUTHORIZATION)
     private final EAuthorizationType authorization;
 
+    @JsonProperty(PRIVILEGE)
     private final DatasetPrivilege privilege;
 
+    @JsonProperty(FROM)
     private final String from;
 
     @JsonCreator
     public static RevokeDatasetAccessCmd apply(
-        @JsonProperty("namespace") String namespace,
-        @JsonProperty("dataset") String dataset,
-        @JsonProperty("authorization") EAuthorizationType authorization,
-        @JsonProperty("privilege") DatasetPrivilege privilege,
-        @JsonProperty("from") String from) {
+        @JsonProperty(NAMESPACE) ResourceName namespace,
+        @JsonProperty(DATASET) ResourceName dataset,
+        @JsonProperty(AUTHORIZATION) EAuthorizationType authorization,
+        @JsonProperty(PRIVILEGE) DatasetPrivilege privilege,
+        @JsonProperty(FROM) String from) {
 
         return new RevokeDatasetAccessCmd(namespace, dataset, authorization, privilege, from);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ObjectValidation.notNull().validate(privilege, "privilege");
-        ObjectValidation.notNull().validate(dataset, "dataset");
+        ObjectValidation.notNull().validate(privilege, PRIVILEGE);
+        ObjectValidation.notNull().validate(dataset, DATASET);
+        ObjectValidation.notNull().validate(from, FROM);
         ObjectValidation
             .validAuthorization(from)
             .and(ObjectValidation.notNull())
-            .validate(authorization, "authorization");
+            .validate(authorization, AUTHORIZATION);
 
         ResourcePath resource = ResourcePath.apply(executor, namespace, dataset);
 

@@ -57,16 +57,32 @@ public final class DataSteps {
         ctx.setVariable("records", records);
     }
 
-    @Then("{string} produces data to dataset {string} we expect an exception")
+    @Then("{string} produces data to dataset {string} we( still) expect an exception")
     public void produces_data_to_dataset_we_expect_an_exception(String username, String datasetName) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+        User user = ctx.getUser(username);
+        ResourcePath dataset = ctx.getKnownDataset(datasetName);
+
+        assertThatThrownBy(() -> ctx
+            .getSetup()
+            .getApp()
+            .datasets()
+            .putData(user, dataset, Records.fromRecords(CountryTestData.getRecords()).getSource(), "some data")
+            .toCompletableFuture()
+            .get()).hasMessageContaining("not authorized");
     }
 
-    @Then("{string} receives data from dataset {string} we expect an exception")
+    @Then("{string} receives data from dataset {string} we( still) expect an exception")
     public void reads_data_from_dataset_we_expect_an_exception(String username, String datasetName) {
-        // Write code here that turns the phrase above into concrete actions
-        throw new cucumber.api.PendingException();
+        User user = ctx.getUser(username);
+        ResourcePath dataset = ctx.getKnownDataset(datasetName);
+
+        assertThatThrownBy(() -> ctx
+            .getSetup()
+            .getApp()
+            .datasets()
+            .getData(user, dataset)
+            .toCompletableFuture()
+            .get()).hasMessageContaining("not authorized");
     }
 
     @Then("receiving data from version {string} we expect an exception")
@@ -88,6 +104,12 @@ public final class DataSteps {
     public void we_expect_that_we_received_tuples(Integer count) {
         Records records = ctx.getVariable("records", Records.class);
         assertThat(records.getRecords()).hasSize(count);
+    }
+
+    @Then("we expect that we received at least {int} tuple\\(s)")
+    public void we_expect_that_we_received_at_least_tuple_s(int count) {
+        Records records = ctx.getVariable("records", Records.class);
+        assertThat(records.getRecords().size()).isGreaterThan(count);
     }
 
     @Given("we have a dataset of the following schema:")
@@ -121,6 +143,23 @@ public final class DataSteps {
         }
 
         ctx.setVariable("records", Records.fromRecords(records));
+    }
+
+    @Given("{string} pushes this data to dataset {string}")
+    public void pushes_this_data_to_dataset(String username, String datasetName) throws ExecutionException, InterruptedException {
+        User user = ctx.getUser(username);
+        ResourcePath knownDataset = ctx.getKnownDataset(datasetName);
+        Records records = ctx.getVariable("records", Records.class);
+
+        ctx
+            .getSetup()
+            .getApp()
+            .datasets()
+            .putData(user, knownDataset, records.getSource(), "some message")
+            .toCompletableFuture()
+            .get();
+
+        ctx.setVariable("dataset", datasetName);
     }
 
     @Given("we push this data( again) to dataset {string}")
@@ -169,6 +208,23 @@ public final class DataSteps {
             .getApp()
             .datasets()
             .getData(user, dataset, VersionTag.apply(version))
+            .toCompletableFuture()
+            .get();
+
+        ctx.setVariable("dataset", datasetName);
+        ctx.setVariable("records", records);
+    }
+
+    @Given("{string} reads data from dataset {string}")
+    public void reads_data_from_dataset(String username, String datasetName) throws ExecutionException, InterruptedException {
+        ResourcePath dataset = ctx.getKnownDataset(datasetName);
+        User user = ctx.getUser(username);
+
+        Records records = ctx
+            .getSetup()
+            .getApp()
+            .datasets()
+            .getData(user, dataset)
             .toCompletableFuture()
             .get();
 

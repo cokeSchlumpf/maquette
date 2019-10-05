@@ -24,6 +24,7 @@ public final class ShopSteps {
     @Then("{string} should be able to see dataset {string} when browsing available datasets")
     public void should_be_able_to_see_dataset_when_browsing_available_datasets(String username, String datasetName)
         throws ExecutionException, InterruptedException {
+
         User user = ctx.getUser(username);
 
         CommandResult result = ListDatasetsCmd
@@ -35,6 +36,23 @@ public final class ShopSteps {
         LOG.debug(String.format("$ shop datasets list\n\n%s", result.getOutput()));
 
         assertThat(result.getOutput()).contains(datasetName);
+    }
+
+    @Then("{string} should not be able to see dataset {string} when browsing available datasets")
+    public void should_not_be_able_to_see_dataset_when_browsing_available_datasets(String username, String datasetName)
+        throws ExecutionException, InterruptedException {
+
+        User user = ctx.getUser(username);
+
+        CommandResult result = ListDatasetsCmd
+            .apply()
+            .run(user, ctx.getSetup().getApp())
+            .toCompletableFuture()
+            .get();
+
+        LOG.debug(String.format("$ shop datasets list\n\n%s", result.getOutput()));
+
+        assertThat(result.getOutput()).doesNotContain(datasetName);
     }
 
 }

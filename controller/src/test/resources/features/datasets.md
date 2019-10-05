@@ -171,3 +171,64 @@ In the following example `clair` can find the dataset of `b-team` and read its m
     When "clair" receives data from dataset "some-data" we expect an exception
     When "clair" produces data to dataset "some-data" we expect an exception
 ```
+
+But if the dataset becomes private, `clair` should also not be able to find the dataset anymore.
+
+```gherkin
+    Given dataset "some-data" is set to be private
+    
+    Then "clair" should not be able to see dataset "some-data" when browsing available datasets
+    And "clair" cannot see details of the dataset
+    
+    When "clair" receives data from dataset "some-data" we still expect an exception
+    When "clair" produces data to dataset "some-data" we still expect an exception
+```
+
+When the dataset is private and `clair` should have access to it, then she needs to be granted to the dataset. Users can be granted
+to become a consumer of a dataset only, like in the following example.
+
+```gherkin
+    Given "clair" becomes a consumer of dataset "some-data"
+    
+    Then "clair" should be able to see dataset "some-data" when browsing available datasets
+    And "clair" should be able to see details of dataset "some-data"
+    
+    When "clair" reads data from dataset "some-data"
+    Then we expect that we received at least 1 tuple(s)
+    
+    When "clair" produces data to dataset "some-data" we still expect an exception
+```
+
+A use can also only be a producer which allows upload of data, but no download.
+
+```gherkin
+    When consumer access for dataset "some-data" is revoked from "clair"
+    And "clair" becomes a producer of dataset "some-data"
+    
+    Then "clair" should be able to see dataset "some-data" when browsing available datasets
+    And "clair" should be able to see details of dataset "some-data"
+    
+    When "clair" receives data from dataset "some-data" we expect an exception
+    
+    Given we have a dataset of the following schema:
+      """
+      {
+         "namespace": "example.avro",
+         "type": "record",
+         "name": "Feedback",
+         "fields": [
+            {"name": "id", "type": "string"},
+            {"name": "country",  "type": "string"},
+            {"name": "capital", "type": "string"}
+         ] 
+      }
+      """
+    And we have the following data:
+      | id    | country        | capital          |
+      | 0     | Germany        | Berlin           |
+      | 1     | Switzerland    | Berne            |
+      | 2     | Austria        | Vienna           |
+      | 3     | France         | Paris            |
+    When "clair" pushes this data to dataset "some-data"
+    Then we expect 3 existing version(s) in the dataset
+```
