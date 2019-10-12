@@ -70,7 +70,7 @@ public final class ActiveProject implements State {
     @Override
     public Effect<ProjectEvent, State> onCreateProject(CreateProject create) {
         CreatedProject created = CreatedProject.apply(
-            create.getName(), create.getProperties(), create.getExecutor().getUserId(), Instant.now());
+            create.getName(), create.getDescription(), create.isPrivate(), create.getExecutor().getUserId(), Instant.now());
 
         create.getReplyTo().tell(created);
 

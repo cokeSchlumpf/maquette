@@ -49,7 +49,7 @@ public class CreateProjectCmd implements Command {
 
         return app
             .projects()
-            .createProject(executor, project, ProjectProperties.apply(project, isPrivate, description))
+            .createProject(executor, project, description, isPrivate)
             .thenApply(info -> CommandResult.success());
     }
 

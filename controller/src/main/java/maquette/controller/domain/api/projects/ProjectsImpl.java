@@ -138,24 +138,25 @@ public final class ProjectsImpl implements Projects {
     }
 
     @Override
-    public CompletionStage<ProjectDetails> createProject(User executor, ResourceName project, ProjectProperties properties) {
+    public CompletionStage<ProjectDetails> createProject(User executor, ResourceName project, Markdown description, boolean isPrivate) {
         return createContainerImpl(project)
             .createNamespace(executor, project)
-            .thenCompose(namespaceInfo -> createProject$internal(executor, project, properties));
+            .thenCompose(namespaceInfo -> createProject$internal(executor, project, description, isPrivate));
     }
 
     private CompletionStage<ProjectDetails> createProject$internal(User executor, ResourceName project,
-                                                                   ProjectProperties properties) {
+                                                                   Markdown description, boolean isPrivate) {
+
         return patterns
             .ask(
                 projectsRegistry,
-                (replyTo, errorTo) -> CreateProject.apply(project, executor, properties, replyTo, errorTo),
+                (replyTo, errorTo) -> CreateProject.apply(project, executor, description, isPrivate, replyTo, errorTo),
                 CreatedProject.class)
             .thenCompose(createdNamespace -> patterns.ask(
                 projects,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
                     Project.createEntityId(project),
-                    CreateProject.apply(project, executor, properties, replyTo, errorTo)),
+                    CreateProject.apply(project, executor, description, isPrivate, replyTo, errorTo)),
                 CreatedProject.class))
             .thenCompose(createdNamespace -> getProjectDetails(project));
     }

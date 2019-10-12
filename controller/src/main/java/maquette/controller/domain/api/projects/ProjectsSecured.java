@@ -179,9 +179,9 @@ public final class ProjectsSecured implements Projects {
     }
 
     @Override
-    public CompletionStage<ProjectDetails> createProject(User executor, ResourceName project, ProjectProperties properties) {
+    public CompletionStage<ProjectDetails> createProject(User executor, ResourceName project, Markdown description, boolean isPrivate) {
         if (executor instanceof AuthenticatedUser) {
-            return delegate.createProject(executor, project, properties);
+            return delegate.createProject(executor, project, description, isPrivate);
         } else {
             return CompletableFuture.supplyAsync(() -> {
                 throw NotAuthorizedException.apply(executor);

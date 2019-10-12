@@ -2,7 +2,6 @@ package maquette.controller.domain.entities.project.states;
 
 import java.time.Instant;
 
-import akka.cluster.ddata.Replicator;
 import akka.persistence.typed.javadsl.Effect;
 import akka.persistence.typed.javadsl.EffectFactories;
 import lombok.AllArgsConstructor;
@@ -18,6 +17,7 @@ import maquette.controller.domain.entities.project.protocol.events.CreatedProjec
 import maquette.controller.domain.entities.project.protocol.events.DeletedProject;
 import maquette.controller.domain.entities.project.protocol.queries.GetProjectProperties;
 import maquette.controller.domain.values.namespace.ProjectDoesNotExist;
+import maquette.controller.domain.values.project.ProjectProperties;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -50,7 +50,7 @@ public final class UninitializedProject implements State {
     @Override
     public Effect<ProjectEvent, State> onCreateProject(CreateProject create) {
         CreatedProject created = CreatedProject.apply(
-            create.getName(), create.getProperties(), create.getExecutor().getUserId(), Instant.now());
+            create.getName(), create.getDescription(), create.isPrivate(), create.getExecutor().getUserId(), Instant.now());
 
         return effect
             .persist(created)
@@ -59,7 +59,10 @@ public final class UninitializedProject implements State {
 
     @Override
     public State onCreatedProject(CreatedProject created) {
-        return ActiveProject.apply(effect, created.getProperties());
+        return ActiveProject.apply(
+            effect,
+            ProjectProperties.apply(created.getProject(),
+                                    created.isPrivate(), created.getDescription()));
     }
 
     @Override

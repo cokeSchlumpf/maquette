@@ -25,7 +25,7 @@ public interface Projects {
 
     CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, boolean isPrivate);
 
-    CompletionStage<ProjectDetails> createProject(User executor, ResourceName project, ProjectProperties properties);
+    CompletionStage<ProjectDetails> createProject(User executor, ResourceName project, Markdown description, boolean isPrivate);
 
     CompletionStage<Done> deleteDataset(User executor, ResourcePath dataset);
 

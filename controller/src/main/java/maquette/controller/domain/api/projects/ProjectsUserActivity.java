@@ -50,8 +50,8 @@ public final class ProjectsUserActivity implements Projects {
     }
 
     @Override
-    public CompletionStage<ProjectDetails> createProject(User executor, ResourceName project, ProjectProperties properties) {
-        return createDefaultNamespace(executor, p -> p.createProject(executor, project, properties));
+    public CompletionStage<ProjectDetails> createProject(User executor, ResourceName project, Markdown description, boolean isPrivate) {
+        return createDefaultNamespace(executor, p -> p.createProject(executor, project, description, isPrivate));
     }
 
     @Override
