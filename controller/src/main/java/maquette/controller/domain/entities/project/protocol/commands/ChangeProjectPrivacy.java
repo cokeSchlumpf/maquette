@@ -19,7 +19,7 @@ public class ChangeProjectPrivacy implements ProjectMessage {
 
     private static final String EXECUTOR = "executor";
     private static final String NAME = "name";
-    private static final String IS_PRIVATE = "is-private";
+    private static final String IS_PRIVATE = "private";
     private static final String REPLY_TO = "reply-to";
     private static final String ERROR_TO = "error-to";
 

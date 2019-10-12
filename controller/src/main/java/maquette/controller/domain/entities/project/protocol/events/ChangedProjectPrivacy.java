@@ -18,7 +18,7 @@ import maquette.controller.domain.values.iam.UserId;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChangedProjectPrivacy implements ProjectEvent {
 
-    private static final String IS_PRIVATE = "is-private";
+    private static final String IS_PRIVATE = "private";
     private static final String PROJECT = "project";
     private static final String CHANGED_AT = "changed-at";
     private static final String CHANGED_BY = "changed-by";

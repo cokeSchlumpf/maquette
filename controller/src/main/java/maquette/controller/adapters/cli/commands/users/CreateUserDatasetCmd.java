@@ -21,7 +21,7 @@ import maquette.controller.domain.values.iam.User;
 public class CreateUserDatasetCmd implements Command {
 
     private static final String DATASET = "dataset";
-    private static final String IS_PRIVATE = "is-private";
+    private static final String IS_PRIVATE = "private";
 
     @JsonProperty(DATASET)
     private final ResourceName dataset;

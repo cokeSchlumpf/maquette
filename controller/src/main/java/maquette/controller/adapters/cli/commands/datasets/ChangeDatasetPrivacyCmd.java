@@ -22,7 +22,7 @@ public class ChangeDatasetPrivacyCmd implements Command {
 
     private static final String NAMESPACE = "namespace";
     private static final String DATASET = "dataset";
-    private static final String IS_PRIVATE = "is-private";
+    private static final String IS_PRIVATE = "private";
 
     @JsonProperty(NAMESPACE)
     private final ResourceName namespace;

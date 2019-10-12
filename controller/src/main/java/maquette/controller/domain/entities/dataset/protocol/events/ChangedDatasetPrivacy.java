@@ -18,7 +18,7 @@ public class ChangedDatasetPrivacy implements DatasetEvent {
 
     private static final String CHANGED_AT = "changed-at";
     private static final String CHANGED_BY = "changed-by";
-    private static final String IS_PRIVATE = "is-private";
+    private static final String IS_PRIVATE = "private";
     private static final String DATASET = "dataset";
 
     @JsonProperty(DATASET)

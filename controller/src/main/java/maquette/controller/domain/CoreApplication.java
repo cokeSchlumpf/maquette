@@ -1,7 +1,9 @@
 package maquette.controller.domain;
 
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
+import akka.Done;
 import akka.actor.ActorSystem;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.javadsl.Adapter;
@@ -37,6 +39,7 @@ import maquette.controller.domain.services.CreateDefaultNamespace;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.iam.AuthenticatedUser;
 import scala.compat.java8.FutureConverters;
 
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)

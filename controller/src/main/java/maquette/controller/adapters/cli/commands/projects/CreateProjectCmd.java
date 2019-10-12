@@ -23,7 +23,7 @@ public class CreateProjectCmd implements Command {
 
     private static final String DESCRIPTION = "description";
     private static final String PROJECT = "project";
-    private static final String IS_PRIVATE = "is-private";
+    private static final String IS_PRIVATE = "private";
 
     @JsonProperty(PROJECT)
     private final ResourceName project;

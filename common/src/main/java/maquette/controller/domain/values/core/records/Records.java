@@ -47,17 +47,25 @@ public interface Records {
     static Records fromFile(Path file) {
         try {
             try (InputStream is = Files.newInputStream(file)) {
-                DatumReader<GenericRecord> datumReader = new GenericDatumReader<>();
-                DataFileStream<GenericRecord> dataFileStream = new DataFileStream<>(is, datumReader);
-
-                List<GenericData.Record> records = Lists
-                    .newArrayList(dataFileStream.iterator())
-                    .stream()
-                    .map(record -> (GenericData.Record) record)
-                    .collect(Collectors.toList());
-
-                return AvroRecords.apply(records);
+                return fromInputStream(is);
             }
+        } catch (Exception e) {
+            throw InvalidAvroFileException.apply(e);
+        }
+    }
+
+    static Records fromInputStream(InputStream is) {
+        try {
+            DatumReader<GenericRecord> datumReader = new GenericDatumReader<>();
+            DataFileStream<GenericRecord> dataFileStream = new DataFileStream<>(is, datumReader);
+
+            List<GenericData.Record> records = Lists
+                .newArrayList(dataFileStream.iterator())
+                .stream()
+                .map(record -> (GenericData.Record) record)
+                .collect(Collectors.toList());
+
+            return AvroRecords.apply(records);
         } catch (Exception e) {
             throw InvalidAvroFileException.apply(e);
         }

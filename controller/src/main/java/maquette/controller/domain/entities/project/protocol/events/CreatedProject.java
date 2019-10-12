@@ -8,28 +8,30 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.controller.domain.entities.namespace.protocol.NamespaceEvent;
-import maquette.controller.domain.entities.namespace.protocol.NamespacesEvent;
 import maquette.controller.domain.entities.project.protocol.ProjectEvent;
 import maquette.controller.domain.entities.project.protocol.ProjectsEvent;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.UserId;
-import maquette.controller.domain.values.project.ProjectProperties;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreatedProject implements ProjectEvent, ProjectsEvent {
 
     private static final String PROJECT = "project";
-    private static final String PROPERTIES = "properties";
+    private static final String DESCRIPTION = "description";
+    private static final String IS_PRIVATE = "private";
     private static final String CREATED_BY = "created-by";
     private static final String CREATED_AT = "created-at";
 
     @JsonProperty(PROJECT)
     private final ResourceName project;
 
-    @JsonProperty(PROPERTIES)
-    private final ProjectProperties properties;
+    @JsonProperty(DESCRIPTION)
+    private final Markdown description;
+
+    @JsonProperty(IS_PRIVATE)
+    private final boolean isPrivate;
 
     @JsonProperty(CREATED_BY)
     private final UserId createdBy;
@@ -40,11 +42,12 @@ public class CreatedProject implements ProjectEvent, ProjectsEvent {
     @JsonCreator
     public static CreatedProject apply(
         @JsonProperty(PROJECT) ResourceName project,
-        @JsonProperty(PROPERTIES) ProjectProperties properties,
+        @JsonProperty(DESCRIPTION) Markdown description,
+        @JsonProperty(IS_PRIVATE) boolean isPrivate,
         @JsonProperty(CREATED_BY) UserId createdBy,
         @JsonProperty(CREATED_AT) Instant createdAt) {
 
-        return new CreatedProject(project, properties, createdBy, createdAt);
+        return new CreatedProject(project, description, isPrivate, createdBy, createdAt);
     }
 
 }

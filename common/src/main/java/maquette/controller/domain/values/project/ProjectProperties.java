@@ -18,7 +18,7 @@ import maquette.controller.domain.values.core.ResourceName;
 public class ProjectProperties {
 
     private static final String NAME = "name";
-    private static final String IS_PRIVATE = "is-private";
+    private static final String IS_PRIVATE = "private";
     private static final String DESCRIPTION = "description";
 
     @JsonProperty(NAME)

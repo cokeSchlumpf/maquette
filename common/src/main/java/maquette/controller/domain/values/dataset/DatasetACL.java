@@ -21,7 +21,7 @@ public class DatasetACL {
 
     private static final String OWNER = "owner";
     private static final String GRANTS = "grants";
-    private static final String IS_PRIVATE = "is-private";
+    private static final String IS_PRIVATE = "private";
 
     @JsonProperty(OWNER)
     private final GrantedAuthorization owner;

@@ -18,7 +18,7 @@ public class CreatedDataset implements DatasetEvent {
 
     private static final String CREATED_AT = "created-at";
     private static final String CREATED_BY = "created-by";
-    private static final String IS_PRIVATE = "is-private";
+    private static final String IS_PRIVATE = "private";
     private static final String DATASET = "dataset";
 
     @JsonProperty(DATASET)
@@ -41,11 +41,6 @@ public class CreatedDataset implements DatasetEvent {
         @JsonProperty(CREATED_AT) Instant createdAt) {
 
         return new CreatedDataset(dataset, isPrivate, createdBy, createdAt);
-    }
-
-    @Deprecated
-    public static CreatedDataset apply(ResourcePath dataset, UserId createdBy, Instant createdAt) {
-        return new CreatedDataset(dataset, false, createdBy, createdAt);
     }
 
 }
