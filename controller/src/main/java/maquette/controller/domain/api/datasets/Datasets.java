@@ -5,6 +5,7 @@ import java.util.concurrent.CompletionStage;
 
 import org.apache.avro.Schema;
 
+import akka.Done;
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
 import maquette.controller.domain.values.core.Markdown;
@@ -22,6 +23,17 @@ import maquette.controller.domain.values.iam.UserId;
 
 public interface Datasets {
 
+    /**
+     * Change the description of an existing dataset.
+     *
+     * @param executor
+     *     The user which executes the command
+     * @param dataset
+     *     The dataset which description should be changed
+     * @param description
+     *     The new description
+     * @return Updated details of the dataset
+     */
     CompletionStage<DatasetDetails> changeDescription(User executor, ResourcePath dataset, Markdown description);
 
     CompletionStage<DatasetDetails> changePrivacy(User executor, ResourcePath dataset, boolean isPrivate);

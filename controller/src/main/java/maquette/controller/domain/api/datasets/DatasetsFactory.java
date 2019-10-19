@@ -27,7 +27,7 @@ public final class DatasetsFactory {
     private final Materializer materializer;
 
     public Datasets create() {
-        DatasetsImpl impl = DatasetsImpl.apply(datasets, users, patterns, materializer);
+        DatasetsImpl impl = DatasetsImpl.apply(datasets, users, namespaces, patterns, materializer);
         DatasetsSecured secured = DatasetsSecured.apply(namespaces, datasets, patterns, impl);
         return DatasetsUserActivity.apply(secured, createDefaultNamespace);
     }

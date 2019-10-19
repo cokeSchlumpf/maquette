@@ -15,9 +15,9 @@ import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 
 @AllArgsConstructor
-@RestController("Shop")
-@RequestMapping("api/v1/shop")
-public class ShopResource {
+@RestController("User")
+@RequestMapping("api/v1/user")
+public class UserResource {
 
     private final CoreApplication core;
 
@@ -31,8 +31,8 @@ public class ShopResource {
         return ctx
             .getUser(exchange)
             .thenCompose(user -> core
-                .shop()
-                .listDatasets(user));
+                .users()
+                .getDatasets(user));
     }
 
 }

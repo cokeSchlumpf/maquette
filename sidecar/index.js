@@ -6,6 +6,10 @@ const proxy = require('http-proxy-stream');
 const PROXY_URL = process.env.SIDECAR_PROXY_URL || "http://localhost:8080";
 const PORT = process.env.SIDECAR_PORT || 3030;
 
+const KNOWN_USER_ROLES = {
+    "hippo": [ "team-a", "team-b" ]
+};
+
 /*
  * Configure express
  */
@@ -42,6 +46,10 @@ app.use(function (req, res) {
     if (req.session.username) {
         forward = true;
         req.headers['x-user-id'] = req.session.username;
+
+        if (KNOWN_USER_ROLES[req.session.username]) {
+            req.headers['x-user-roles'] = KNOWN_USER_ROLES[req.session.username];
+        }
     } else if (req.headers['x-user-id']) {
         forward = true;
     }

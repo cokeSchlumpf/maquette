@@ -6,6 +6,7 @@ import java.util.concurrent.CompletionStage;
 
 import org.apache.avro.Schema;
 
+import akka.Done;
 import akka.NotUsed;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
