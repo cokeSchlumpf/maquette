@@ -1,4 +1,4 @@
-package maquette.controller.domain.entities.project.protocol.results;
+package maquette.controller.domain.entities.deprecatedproject.protocol.results;
 
 import java.util.Set;
 
@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.controller.domain.entities.project.protocol.Message;
+import maquette.controller.domain.entities.deprecatedproject.protocol.Message;
 import maquette.controller.domain.values.core.ResourceName;
 
 @Value

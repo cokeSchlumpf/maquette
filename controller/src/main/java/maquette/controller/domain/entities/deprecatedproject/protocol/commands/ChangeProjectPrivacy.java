@@ -1,4 +1,4 @@
-package maquette.controller.domain.entities.project.protocol.commands;
+package maquette.controller.domain.entities.deprecatedproject.protocol.commands;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,26 +7,19 @@ import akka.actor.typed.ActorRef;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
-import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
-import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
-import maquette.controller.domain.entities.project.protocol.ProjectMessage;
-import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
-import maquette.controller.domain.entities.project.protocol.events.CreatedProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage;
+import maquette.controller.domain.entities.deprecatedproject.protocol.events.ChangedProjectPrivacy;
 import maquette.controller.domain.values.core.ErrorMessage;
-import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.project.ProjectProperties;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateProject implements ProjectMessage, ProjectsMessage {
+public class ChangeProjectPrivacy implements ProjectMessage {
 
     private static final String EXECUTOR = "executor";
     private static final String NAME = "name";
     private static final String IS_PRIVATE = "private";
-    private static final String DESCRIPTION = "description";
     private static final String REPLY_TO = "reply-to";
     private static final String ERROR_TO = "error-to";
 
@@ -36,28 +29,30 @@ public class CreateProject implements ProjectMessage, ProjectsMessage {
     @JsonProperty(EXECUTOR)
     private final User executor;
 
-    @JsonProperty(DESCRIPTION)
-    private final Markdown description;
-
     @JsonProperty(IS_PRIVATE)
     private final boolean isPrivate;
 
     @JsonProperty(REPLY_TO)
-    private final ActorRef<CreatedProject> replyTo;
+    private final ActorRef<ChangedProjectPrivacy> replyTo;
 
     @JsonProperty(ERROR_TO)
     private final ActorRef<ErrorMessage> errorTo;
 
     @JsonCreator
-    public static CreateProject apply(
+    public static ChangeProjectPrivacy apply(
         @JsonProperty(NAME) ResourceName name,
         @JsonProperty(EXECUTOR) User executor,
-        @JsonProperty(DESCRIPTION) Markdown description,
         @JsonProperty(IS_PRIVATE) boolean isPrivate,
-        @JsonProperty(REPLY_TO) ActorRef<CreatedProject> replyTo,
+        @JsonProperty(REPLY_TO) ActorRef<ChangedProjectPrivacy> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 
-        return new CreateProject(name, executor, description, isPrivate, replyTo, errorTo);
+        return new ChangeProjectPrivacy(name, executor, isPrivate, replyTo, errorTo);
+    }
+
+    @Deprecated
+    public static ChangeProjectPrivacy apply(
+        ResourceName name, User executor, ActorRef<ChangedProjectPrivacy> replyTo, ActorRef<ErrorMessage> errorTo) {
+        return apply(name, executor, false, replyTo, errorTo);
     }
 
 }

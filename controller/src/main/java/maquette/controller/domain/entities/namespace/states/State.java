@@ -2,8 +2,6 @@ package maquette.controller.domain.entities.namespace.states;
 
 import akka.persistence.typed.javadsl.Effect;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceEvent;
-import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectDescription;
-import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectPrivacy;
 import maquette.controller.domain.entities.namespace.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
 import maquette.controller.domain.entities.namespace.protocol.commands.DeleteNamespace;
@@ -11,8 +9,6 @@ import maquette.controller.domain.entities.namespace.protocol.commands.GrantName
 import maquette.controller.domain.entities.namespace.protocol.commands.RegisterDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RemoveDataset;
 import maquette.controller.domain.entities.namespace.protocol.commands.RevokeNamespaceAccess;
-import maquette.controller.domain.entities.project.protocol.events.ChangedProjectDescription;
-import maquette.controller.domain.entities.project.protocol.events.ChangedProjectPrivacy;
 import maquette.controller.domain.entities.namespace.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
 import maquette.controller.domain.entities.namespace.protocol.events.DeletedNamespace;

@@ -1,4 +1,4 @@
-package maquette.controller.domain.entities.project;
+package maquette.controller.domain.entities.deprecatedproject;
 
 import java.time.Instant;
 import java.util.Set;
@@ -15,26 +15,27 @@ import akka.persistence.typed.javadsl.EventHandler;
 import akka.persistence.typed.javadsl.EventSourcedBehavior;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import maquette.controller.domain.entities.project.protocol.ProjectsEvent;
-import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
-import maquette.controller.domain.entities.project.protocol.commands.CreateProject;
-import maquette.controller.domain.entities.project.protocol.commands.DeleteProject;
-import maquette.controller.domain.entities.project.protocol.events.CreatedProject;
-import maquette.controller.domain.entities.project.protocol.events.DeletedProject;
-import maquette.controller.domain.entities.project.protocol.queries.ListProjects;
-import maquette.controller.domain.entities.project.protocol.results.ListProjectsResult;
+import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsEvent;
+import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsMessage;
+import maquette.controller.domain.entities.deprecatedproject.protocol.commands.CreateProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.commands.DeleteProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.events.CreatedProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.events.DeletedProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.queries.ListProjects;
+import maquette.controller.domain.entities.deprecatedproject.protocol.results.ListProjectsResult;
 import maquette.controller.domain.values.core.ResourceName;
 
-public final class ProjectsRegistry extends EventSourcedBehavior<ProjectsMessage, ProjectsEvent, ProjectsRegistry.State> {
+@Deprecated
+public final class DeprecatedProjectsRegistry extends EventSourcedBehavior<ProjectsMessage, ProjectsEvent, DeprecatedProjectsRegistry.State> {
 
     private static final String PERSISTENCE_ID = "project-registry";
 
-    private ProjectsRegistry() {
+    private DeprecatedProjectsRegistry() {
         super(PersistenceId.apply(PERSISTENCE_ID));
     }
 
     public static SingletonActor<ProjectsMessage> create() {
-        Behavior<ProjectsMessage> behavior = Behaviors.setup(actor -> new ProjectsRegistry());
+        Behavior<ProjectsMessage> behavior = Behaviors.setup(actor -> new DeprecatedProjectsRegistry());
         return SingletonActor.apply(behavior, PERSISTENCE_ID);
     }
 

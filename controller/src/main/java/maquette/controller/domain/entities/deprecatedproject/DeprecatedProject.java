@@ -1,39 +1,38 @@
-package maquette.controller.domain.entities.project;
+package maquette.controller.domain.entities.deprecatedproject;
 
 import akka.cluster.sharding.typed.javadsl.EntityTypeKey;
 import akka.cluster.sharding.typed.javadsl.EventSourcedEntity;
 import akka.persistence.typed.javadsl.CommandHandler;
 import akka.persistence.typed.javadsl.EventHandler;
-import maquette.controller.domain.entities.project.protocol.ProjectEvent;
-import maquette.controller.domain.entities.project.protocol.ProjectMessage;
-import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectDescription;
-import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectPrivacy;
-import maquette.controller.domain.entities.project.protocol.commands.CreateProject;
-import maquette.controller.domain.entities.project.protocol.commands.DeleteProject;
-import maquette.controller.domain.entities.project.protocol.events.ChangedProjectDescription;
-import maquette.controller.domain.entities.project.protocol.events.ChangedProjectPrivacy;
-import maquette.controller.domain.entities.project.protocol.events.CreatedProject;
-import maquette.controller.domain.entities.project.protocol.events.DeletedProject;
-import maquette.controller.domain.entities.project.protocol.queries.GetProjectProperties;
-import maquette.controller.domain.entities.project.states.State;
-import maquette.controller.domain.entities.project.states.UninitializedProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectEvent;
+import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage;
+import maquette.controller.domain.entities.deprecatedproject.protocol.commands.ChangeProjectDescription;
+import maquette.controller.domain.entities.deprecatedproject.protocol.commands.ChangeProjectPrivacy;
+import maquette.controller.domain.entities.deprecatedproject.protocol.commands.CreateProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.commands.DeleteProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.events.ChangedProjectDescription;
+import maquette.controller.domain.entities.deprecatedproject.protocol.events.ChangedProjectPrivacy;
+import maquette.controller.domain.entities.deprecatedproject.protocol.events.CreatedProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.events.DeletedProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.queries.GetProjectProperties;
+import maquette.controller.domain.entities.deprecatedproject.states.State;
+import maquette.controller.domain.entities.deprecatedproject.states.UninitializedProject;
 import maquette.controller.domain.util.Operators;
-import maquette.controller.domain.util.databind.ObjectMapperFactory;
 import maquette.controller.domain.values.core.ResourceName;
-import maquette.controller.domain.values.iam.UserId;
 
-public final class Project extends EventSourcedEntity<ProjectMessage, ProjectEvent, State> {
+@Deprecated
+public final class DeprecatedProject extends EventSourcedEntity<ProjectMessage, ProjectEvent, State> {
 
     public static EntityTypeKey<ProjectMessage> ENTITY_KEY = EntityTypeKey.create(ProjectMessage.class, "project");
 
-    private Project(String entityId) {
+    private DeprecatedProject(String entityId) {
         super(ENTITY_KEY, entityId);
     }
 
     public static EventSourcedEntity<ProjectMessage, ProjectEvent, State> create(ResourceName name) {
 
         String entityId = createEntityId(name);
-        return new Project(entityId);
+        return new DeprecatedProject(entityId);
     }
 
     public static String createEntityId(ResourceName namespaceName) {

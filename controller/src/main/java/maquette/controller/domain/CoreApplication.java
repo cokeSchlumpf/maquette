@@ -1,9 +1,7 @@
 package maquette.controller.domain;
 
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
-import akka.Done;
 import akka.actor.ActorSystem;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.javadsl.Adapter;
@@ -28,10 +26,10 @@ import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.NamespacesRegistry;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
-import maquette.controller.domain.entities.project.Project;
-import maquette.controller.domain.entities.project.ProjectsRegistry;
-import maquette.controller.domain.entities.project.protocol.ProjectMessage;
-import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
+import maquette.controller.domain.entities.deprecatedproject.DeprecatedProject;
+import maquette.controller.domain.entities.deprecatedproject.DeprecatedProjectsRegistry;
+import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage;
+import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsMessage;
 import maquette.controller.domain.entities.user.User;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.ports.DataStorageAdapter;
@@ -39,7 +37,6 @@ import maquette.controller.domain.services.CreateDefaultNamespace;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
-import maquette.controller.domain.values.iam.AuthenticatedUser;
 import scala.compat.java8.FutureConverters;
 
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
@@ -72,7 +69,7 @@ public class CoreApplication {
         final ActorRef<ShardingEnvelope<UserMessage>> userShards = createUserSharding(sharding);
         final ActorRef<ShardingEnvelope<ProjectMessage>> projectShards = createProjectSharding(sharding);
         final ActorRef<NamespacesMessage> namespacesRegistry = singleton.init(NamespacesRegistry.create());
-        final ActorRef<ProjectsMessage> projectsRegistry = singleton.init(ProjectsRegistry.create());
+        final ActorRef<ProjectsMessage> projectsRegistry = singleton.init(DeprecatedProjectsRegistry.create());
 
         final CreateDefaultNamespace createDefaultNamespace = CreateDefaultNamespace.apply(
             namespacesRegistry, namespaceShards, userShards, patterns);
@@ -125,8 +122,8 @@ public class CoreApplication {
     private static ActorRef<ShardingEnvelope<ProjectMessage>> createProjectSharding(ClusterSharding sharding) {
         final Entity<ProjectMessage, ShardingEnvelope<ProjectMessage>> projectEntity = Entity
             .ofPersistentEntity(
-                Project.ENTITY_KEY,
-                ctx -> Project.create(Project.fromEntityId(ctx.getEntityId())));
+                DeprecatedProject.ENTITY_KEY,
+                ctx -> DeprecatedProject.create(DeprecatedProject.fromEntityId(ctx.getEntityId())));
 
         return sharding.init(projectEntity);
     }

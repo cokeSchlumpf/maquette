@@ -19,19 +19,19 @@ import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceDetails;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceDetailsResult;
-import maquette.controller.domain.entities.project.Project;
-import maquette.controller.domain.entities.project.protocol.ProjectMessage;
-import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
-import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectDescription;
-import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectPrivacy;
-import maquette.controller.domain.entities.project.protocol.commands.CreateProject;
-import maquette.controller.domain.entities.project.protocol.commands.DeleteProject;
-import maquette.controller.domain.entities.project.protocol.events.ChangedProjectDescription;
-import maquette.controller.domain.entities.project.protocol.events.ChangedProjectPrivacy;
-import maquette.controller.domain.entities.project.protocol.events.CreatedProject;
-import maquette.controller.domain.entities.project.protocol.events.DeletedProject;
-import maquette.controller.domain.entities.project.protocol.queries.GetProjectProperties;
-import maquette.controller.domain.entities.project.protocol.results.GetProjectPropertiesResult;
+import maquette.controller.domain.entities.deprecatedproject.DeprecatedProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage;
+import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsMessage;
+import maquette.controller.domain.entities.deprecatedproject.protocol.commands.ChangeProjectDescription;
+import maquette.controller.domain.entities.deprecatedproject.protocol.commands.ChangeProjectPrivacy;
+import maquette.controller.domain.entities.deprecatedproject.protocol.commands.CreateProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.commands.DeleteProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.events.ChangedProjectDescription;
+import maquette.controller.domain.entities.deprecatedproject.protocol.events.ChangedProjectPrivacy;
+import maquette.controller.domain.entities.deprecatedproject.protocol.events.CreatedProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.events.DeletedProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.queries.GetProjectProperties;
+import maquette.controller.domain.entities.deprecatedproject.protocol.results.GetProjectPropertiesResult;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
@@ -91,7 +91,7 @@ public final class ProjectsImpl implements Projects {
             .ask(
                 projects,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
-                    Project.createEntityId(project),
+                    DeprecatedProject.createEntityId(project),
                     GetProjectProperties.apply(project, replyTo, errorTo)),
                 GetProjectPropertiesResult.class)
             .thenApply(GetProjectPropertiesResult::getProperties);
@@ -109,7 +109,7 @@ public final class ProjectsImpl implements Projects {
             .ask(
                 projects,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
-                    Project.createEntityId(project),
+                    DeprecatedProject.createEntityId(project),
                     ChangeProjectDescription.apply(project, executor, description, replyTo, errorTo)),
                 ChangedProjectDescription.class)
             .thenApply(ChangedProjectDescription::getProject)
@@ -130,7 +130,7 @@ public final class ProjectsImpl implements Projects {
             .ask(
                 projects,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
-                    Project.createEntityId(project),
+                    DeprecatedProject.createEntityId(project),
                     ChangeProjectPrivacy.apply(project, executor, isPrivate, replyTo, errorTo)),
                 ChangedProjectPrivacy.class)
             .thenApply(ChangedProjectPrivacy::getProject)
@@ -155,7 +155,7 @@ public final class ProjectsImpl implements Projects {
             .thenCompose(createdNamespace -> patterns.ask(
                 projects,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
-                    Project.createEntityId(project),
+                    DeprecatedProject.createEntityId(project),
                     CreateProject.apply(project, executor, description, isPrivate, replyTo, errorTo)),
                 CreatedProject.class))
             .thenCompose(createdNamespace -> getProjectDetails(project));
@@ -204,7 +204,7 @@ public final class ProjectsImpl implements Projects {
             .ask(
                 projects,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
-                    Project.createEntityId(project),
+                    DeprecatedProject.createEntityId(project),
                     DeleteProject.apply(project, executor, replyTo, errorTo)),
                 DeletedProject.class)
             .thenCompose(deleted -> patterns

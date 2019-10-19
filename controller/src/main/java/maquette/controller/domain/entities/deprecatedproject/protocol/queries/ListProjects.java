@@ -1,4 +1,4 @@
-package maquette.controller.domain.entities.project.protocol.queries;
+package maquette.controller.domain.entities.deprecatedproject.protocol.queries;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,8 +7,8 @@ import akka.actor.typed.ActorRef;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
-import maquette.controller.domain.entities.project.protocol.results.ListProjectsResult;
+import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsMessage;
+import maquette.controller.domain.entities.deprecatedproject.protocol.results.ListProjectsResult;
 import maquette.controller.domain.values.core.ErrorMessage;
 
 @Value

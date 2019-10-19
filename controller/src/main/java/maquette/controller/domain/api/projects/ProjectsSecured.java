@@ -16,10 +16,10 @@ import maquette.controller.domain.entities.namespace.Namespace;
 import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
 import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceDetails;
 import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceDetailsResult;
-import maquette.controller.domain.entities.project.Project;
-import maquette.controller.domain.entities.project.protocol.ProjectMessage;
-import maquette.controller.domain.entities.project.protocol.queries.GetProjectProperties;
-import maquette.controller.domain.entities.project.protocol.results.GetProjectPropertiesResult;
+import maquette.controller.domain.entities.deprecatedproject.DeprecatedProject;
+import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage;
+import maquette.controller.domain.entities.deprecatedproject.protocol.queries.GetProjectProperties;
+import maquette.controller.domain.entities.deprecatedproject.protocol.results.GetProjectPropertiesResult;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
@@ -76,7 +76,7 @@ public final class ProjectsSecured implements Projects {
             .ask(
                 projects,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
-                    Project.createEntityId(project),
+                    DeprecatedProject.createEntityId(project),
                     GetProjectProperties.apply(project, replyTo, errorTo)),
                 GetProjectPropertiesResult.class)
             .thenApply(GetProjectPropertiesResult::getProperties);

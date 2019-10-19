@@ -1,4 +1,4 @@
-package maquette.controller.domain.entities.project.protocol.events;
+package maquette.controller.domain.entities.deprecatedproject.protocol.events;
 
 import java.time.Instant;
 
@@ -8,8 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.controller.domain.entities.project.protocol.ProjectEvent;
-import maquette.controller.domain.entities.project.protocol.ProjectsEvent;
+import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectEvent;
+import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsEvent;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.UserId;
 
