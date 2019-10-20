@@ -15,7 +15,6 @@ import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

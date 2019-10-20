@@ -15,7 +15,6 @@ import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.project.ProjectProperties;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

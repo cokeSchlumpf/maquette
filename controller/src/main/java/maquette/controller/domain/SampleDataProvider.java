@@ -1,7 +1,5 @@
 package maquette.controller.domain;
 
-import java.util.concurrent.CompletionStage;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +12,6 @@ import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
 import maquette.controller.domain.values.iam.RoleAuthorization;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.project.ProjectProperties;
 
 @AllArgsConstructor(staticName = "apply")
 public class SampleDataProvider {

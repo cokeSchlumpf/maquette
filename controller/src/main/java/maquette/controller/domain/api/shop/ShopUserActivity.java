@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import maquette.controller.domain.services.CreateDefaultNamespace;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.project.ProjectDetails;
+import maquette.controller.domain.values.deprecatedproject.ProjectDetails;
 
 @AllArgsConstructor(staticName = "apply")
 public final class ShopUserActivity implements Shop {

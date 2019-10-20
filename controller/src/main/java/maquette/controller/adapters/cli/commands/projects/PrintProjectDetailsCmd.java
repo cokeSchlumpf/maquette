@@ -16,7 +16,7 @@ import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.namespace.NamespaceGrant;
+import maquette.controller.domain.values.project.ProjectGrant;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PrintProjectDetailsCmd implements Command {
@@ -57,7 +57,7 @@ public final class PrintProjectDetailsCmd implements Command {
 
                 DataTable acl = DataTable.apply("granted to", "privilege", "granted by", "granted at");
 
-                for (NamespaceGrant grant : details.getDetails().getAcl().getGrants()) {
+                for (ProjectGrant grant : details.getDetails().getAcl().getGrants()) {
                     acl = acl.withRow(
                         grant.getAuthorization().getAuthorization(),
                         grant.getPrivilege().name,

@@ -39,7 +39,7 @@ import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDe
 import maquette.controller.domain.entities.dataset.protocol.results.GetDataResult;
 import maquette.controller.domain.entities.dataset.protocol.results.GetDetailsResult;
 import maquette.controller.domain.entities.dataset.protocol.results.GetVersionDetailsResult;
-import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
+import maquette.controller.domain.entities.project.protocol.ProjectMessage;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.entities.user.protocol.commands.RegisterAccessToken;
 import maquette.controller.domain.entities.user.protocol.events.RegisteredAccessToken;
@@ -67,7 +67,7 @@ public final class DatasetsImpl implements Datasets {
 
     private final ActorRef<ShardingEnvelope<UserMessage>> users;
 
-    private final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaces;
+    private final ActorRef<ShardingEnvelope<ProjectMessage>> namespaces;
 
     private final ActorPatterns patterns;
 

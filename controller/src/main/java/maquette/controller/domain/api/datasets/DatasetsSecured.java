@@ -6,7 +6,6 @@ import java.util.concurrent.CompletionStage;
 
 import org.apache.avro.Schema;
 
-import akka.Done;
 import akka.NotUsed;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
@@ -16,10 +15,10 @@ import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.dataset.protocol.results.GetDetailsResult;
-import maquette.controller.domain.entities.namespace.Namespace;
-import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
-import maquette.controller.domain.entities.namespace.protocol.queries.GetNamespaceDetails;
-import maquette.controller.domain.entities.namespace.protocol.results.GetNamespaceDetailsResult;
+import maquette.controller.domain.entities.project.Project;
+import maquette.controller.domain.entities.project.protocol.ProjectMessage;
+import maquette.controller.domain.entities.project.protocol.queries.GetProjectDetails;
+import maquette.controller.domain.entities.project.protocol.results.GetProjectDetailsResult;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
@@ -35,12 +34,12 @@ import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserId;
-import maquette.controller.domain.values.namespace.NamespaceDetails;
+import maquette.controller.domain.values.project.ProjectDetails;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DatasetsSecured implements Datasets {
 
-    private final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaces;
+    private final ActorRef<ShardingEnvelope<ProjectMessage>> namespaces;
 
     private final ActorRef<ShardingEnvelope<DatasetMessage>> datasets;
 
@@ -119,16 +118,16 @@ public final class DatasetsSecured implements Datasets {
             .thenApply(GetDetailsResult::getDetails);
     }
 
-    private CompletionStage<NamespaceDetails> getNamespaceDetails(ResourceName namespace) {
+    private CompletionStage<ProjectDetails> getNamespaceDetails(ResourceName namespace) {
         return patterns
             .ask(
                 namespaces,
                 (replyTo, errorTo) ->
                     ShardingEnvelope.apply(
-                        Namespace.createEntityId(namespace),
-                        GetNamespaceDetails.apply(namespace, replyTo, errorTo)),
-                GetNamespaceDetailsResult.class)
-            .thenApply(GetNamespaceDetailsResult::getNamespaceDetails);
+                        Project.createEntityId(namespace),
+                        GetProjectDetails.apply(namespace, replyTo, errorTo)),
+                GetProjectDetailsResult.class)
+            .thenApply(GetProjectDetailsResult::getDetails);
     }
 
     @Override

@@ -7,17 +7,17 @@ import akka.persistence.typed.javadsl.EffectFactories;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectEvent;
-import maquette.controller.domain.entities.deprecatedproject.protocol.commands.ChangeProjectDescription;
-import maquette.controller.domain.entities.deprecatedproject.protocol.commands.ChangeProjectPrivacy;
+import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectDescription;
+import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectPrivacy;
 import maquette.controller.domain.entities.deprecatedproject.protocol.commands.CreateProject;
 import maquette.controller.domain.entities.deprecatedproject.protocol.commands.DeleteProject;
-import maquette.controller.domain.entities.deprecatedproject.protocol.events.ChangedProjectDescription;
-import maquette.controller.domain.entities.deprecatedproject.protocol.events.ChangedProjectPrivacy;
+import maquette.controller.domain.entities.project.protocol.events.ChangedProjectDescription;
+import maquette.controller.domain.entities.project.protocol.events.ChangedProjectPrivacy;
 import maquette.controller.domain.entities.deprecatedproject.protocol.events.CreatedProject;
 import maquette.controller.domain.entities.deprecatedproject.protocol.events.DeletedProject;
 import maquette.controller.domain.entities.deprecatedproject.protocol.queries.GetProjectProperties;
-import maquette.controller.domain.values.namespace.ProjectDoesNotExist;
-import maquette.controller.domain.values.project.ProjectProperties;
+import maquette.controller.domain.values.project.ProjectDoesNotExist;
+import maquette.controller.domain.values.deprecatedproject.ProjectProperties;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -27,7 +27,7 @@ public final class UninitializedProject implements State {
 
     @Override
     public Effect<ProjectEvent, State> onChangeProjectDescription(ChangeProjectDescription change) {
-        change.getErrorTo().tell(ProjectDoesNotExist.apply(change.getName()));
+        change.getErrorTo().tell(ProjectDoesNotExist.apply(change.getProject()));
         return effect.none();
     }
 
@@ -38,7 +38,7 @@ public final class UninitializedProject implements State {
 
     @Override
     public Effect<ProjectEvent, State> onChangeProjectPrivacy(ChangeProjectPrivacy change) {
-        change.getErrorTo().tell(ProjectDoesNotExist.apply(change.getName()));
+        change.getErrorTo().tell(ProjectDoesNotExist.apply(change.getProject()));
         return effect.none();
     }
 

@@ -12,8 +12,8 @@ import maquette.controller.domain.services.CollectDatasets;
 import maquette.controller.domain.services.CollectNamespaceInfos;
 import maquette.controller.domain.services.NamespaceServices;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
-import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
-import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
+import maquette.controller.domain.entities.project.protocol.ProjectMessage;
+import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.entities.user.protocol.commands.RegisterAccessToken;
 import maquette.controller.domain.entities.user.protocol.commands.RemoveAccessToken;
@@ -24,7 +24,6 @@ import maquette.controller.domain.entities.user.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.user.protocol.results.GetDetailsResult;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
-import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.exceptions.NoUserNamespaceDefinedException;
@@ -34,16 +33,16 @@ import maquette.controller.domain.values.iam.TokenDetails;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserDetails;
 import maquette.controller.domain.values.iam.UserId;
-import maquette.controller.domain.values.namespace.NamespaceInfo;
+import maquette.controller.domain.values.project.ProjectInfo;
 
 @AllArgsConstructor(staticName = "apply")
 final class UsersImpl implements Users {
 
     private final ActorRef<ShardingEnvelope<UserMessage>> users;
 
-    private final ActorRef<NamespacesMessage> namespacesRegistry;
+    private final ActorRef<ProjectsMessage> namespacesRegistry;
 
-    private final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaces;
+    private final ActorRef<ShardingEnvelope<ProjectMessage>> namespaces;
 
     private final ActorRef<ShardingEnvelope<DatasetMessage>> datasets;
 
@@ -84,7 +83,7 @@ final class UsersImpl implements Users {
 
     @Override
     public CompletionStage<Set<DatasetDetails>> getDatasets(User executor) {
-        CompletionStage<Set<NamespaceInfo>> namespaceInfos = patterns
+        CompletionStage<Set<ProjectInfo>> namespaceInfos = patterns
             .process(result -> CollectNamespaceInfos.create(namespacesRegistry, namespaces, result));
 
         CompletionStage<Set<DatasetDetails>> allDatasets = namespaceInfos

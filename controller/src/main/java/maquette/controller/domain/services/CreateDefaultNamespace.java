@@ -6,11 +6,11 @@ import java.util.function.Supplier;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.entities.namespace.Namespace;
-import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
-import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
-import maquette.controller.domain.entities.namespace.protocol.commands.CreateNamespace;
-import maquette.controller.domain.entities.namespace.protocol.events.CreatedNamespace;
+import maquette.controller.domain.entities.project.Project;
+import maquette.controller.domain.entities.project.protocol.ProjectMessage;
+import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
+import maquette.controller.domain.entities.project.protocol.commands.CreateProject;
+import maquette.controller.domain.entities.project.protocol.events.CreatedProject;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.entities.user.protocol.commands.ConfigureNamespace;
 import maquette.controller.domain.entities.user.protocol.events.ConfiguredNamespace;
@@ -22,9 +22,9 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(staticName = "apply")
 public final class CreateDefaultNamespace {
 
-    private final ActorRef<NamespacesMessage> namespaces;
+    private final ActorRef<ProjectsMessage> namespaces;
 
-    private final ActorRef<ShardingEnvelope<NamespaceMessage>> namespacesShards;
+    private final ActorRef<ShardingEnvelope<ProjectMessage>> namespacesShards;
 
     private final ActorRef<ShardingEnvelope<UserMessage>> userShards;
 
@@ -39,14 +39,14 @@ public final class CreateDefaultNamespace {
             return patterns
                 .ask(
                     namespaces,
-                    (replyTo, errorTo) -> CreateNamespace.apply(defaultNamespace, executor, replyTo, errorTo),
-                    CreatedNamespace.class)
+                    (replyTo, errorTo) -> CreateProject.apply(defaultNamespace, executor, replyTo, errorTo),
+                    CreatedProject.class)
                 .thenCompose(createdNamespace -> patterns.ask(
                     namespacesShards,
                     (replyTo, errorTo) -> ShardingEnvelope.apply(
-                        Namespace.createEntityId(defaultNamespace),
-                        CreateNamespace.apply(defaultNamespace, executor, replyTo, errorTo)),
-                    CreatedNamespace.class))
+                        Project.createEntityId(defaultNamespace),
+                        CreateProject.apply(defaultNamespace, executor, replyTo, errorTo)),
+                    CreatedProject.class))
                 .thenCompose(createdNamespace -> patterns.ask(
                     userShards,
                     (replyTo, errorTo) -> ShardingEnvelope.apply(

@@ -6,17 +6,17 @@ import akka.persistence.typed.javadsl.Effect;
 import akka.persistence.typed.javadsl.EffectFactories;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectEvent;
-import maquette.controller.domain.entities.deprecatedproject.protocol.commands.ChangeProjectDescription;
-import maquette.controller.domain.entities.deprecatedproject.protocol.commands.ChangeProjectPrivacy;
+import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectDescription;
+import maquette.controller.domain.entities.project.protocol.commands.ChangeProjectPrivacy;
 import maquette.controller.domain.entities.deprecatedproject.protocol.commands.CreateProject;
 import maquette.controller.domain.entities.deprecatedproject.protocol.commands.DeleteProject;
-import maquette.controller.domain.entities.deprecatedproject.protocol.events.ChangedProjectDescription;
-import maquette.controller.domain.entities.deprecatedproject.protocol.events.ChangedProjectPrivacy;
+import maquette.controller.domain.entities.project.protocol.events.ChangedProjectDescription;
+import maquette.controller.domain.entities.project.protocol.events.ChangedProjectPrivacy;
 import maquette.controller.domain.entities.deprecatedproject.protocol.events.CreatedProject;
 import maquette.controller.domain.entities.deprecatedproject.protocol.events.DeletedProject;
 import maquette.controller.domain.entities.deprecatedproject.protocol.queries.GetProjectProperties;
 import maquette.controller.domain.entities.deprecatedproject.protocol.results.GetProjectPropertiesResult;
-import maquette.controller.domain.values.project.ProjectProperties;
+import maquette.controller.domain.values.deprecatedproject.ProjectProperties;
 
 @AllArgsConstructor(staticName = "apply")
 public final class ActiveProject implements State {

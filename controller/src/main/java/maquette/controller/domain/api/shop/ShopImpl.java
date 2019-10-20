@@ -11,28 +11,26 @@ import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
-import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
-import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
-import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage;
-import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsMessage;
+import maquette.controller.domain.entities.project.protocol.ProjectMessage;
+import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
 import maquette.controller.domain.services.CollectDatasets;
 import maquette.controller.domain.services.CollectNamespaceInfos;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.namespace.NamespaceInfo;
-import maquette.controller.domain.values.project.ProjectDetails;
+import maquette.controller.domain.values.project.ProjectInfo;
+import maquette.controller.domain.values.deprecatedproject.ProjectDetails;
 
 @AllArgsConstructor(staticName = "apply")
 public final class ShopImpl implements Shop {
 
-    private final ActorRef<ProjectsMessage> projectsRegistry;
+    private final ActorRef<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsMessage> projectsRegistry;
 
-    private final ActorRef<NamespacesMessage> namespacesRegistry;
+    private final ActorRef<ProjectsMessage> namespacesRegistry;
 
-    private final ActorRef<ShardingEnvelope<ProjectMessage>> projects;
+    private final ActorRef<ShardingEnvelope<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage>> projects;
 
-    private final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaces;
+    private final ActorRef<ShardingEnvelope<ProjectMessage>> namespaces;
 
     private final ActorRef<ShardingEnvelope<DatasetMessage>> datasets;
 
@@ -53,7 +51,7 @@ public final class ShopImpl implements Shop {
 
     @Override
     public CompletionStage<Set<DatasetDetails>> listDatasets(User executor) {
-        CompletionStage<Set<NamespaceInfo>> namespaceInfos = patterns
+        CompletionStage<Set<ProjectInfo>> namespaceInfos = patterns
             .process(result -> CollectNamespaceInfos.create(namespacesRegistry, namespaces, result));
 
         CompletionStage<Set<DatasetDetails>> allDatasets = namespaceInfos

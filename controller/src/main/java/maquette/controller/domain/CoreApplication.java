@@ -22,14 +22,12 @@ import maquette.controller.domain.api.users.Users;
 import maquette.controller.domain.api.users.UsersFactory;
 import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
-import maquette.controller.domain.entities.namespace.Namespace;
-import maquette.controller.domain.entities.namespace.NamespacesRegistry;
-import maquette.controller.domain.entities.namespace.protocol.NamespaceMessage;
-import maquette.controller.domain.entities.namespace.protocol.NamespacesMessage;
+import maquette.controller.domain.entities.project.Project;
+import maquette.controller.domain.entities.project.ProjectRegistry;
+import maquette.controller.domain.entities.project.protocol.ProjectMessage;
+import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
 import maquette.controller.domain.entities.deprecatedproject.DeprecatedProject;
 import maquette.controller.domain.entities.deprecatedproject.DeprecatedProjectsRegistry;
-import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage;
-import maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsMessage;
 import maquette.controller.domain.entities.user.User;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.ports.DataStorageAdapter;
@@ -65,11 +63,11 @@ public class CoreApplication {
         final ActorMaterializer materializer = ActorMaterializer.create(system);
 
         final ActorRef<ShardingEnvelope<DatasetMessage>> datasetShards = createDatasetSharding(sharding, storageAdapter);
-        final ActorRef<ShardingEnvelope<NamespaceMessage>> namespaceShards = createNamespaceSharding(sharding);
+        final ActorRef<ShardingEnvelope<ProjectMessage>> namespaceShards = createNamespaceSharding(sharding);
         final ActorRef<ShardingEnvelope<UserMessage>> userShards = createUserSharding(sharding);
-        final ActorRef<ShardingEnvelope<ProjectMessage>> projectShards = createProjectSharding(sharding);
-        final ActorRef<NamespacesMessage> namespacesRegistry = singleton.init(NamespacesRegistry.create());
-        final ActorRef<ProjectsMessage> projectsRegistry = singleton.init(DeprecatedProjectsRegistry.create());
+        final ActorRef<ShardingEnvelope<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage>> projectShards = createProjectSharding(sharding);
+        final ActorRef<ProjectsMessage> namespacesRegistry = singleton.init(ProjectRegistry.create());
+        final ActorRef<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsMessage> projectsRegistry = singleton.init(DeprecatedProjectsRegistry.create());
 
         final CreateDefaultNamespace createDefaultNamespace = CreateDefaultNamespace.apply(
             namespacesRegistry, namespaceShards, userShards, patterns);
@@ -102,11 +100,11 @@ public class CoreApplication {
         return sharding.init(datasetEntity);
     }
 
-    private static ActorRef<ShardingEnvelope<NamespaceMessage>> createNamespaceSharding(ClusterSharding sharding) {
-        final Entity<NamespaceMessage, ShardingEnvelope<NamespaceMessage>> namespaceEntity = Entity
+    private static ActorRef<ShardingEnvelope<ProjectMessage>> createNamespaceSharding(ClusterSharding sharding) {
+        final Entity<ProjectMessage, ShardingEnvelope<ProjectMessage>> namespaceEntity = Entity
             .ofPersistentEntity(
-                Namespace.ENTITY_KEY,
-                ctx -> Namespace.create(ctx.getActorContext(), ResourceName.apply(ctx.getEntityId())));
+                Project.ENTITY_KEY,
+                ctx -> Project.create(ctx.getActorContext(), ResourceName.apply(ctx.getEntityId())));
         return sharding.init(namespaceEntity);
     }
 
@@ -119,8 +117,8 @@ public class CoreApplication {
         return sharding.init(userEntity);
     }
 
-    private static ActorRef<ShardingEnvelope<ProjectMessage>> createProjectSharding(ClusterSharding sharding) {
-        final Entity<ProjectMessage, ShardingEnvelope<ProjectMessage>> projectEntity = Entity
+    private static ActorRef<ShardingEnvelope<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage>> createProjectSharding(ClusterSharding sharding) {
+        final Entity<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage, ShardingEnvelope<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage>> projectEntity = Entity
             .ofPersistentEntity(
                 DeprecatedProject.ENTITY_KEY,
                 ctx -> DeprecatedProject.create(DeprecatedProject.fromEntityId(ctx.getEntityId())));

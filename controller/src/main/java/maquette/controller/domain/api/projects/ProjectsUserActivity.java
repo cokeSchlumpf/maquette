@@ -14,9 +14,8 @@ import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.namespace.NamespacePrivilege;
-import maquette.controller.domain.values.project.ProjectDetails;
-import maquette.controller.domain.values.project.ProjectProperties;
+import maquette.controller.domain.values.project.NamespacePrivilege;
+import maquette.controller.domain.values.deprecatedproject.ProjectDetails;
 
 @AllArgsConstructor(staticName = "apply")
 public final class ProjectsUserActivity implements Projects {

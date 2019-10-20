@@ -23,7 +23,7 @@ import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.DatasetDetails;
-import maquette.controller.domain.values.namespace.NamespaceInfo;
+import maquette.controller.domain.values.project.ProjectInfo;
 
 public final class CollectDatasets {
 
@@ -34,7 +34,7 @@ public final class CollectDatasets {
     }
 
     public static Behavior<Message> create(
-        Set<NamespaceInfo> namespaces,
+        Set<ProjectInfo> namespaces,
         ActorRef<ShardingEnvelope<DatasetMessage>> datasets,
         CompletableFuture<Set<DatasetDetails>> result) {
 
@@ -47,7 +47,7 @@ public final class CollectDatasets {
 
             int count = 0;
 
-            for (NamespaceInfo ns : namespaces) {
+            for (ProjectInfo ns : namespaces) {
                 for (ResourceName ds : ns.getDatasets()) {
                     ResourcePath path = ResourcePath.apply(ns.getName(), ds);
                     datasets.tell(ShardingEnvelope.apply(

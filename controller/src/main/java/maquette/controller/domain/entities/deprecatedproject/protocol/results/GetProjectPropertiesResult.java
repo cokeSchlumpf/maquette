@@ -7,7 +7,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.entities.deprecatedproject.protocol.Message;
-import maquette.controller.domain.values.project.ProjectProperties;
+import maquette.controller.domain.values.deprecatedproject.ProjectProperties;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

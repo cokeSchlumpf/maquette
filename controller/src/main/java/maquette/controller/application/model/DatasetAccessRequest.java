@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.iam.Authorization;
-import maquette.controller.domain.values.namespace.NamespacePrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

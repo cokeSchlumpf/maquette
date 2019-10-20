@@ -22,6 +22,10 @@ public class Markdown {
 
     private final String value;
 
+    public static Markdown apply() {
+        return apply("");
+    }
+
     public static class Serializer extends StdSerializer<Markdown> {
 
         private Serializer() {

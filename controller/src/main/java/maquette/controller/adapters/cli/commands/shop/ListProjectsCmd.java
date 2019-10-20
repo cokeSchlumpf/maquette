@@ -16,8 +16,7 @@ import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.namespace.NamespaceInfo;
-import maquette.controller.domain.values.project.ProjectDetails;
+import maquette.controller.domain.values.deprecatedproject.ProjectDetails;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
