@@ -73,7 +73,7 @@ public class CoreApplication {
             .create();
 
         final Users users = UsersFactory
-            .apply(projectsRegistry, projectShards, datasetShards, userShards, patterns, createDefaultNamespace)
+            .apply(userShards, patterns, createDefaultNamespace)
             .create();
 
         final Projects projects = ProjectsFactory

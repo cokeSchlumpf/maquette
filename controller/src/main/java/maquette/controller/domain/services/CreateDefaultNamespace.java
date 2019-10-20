@@ -15,6 +15,7 @@ import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.entities.user.protocol.commands.ConfigureNamespace;
 import maquette.controller.domain.entities.user.protocol.events.ConfiguredNamespace;
 import maquette.controller.domain.util.ActorPatterns;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
 import maquette.controller.domain.values.iam.User;
@@ -39,13 +40,13 @@ public final class CreateDefaultNamespace {
             return patterns
                 .ask(
                     namespaces,
-                    (replyTo, errorTo) -> CreateProject.apply(defaultNamespace, executor, replyTo, errorTo),
+                    (replyTo, errorTo) -> CreateProject.apply(defaultNamespace, executor, Markdown.apply(), false, replyTo, errorTo),
                     CreatedProject.class)
                 .thenCompose(createdNamespace -> patterns.ask(
                     namespacesShards,
                     (replyTo, errorTo) -> ShardingEnvelope.apply(
                         Project.createEntityId(defaultNamespace),
-                        CreateProject.apply(defaultNamespace, executor, replyTo, errorTo)),
+                        CreateProject.apply(defaultNamespace, executor, Markdown.apply(), false, replyTo, errorTo)),
                     CreatedProject.class))
                 .thenCompose(createdNamespace -> patterns.ask(
                     userShards,

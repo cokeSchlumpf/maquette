@@ -19,11 +19,12 @@ import maquette.controller.adapters.cli.CommandResult;
 import maquette.controller.adapters.cli.commands.EAuthorizationType;
 import maquette.controller.adapters.cli.commands.datasets.ChangeDatasetDescriptionCmd;
 import maquette.controller.adapters.cli.commands.datasets.ChangeDatasetPrivacyCmd;
+import maquette.controller.adapters.cli.commands.datasets.CreateDatasetCmd;
 import maquette.controller.adapters.cli.commands.datasets.GrantDatasetAccessCmd;
 import maquette.controller.adapters.cli.commands.datasets.ListDatasetVersionsCmd;
 import maquette.controller.adapters.cli.commands.datasets.PrintDatasetDetailsCmd;
 import maquette.controller.adapters.cli.commands.datasets.RevokeDatasetAccessCmd;
-import maquette.controller.adapters.cli.commands.datasets.CreateDatasetCmd;
+import maquette.controller.adapters.cli.commands.shop.ListDatasetsCmd;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
@@ -62,7 +63,7 @@ public final class DatasetSteps {
     }
 
     @Then("{string} cannot see details of the dataset")
-    public void cannot_see_details_of_the_dataset(String username) throws ExecutionException, InterruptedException {
+    public void cannot_see_details_of_the_dataset(String username) {
         String datasetName = ctx.getVariable("dataset", String.class);
         User user = ctx.getUser(username);
         ResourcePath dataset = ctx.getKnownDataset(datasetName);
@@ -78,8 +79,8 @@ public final class DatasetSteps {
     public void creates_a_dataset_called(String username, String dataset) throws ExecutionException, InterruptedException {
         User user = ctx.getUser(username);
 
-        CommandResult result = CreateUserDatasetCmd
-            .apply(ResourceName.apply(dataset), false)
+        CommandResult result = CreateDatasetCmd
+            .apply(ResourceName.apply(username), ResourceName.apply(dataset), false)
             .run(user, ctx.getSetup().getApp())
             .toCompletableFuture()
             .get();
@@ -172,7 +173,7 @@ public final class DatasetSteps {
 
         User user = ctx.getUser(username);
 
-        CommandResult result = ListUserDatasetsCmd
+        CommandResult result = ListDatasetsCmd
             .apply()
             .run(user, ctx.getSetup().getApp())
             .toCompletableFuture()

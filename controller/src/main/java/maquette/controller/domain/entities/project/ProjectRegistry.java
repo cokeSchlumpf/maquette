@@ -63,7 +63,12 @@ public final class ProjectRegistry extends EventSourcedBehavior<ProjectsMessage,
     }
 
     private Effect<ProjectsEvent, State> onCreateProject(State state, CreateProject create) {
-        CreatedProject created = CreatedProject.apply(create.getName(), create.getExecutor().getUserId(), Instant.now());
+        CreatedProject created = CreatedProject.apply(
+            create.getName(),
+            create.getDescription(),
+            create.isPrivate(),
+            create.getExecutor().getUserId(),
+            Instant.now());
 
         if (state.getProjects().contains(create.getName())) {
             create.getReplyTo().tell(created);
@@ -76,7 +81,7 @@ public final class ProjectRegistry extends EventSourcedBehavior<ProjectsMessage,
     }
 
     private State onCreatedProject(State state, CreatedProject created) {
-        state.getProjects().add(created.getNamespace());
+        state.getProjects().add(created.getName());
         return state;
     }
 

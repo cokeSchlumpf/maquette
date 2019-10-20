@@ -23,16 +23,4 @@ public class UserResource {
 
     private final ContextUtils ctx;
 
-    @RequestMapping(
-        path = "datasets",
-        method = RequestMethod.GET,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    public CompletionStage<Set<DatasetDetails>> listDatasets(ServerWebExchange exchange) {
-        return ctx
-            .getUser(exchange)
-            .thenCompose(user -> core
-                .users()
-                .getDatasets(user));
-    }
-
 }

@@ -13,12 +13,6 @@ import maquette.controller.domain.util.ActorPatterns;
 @AllArgsConstructor(staticName = "apply")
 public final class UsersFactory {
 
-    private final ActorRef<ProjectsMessage> namespacesRegistry;
-
-    private final ActorRef<ShardingEnvelope<ProjectMessage>> namespaces;
-
-    private final ActorRef<ShardingEnvelope<DatasetMessage>> datasets;
-
     private final ActorRef<ShardingEnvelope<UserMessage>> users;
 
     private final ActorPatterns patterns;
@@ -26,7 +20,7 @@ public final class UsersFactory {
     private final CreateDefaultNamespace createDefaultNamespace;
 
     public Users create() {
-        UsersImpl impl = UsersImpl.apply(users, namespacesRegistry, namespaces, datasets, patterns);
+        UsersImpl impl = UsersImpl.apply(users, patterns);
         UsersSecured secured = UsersSecured.apply(impl, users, patterns);
         return UsersUserActivity.apply(secured, createDefaultNamespace);
     }

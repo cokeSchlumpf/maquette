@@ -105,7 +105,7 @@ public final class ActiveProject implements State {
 
     @Override
     public Effect<ProjectEvent, State> onChangeProjectPrivacy(ChangeProjectPrivacy change) {
-        ChangedProjectPrivacy changed =  ChangedProjectPrivacy.apply(
+        ChangedProjectPrivacy changed = ChangedProjectPrivacy.apply(
             change.getProject(), change.isPrivate(), change.getExecutor().getUserId(), Instant.now());
 
         if (Boolean.valueOf(details.getAcl().isPrivate()).equals(change.isPrivate())) {
@@ -149,7 +149,11 @@ public final class ActiveProject implements State {
 
     @Override
     public Effect<ProjectEvent, State> onCreateProject(CreateProject create) {
-        CreatedProject created = CreatedProject.apply(details.getName(), details.getCreatedBy(), details.getCreated());
+        CreatedProject created = CreatedProject.apply(details.getName(),
+                                                      details.getDescription(),
+                                                      create.isPrivate(),
+                                                      details.getCreatedBy(),
+                                                      details.getCreated());
 
         create.getReplyTo().tell(created);
         return effect.none();
