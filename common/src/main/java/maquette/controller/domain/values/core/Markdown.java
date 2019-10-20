@@ -26,6 +26,11 @@ public class Markdown {
         return apply("");
     }
 
+    public String asASCIIString() {
+        // TODO: Implement transformation
+        return value;
+    }
+
     public static class Serializer extends StdSerializer<Markdown> {
 
         private Serializer() {

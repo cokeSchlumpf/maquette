@@ -7,6 +7,7 @@ import java.util.concurrent.CompletionStage;
 
 import org.apache.avro.Schema;
 
+import akka.Done;
 import akka.NotUsed;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
@@ -20,7 +21,9 @@ import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
+import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
+import maquette.controller.domain.entities.dataset.protocol.commands.DeleteDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
@@ -28,7 +31,9 @@ import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatas
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
+import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
+import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
@@ -39,7 +44,12 @@ import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDe
 import maquette.controller.domain.entities.dataset.protocol.results.GetDataResult;
 import maquette.controller.domain.entities.dataset.protocol.results.GetDetailsResult;
 import maquette.controller.domain.entities.dataset.protocol.results.GetVersionDetailsResult;
+import maquette.controller.domain.entities.project.Project;
 import maquette.controller.domain.entities.project.protocol.ProjectMessage;
+import maquette.controller.domain.entities.project.protocol.commands.RegisterDataset;
+import maquette.controller.domain.entities.project.protocol.commands.RemoveDataset;
+import maquette.controller.domain.entities.project.protocol.events.RegisteredDataset;
+import maquette.controller.domain.entities.project.protocol.events.RemovedDataset;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.entities.user.protocol.commands.RegisterAccessToken;
 import maquette.controller.domain.entities.user.protocol.events.RegisteredAccessToken;
@@ -67,7 +77,7 @@ public final class DatasetsImpl implements Datasets {
 
     private final ActorRef<ShardingEnvelope<UserMessage>> users;
 
-    private final ActorRef<ShardingEnvelope<ProjectMessage>> namespaces;
+    private final ActorRef<ShardingEnvelope<ProjectMessage>> projects;
 
     private final ActorPatterns patterns;
 
@@ -121,7 +131,25 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
-    public CompletionStage<Token> createDatasetConsumerToken(User executor, UserId forUser, ResourcePath name) {
+    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, boolean isPrivate) {
+        return patterns
+            .ask(
+                projects,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Project.createEntityId(name.getProject()),
+                    RegisterDataset.apply(name.getProject(), name.getName(), replyTo, errorTo)),
+                RegisteredDataset.class)
+            .thenCompose(result -> patterns.ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(name),
+                    CreateDataset.apply(name, executor, isPrivate, replyTo, errorTo)),
+                CreatedDataset.class))
+            .thenCompose(result -> getDetails(name));
+    }
+
+    @Override
+    public CompletionStage<Token> createDatasetConsumerToken(User executor, UserId forUser, ResourcePath dataset) {
         ResourceName tokenName = ResourceName.apply(String.format("consumer-%s", UID.apply(8)));
 
         return patterns
@@ -132,13 +160,13 @@ public final class DatasetsImpl implements Datasets {
                     RegisterAccessToken.apply(executor, tokenName, replyTo, errorTo)),
                 RegisteredAccessToken.class)
             .thenCompose(registered -> grantDatasetAccess(
-                executor, name, DatasetPrivilege.CONSUMER,
+                executor, dataset, DatasetPrivilege.CONSUMER,
                 TokenAuthorization.apply(registered.getToken().getDetails().getId()))
                 .thenApply(details -> registered.getToken()));
     }
 
     @Override
-    public CompletionStage<Token> createDatasetProducerToken(User executor, UserId forUser, ResourcePath name) {
+    public CompletionStage<Token> createDatasetProducerToken(User executor, UserId forUser, ResourcePath dataset) {
         ResourceName tokenName = ResourceName.apply(String.format("producer-%s", UID.apply(8)));
 
         return patterns
@@ -149,7 +177,7 @@ public final class DatasetsImpl implements Datasets {
                     RegisterAccessToken.apply(executor, tokenName, replyTo, errorTo)),
                 RegisteredAccessToken.class)
             .thenCompose(registered -> grantDatasetAccess(
-                executor, name, DatasetPrivilege.PRODUCER,
+                executor, dataset, DatasetPrivilege.PRODUCER,
                 TokenAuthorization.apply(registered.getToken().getDetails().getId()))
                 .thenApply(details -> registered.getToken()));
     }
@@ -164,6 +192,24 @@ public final class DatasetsImpl implements Datasets {
                     CreateDatasetVersion.apply(executor, dataset, schema, replyTo, errorTo)),
                 CreatedDatasetVersion.class)
             .thenApply(CreatedDatasetVersion::getVersionId);
+    }
+
+    @Override
+    public CompletionStage<Done> deleteDataset(User executor, ResourcePath dataset) {
+        return patterns
+            .ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    DeleteDataset.apply(dataset, executor, replyTo, errorTo)),
+                DeletedDataset.class)
+            .thenCompose(deleted -> patterns.ask(
+                projects,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Project.createEntityId(dataset.getProject()),
+                    RemoveDataset.apply(dataset.getProject(), dataset.getName(), replyTo, errorTo)),
+                RemovedDataset.class))
+            .thenApply(removed -> Done.getInstance());
     }
 
     @Override
@@ -225,16 +271,16 @@ public final class DatasetsImpl implements Datasets {
 
     @Override
     public CompletionStage<DatasetDetails> grantDatasetAccess(
-        User executor, ResourcePath datasetName, DatasetPrivilege grant, Authorization grantFor) {
+        User executor, ResourcePath dataset, DatasetPrivilege grant, Authorization grantFor) {
 
         return patterns
             .ask(
                 datasets,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
-                    Dataset.createEntityId(datasetName),
-                    GrantDatasetAccess.apply(datasetName, executor, grant, grantFor, replyTo, errorTo)),
+                    Dataset.createEntityId(dataset),
+                    GrantDatasetAccess.apply(dataset, executor, grant, grantFor, replyTo, errorTo)),
                 GrantedDatasetAccess.class)
-            .thenCompose(result -> getDetails(datasetName));
+            .thenCompose(result -> getDetails(dataset));
     }
 
     @Override

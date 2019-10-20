@@ -10,6 +10,7 @@ import maquette.controller.adapters.cli.commands.datasets.ChangeDatasetDescripti
 import maquette.controller.adapters.cli.commands.datasets.ChangeDatasetPrivacyCmd;
 import maquette.controller.adapters.cli.commands.datasets.CreateDatasetConsumerToken;
 import maquette.controller.adapters.cli.commands.datasets.CreateDatasetProducerToken;
+import maquette.controller.adapters.cli.commands.datasets.DeleteDatasetCmd;
 import maquette.controller.adapters.cli.commands.datasets.GrantDatasetAccessCmd;
 import maquette.controller.adapters.cli.commands.datasets.ListDatasetVersionsCmd;
 import maquette.controller.adapters.cli.commands.datasets.PrintDatasetDetailsCmd;
@@ -25,10 +26,8 @@ import maquette.controller.adapters.cli.commands.projects.PrintProjectDetailsCmd
 import maquette.controller.adapters.cli.commands.projects.RevokeProjectAccessCmd;
 import maquette.controller.adapters.cli.commands.shop.ListDatasetsCmd;
 import maquette.controller.adapters.cli.commands.shop.ListProjectsCmd;
-import maquette.controller.adapters.cli.commands.users.CreateUserDatasetCmd;
 import maquette.controller.adapters.cli.commands.users.DeleteTokenCmd;
 import maquette.controller.adapters.cli.commands.users.ListTokensCmd;
-import maquette.controller.adapters.cli.commands.users.ListUserDatasetsCmd;
 import maquette.controller.adapters.cli.commands.users.RegisterTokenCmd;
 import maquette.controller.adapters.cli.commands.users.RenewTokenCmd;
 import maquette.controller.domain.CoreApplication;
@@ -42,7 +41,9 @@ import maquette.controller.domain.values.iam.User;
         @JsonSubTypes.Type(value = ChangeDatasetDescriptionCmd.class, name = "dataset change description"),
         @JsonSubTypes.Type(value = ChangeDatasetPrivacyCmd.class, name = "dataset change privacy"),
         @JsonSubTypes.Type(value = CreateDatasetConsumerToken.class, name = "dataset create consumer"),
+        @JsonSubTypes.Type(value = CreateProjectCmd.class, name = "dataset create"),
         @JsonSubTypes.Type(value = CreateDatasetProducerToken.class, name = "dataset create producer"),
+        @JsonSubTypes.Type(value = DeleteDatasetCmd.class, name = "dataset delete"),
         @JsonSubTypes.Type(value = GrantDatasetAccessCmd.class, name = "dataset grant"),
         @JsonSubTypes.Type(value = ListDatasetVersionsCmd.class, name = "dataset versions"),
         @JsonSubTypes.Type(value = PrintDatasetDetailsCmd.class, name = "dataset show"),
@@ -52,7 +53,6 @@ import maquette.controller.domain.values.iam.User;
         @JsonSubTypes.Type(value = ChangeProjectDescriptionCmd.class, name = "project change description"),
         @JsonSubTypes.Type(value = ChangeProjectOwnerCmd.class, name = "project change owner"),
         @JsonSubTypes.Type(value = ChangeProjectPrivacyCmd.class, name = "project change privacy"),
-        @JsonSubTypes.Type(value = CreateProjectCmd.class, name = "project create"),
         @JsonSubTypes.Type(value = GrantProjectAccessCmd.class, name = "project grant"),
         @JsonSubTypes.Type(value = ListProjectDatasetsCmd.class, name = "project datasets"),
         @JsonSubTypes.Type(value = PrintProjectDetailsCmd.class, name = "project show"),
@@ -61,10 +61,8 @@ import maquette.controller.domain.values.iam.User;
         @JsonSubTypes.Type(value = ListProjectsCmd.class, name = "shop namespaces"),
         @JsonSubTypes.Type(value = ListDatasetsCmd.class, name = "shop datasets"),
 
-        @JsonSubTypes.Type(value = CreateUserDatasetCmd.class, name = "user datasets create"),
         @JsonSubTypes.Type(value = DeleteTokenCmd.class, name = "user token delete"),
         @JsonSubTypes.Type(value = ListTokensCmd.class, name = "user tokens"),
-        @JsonSubTypes.Type(value = ListUserDatasetsCmd.class, name = "user datasets"),
         @JsonSubTypes.Type(value = RegisterTokenCmd.class, name = "user token register"),
         @JsonSubTypes.Type(value = RenewTokenCmd.class, name = "user token renew"),
 

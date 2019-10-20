@@ -12,7 +12,7 @@ import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.project.NamespacePrivilege;
+import maquette.controller.domain.values.project.ProjectPrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -32,7 +32,7 @@ public class RevokeProjectAccess implements ProjectMessage {
     private final User executor;
 
     @JsonProperty(REVOKE)
-    private final NamespacePrivilege revoke;
+    private final ProjectPrivilege revoke;
 
     @JsonProperty(REVOKE_FROM)
     private final Authorization revokeFrom;
@@ -46,7 +46,7 @@ public class RevokeProjectAccess implements ProjectMessage {
     public static RevokeProjectAccess apply(
         @JsonProperty(PROJECT) ResourceName project,
         @JsonProperty(EXECUTOR) User executor,
-        @JsonProperty(REVOKE) NamespacePrivilege revoke,
+        @JsonProperty(REVOKE) ProjectPrivilege revoke,
         @JsonProperty(REVOKE_FROM) Authorization revokeFrom,
         @JsonProperty(REPLY_TO) ActorRef<RevokedProjectAccess> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {

@@ -20,8 +20,8 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateProjectCmd implements Command {
 
-    private static final String DESCRIPTION = "description";
     private static final String PROJECT = "project";
+    private static final String DESCRIPTION = "description";
     private static final String IS_PRIVATE = "private";
 
     @JsonProperty(PROJECT)
@@ -48,7 +48,7 @@ public class CreateProjectCmd implements Command {
 
         return app
             .projects()
-            .createProject(executor, project, description, isPrivate)
+            .create(executor, project, description, isPrivate)
             .thenApply(info -> CommandResult.success());
     }
 

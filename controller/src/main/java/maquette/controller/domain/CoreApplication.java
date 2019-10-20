@@ -26,8 +26,6 @@ import maquette.controller.domain.entities.project.Project;
 import maquette.controller.domain.entities.project.ProjectRegistry;
 import maquette.controller.domain.entities.project.protocol.ProjectMessage;
 import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
-import maquette.controller.domain.entities.deprecatedproject.DeprecatedProject;
-import maquette.controller.domain.entities.deprecatedproject.DeprecatedProjectsRegistry;
 import maquette.controller.domain.entities.user.User;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.ports.DataStorageAdapter;
@@ -63,29 +61,27 @@ public class CoreApplication {
         final ActorMaterializer materializer = ActorMaterializer.create(system);
 
         final ActorRef<ShardingEnvelope<DatasetMessage>> datasetShards = createDatasetSharding(sharding, storageAdapter);
-        final ActorRef<ShardingEnvelope<ProjectMessage>> namespaceShards = createNamespaceSharding(sharding);
+        final ActorRef<ShardingEnvelope<ProjectMessage>> projectShards = createNamespaceSharding(sharding);
         final ActorRef<ShardingEnvelope<UserMessage>> userShards = createUserSharding(sharding);
-        final ActorRef<ShardingEnvelope<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage>> projectShards = createProjectSharding(sharding);
-        final ActorRef<ProjectsMessage> namespacesRegistry = singleton.init(ProjectRegistry.create());
-        final ActorRef<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsMessage> projectsRegistry = singleton.init(DeprecatedProjectsRegistry.create());
+        final ActorRef<ProjectsMessage> projectsRegistry = singleton.init(ProjectRegistry.create());
 
         final CreateDefaultNamespace createDefaultNamespace = CreateDefaultNamespace.apply(
-            namespacesRegistry, namespaceShards, userShards, patterns);
+            projectsRegistry, projectShards, userShards, patterns);
 
         final Datasets datasets = DatasetsFactory
-            .apply(namespaceShards, datasetShards, userShards, patterns, createDefaultNamespace, materializer)
+            .apply(projectShards, datasetShards, userShards, patterns, createDefaultNamespace, materializer)
             .create();
 
         final Users users = UsersFactory
-            .apply(namespacesRegistry, namespaceShards, datasetShards, userShards, patterns, createDefaultNamespace)
+            .apply(projectsRegistry, projectShards, datasetShards, userShards, patterns, createDefaultNamespace)
             .create();
 
         final Projects projects = ProjectsFactory
-            .apply(projectsRegistry, namespacesRegistry, projectShards, namespaceShards, datasetShards, patterns, createDefaultNamespace)
+            .apply(projectsRegistry, projectShards, datasetShards, patterns, createDefaultNamespace)
             .create();
 
         final Shop shop = ShopFactory
-            .apply(projectsRegistry, namespacesRegistry, projectShards, namespaceShards, datasetShards, patterns, createDefaultNamespace)
+            .apply(projectsRegistry, projectsRegistry, projectShards, projectShards, datasetShards, patterns, createDefaultNamespace)
             .create();
 
         // initialize application
@@ -115,15 +111,6 @@ public class CoreApplication {
                 ctx -> User.create(User.fromEntityId(ctx.getEntityId())));
 
         return sharding.init(userEntity);
-    }
-
-    private static ActorRef<ShardingEnvelope<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage>> createProjectSharding(ClusterSharding sharding) {
-        final Entity<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage, ShardingEnvelope<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage>> projectEntity = Entity
-            .ofPersistentEntity(
-                DeprecatedProject.ENTITY_KEY,
-                ctx -> DeprecatedProject.create(DeprecatedProject.fromEntityId(ctx.getEntityId())));
-
-        return sharding.init(projectEntity);
     }
 
     public Datasets datasets() {

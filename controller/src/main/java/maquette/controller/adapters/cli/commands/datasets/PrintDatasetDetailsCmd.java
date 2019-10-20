@@ -5,7 +5,6 @@ import java.io.StringWriter;
 import java.util.concurrent.CompletionStage;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AccessLevel;
@@ -23,26 +22,26 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PrintDatasetDetailsCmd implements Command {
 
-    private static final String NAMESPACE = "namespace";
+    private static final String PROJECT = "project";
     private static final String DATASET = "dataset";
 
-    @JsonProperty(NAMESPACE)
-    private final ResourceName namespace;
+    @JsonProperty(PROJECT)
+    private final ResourceName project;
 
     @JsonProperty(DATASET)
     private final ResourceName dataset;
 
     @JsonCreator
     public static PrintDatasetDetailsCmd apply(
-        @JsonProperty(NAMESPACE) ResourceName namespace,
+        @JsonProperty(PROJECT) ResourceName project,
         @JsonProperty(DATASET) ResourceName dataset) {
-        return new PrintDatasetDetailsCmd(namespace, dataset);
+        return new PrintDatasetDetailsCmd(project, dataset);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
         ObjectValidation.notNull().validate(dataset, DATASET);
-        ResourcePath datasetResource = ResourcePath.apply(executor, namespace, dataset);
+        ResourcePath datasetResource = ResourcePath.apply(executor, project, dataset);
 
 
         return app

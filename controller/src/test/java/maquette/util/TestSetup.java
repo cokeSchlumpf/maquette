@@ -5,8 +5,6 @@ import lombok.Value;
 import maquette.controller.adapters.storage.InMemoryDataStorageAdapter;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.ports.DataStorageAdapter;
-import maquette.controller.domain.util.Operators;
-import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
 import maquette.controller.domain.values.iam.Authorization;
@@ -49,7 +47,7 @@ public class TestSetup {
     }
 
     public TestSetup withDataset(ResourcePath path, User executor) {
-        withNamespace(path.getNamespace().getValue(), executor);
+        withNamespace(path.getProject().getValue(), executor);
 
         return this;
     }

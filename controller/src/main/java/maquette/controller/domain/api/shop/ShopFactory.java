@@ -12,11 +12,11 @@ import maquette.controller.domain.util.ActorPatterns;
 @AllArgsConstructor(staticName = "apply")
 public final class ShopFactory {
 
-    private final ActorRef<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsMessage> projectsRegistry;
+    private final ActorRef<maquette.controller.domain.entities.project.protocol.ProjectsMessage> projectsRegistry;
 
     private final ActorRef<ProjectsMessage> namespacesRegistry;
 
-    private final ActorRef<ShardingEnvelope<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage>> projects;
+    private final ActorRef<ShardingEnvelope<maquette.controller.domain.entities.project.protocol.ProjectMessage>> projects;
 
     private final ActorRef<ShardingEnvelope<ProjectMessage>> namespaces;
 

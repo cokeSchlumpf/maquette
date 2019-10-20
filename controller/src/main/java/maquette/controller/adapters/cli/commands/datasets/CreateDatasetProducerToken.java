@@ -18,25 +18,32 @@ import maquette.controller.domain.values.iam.UserId;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CreateDatasetProducerToken implements Command {
 
-    private final String namespace;
+    private static final String PROJECT = "project";
+    private static final String DATASET = "dataset";
+    private static final String FOR = "for";
 
+    @JsonProperty(PROJECT)
+    private final String project;
+
+    @JsonProperty(DATASET)
     private final String dataset;
 
+    @JsonProperty(FOR)
     private final String forUser;
 
     @JsonCreator
     public static CreateDatasetProducerToken apply(
-        @JsonProperty("namespace") String namespace,
-        @JsonProperty("dataset") String dataset,
-        @JsonProperty("for-user") String forUser) {
+        @JsonProperty(PROJECT) String project,
+        @JsonProperty(DATASET) String dataset,
+        @JsonProperty(FOR) String forUser) {
 
-        return new CreateDatasetProducerToken(namespace, dataset, forUser);
+        return new CreateDatasetProducerToken(project, dataset, forUser);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ObjectValidation.notNull().validate(dataset, "dataset");
-        ResourcePath datasetResource = ResourcePath.apply(executor, namespace, dataset);
+        ObjectValidation.notNull().validate(dataset, DATASET);
+        ResourcePath datasetResource = ResourcePath.apply(executor, project, dataset);
 
         UserId forUserId;
 

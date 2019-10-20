@@ -19,10 +19,10 @@ import maquette.controller.domain.values.iam.UserId;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeleteTokenCmd implements Command {
 
-    private static final String FOR_USER = "for-user";
+    private static final String FOR = "for";
     private static final String NAME = "name";
 
-    @JsonProperty(FOR_USER)
+    @JsonProperty(FOR)
     private final String forUser;
 
     @JsonProperty(NAME)
@@ -30,7 +30,7 @@ public class DeleteTokenCmd implements Command {
 
     @JsonCreator
     public static DeleteTokenCmd apply(
-        @JsonProperty(FOR_USER) String forUser,
+        @JsonProperty(FOR) String forUser,
         @JsonProperty(NAME) String name) {
 
         return new DeleteTokenCmd(forUser, name);

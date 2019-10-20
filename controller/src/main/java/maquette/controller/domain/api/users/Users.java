@@ -6,7 +6,6 @@ import java.util.concurrent.CompletionStage;
 import akka.Done;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.UID;
-import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.TokenAuthenticatedUser;
 import maquette.controller.domain.values.iam.TokenDetails;
@@ -27,39 +26,53 @@ public interface Users {
     CompletionStage<TokenAuthenticatedUser> authenticate(UserId id, UID secret);
 
     /**
-     * Creates a dataset in the users (executors) namespace.
+     * Get tokens of a user.
      *
      * @param executor
-     *     The user which executes the command
-     * @param dataset
-     *     The name of the dataset to be created
-     * @param isPrivate
-     *     Whether the dataset is private or not
-     * @return The details of the newly created dataset
+     *     The user which executes the query
+     * @param forUser
+     *     The user for which tokens are queried
+     * @return A set of existing tokens of the user
      */
-    @Deprecated
-    CompletionStage<DatasetDetails> createDataset(User executor, ResourceName dataset, boolean isPrivate);
-
-    /**
-     * Deletes a dataset in the users (executors) namespace.
-     *
-     * @param executor
-     *     The user which executes the command
-     * @param dataset
-     *     The name of the dataset to be deleted
-     * @return Just Done.
-     */
-    @Deprecated
-    CompletionStage<Done> deleteDataset(User executor, ResourceName dataset);
-
-    CompletionStage<Set<DatasetDetails>> getDatasets(User executor);
-
     CompletionStage<Set<TokenDetails>> getTokens(User executor, UserId forUser);
 
+    /**
+     * Register a new token for a user.
+     *
+     * @param executor
+     *     The user which executes the command
+     * @param forUser
+     *     The user for which the token should be registered
+     * @param name
+     *     The name of the token
+     * @return The new token (including the secret)
+     */
     CompletionStage<Token> registerToken(User executor, UserId forUser, ResourceName name);
 
+    /**
+     * Renew the secret of an existing user token.
+     *
+     * @param executor
+     *     The user which executes the command
+     * @param forUser
+     *     The user for which the token should be renewed
+     * @param name
+     *     The name of the token
+     * @return The token (including the secret)
+     */
     CompletionStage<Token> renewAccessToken(User executor, UserId forUser, ResourceName name);
 
+    /**
+     * Delete an existing access token.
+     *
+     * @param executor
+     *     The user which executes the command
+     * @param forUser
+     *     The user for which the token should be deleted
+     * @param name
+     *     The name of the token to be deleted
+     * @return Just done
+     */
     CompletionStage<Done> deleteAccessToken(User executor, UserId forUser, ResourceName name);
 
 }

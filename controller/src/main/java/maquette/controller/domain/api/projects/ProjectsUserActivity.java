@@ -9,13 +9,12 @@ import lombok.AllArgsConstructor;
 import maquette.controller.domain.services.CreateDefaultNamespace;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
-import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.project.NamespacePrivilege;
-import maquette.controller.domain.values.deprecatedproject.ProjectDetails;
+import maquette.controller.domain.values.project.ProjectDetails;
+import maquette.controller.domain.values.project.ProjectPrivilege;
 
 @AllArgsConstructor(staticName = "apply")
 public final class ProjectsUserActivity implements Projects {
@@ -44,23 +43,13 @@ public final class ProjectsUserActivity implements Projects {
     }
 
     @Override
-    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, boolean isPrivate) {
-        return createDefaultNamespace(executor, p -> p.createDataset(executor, name, isPrivate));
+    public CompletionStage<ProjectDetails> create(User executor, ResourceName project, Markdown description, boolean isPrivate) {
+        return createDefaultNamespace(executor, p -> p.create(executor, project, description, isPrivate));
     }
 
     @Override
-    public CompletionStage<ProjectDetails> createProject(User executor, ResourceName project, Markdown description, boolean isPrivate) {
-        return createDefaultNamespace(executor, p -> p.createProject(executor, project, description, isPrivate));
-    }
-
-    @Override
-    public CompletionStage<Done> deleteDataset(User executor, ResourcePath dataset) {
-        return createDefaultNamespace(executor, p -> p.deleteDataset(executor, dataset));
-    }
-
-    @Override
-    public CompletionStage<Done> deleteProject(User executor, ResourceName project) {
-        return createDefaultNamespace(executor, p -> p.deleteProject(executor, project));
+    public CompletionStage<Done> delete(User executor, ResourceName project) {
+        return createDefaultNamespace(executor, p -> p.delete(executor, project));
     }
 
     @Override
@@ -74,15 +63,15 @@ public final class ProjectsUserActivity implements Projects {
     }
 
     @Override
-    public CompletionStage<GrantedAuthorization> grantAccess(User executor, ResourceName project, NamespacePrivilege grant,
+    public CompletionStage<GrantedAuthorization> grantAccess(User executor, ResourceName project, ProjectPrivilege grant,
                                                              Authorization grantFor) {
         return createDefaultNamespace(executor, p -> p.grantAccess(executor, project, grant, grantFor));
     }
 
     @Override
-    public CompletionStage<GrantedAuthorization> revokeNamespaceAccess(User executor, ResourceName project,
-                                                                       NamespacePrivilege revoke, Authorization revokeFrom) {
-        return createDefaultNamespace(executor, p -> p.revokeNamespaceAccess(executor, project, revoke, revokeFrom));
+    public CompletionStage<GrantedAuthorization> revokeAccess(User executor, ResourceName project,
+                                                              ProjectPrivilege revoke, Authorization revokeFrom) {
+        return createDefaultNamespace(executor, p -> p.revokeAccess(executor, project, revoke, revokeFrom));
     }
 
 }

@@ -8,18 +8,18 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum NamespacePrivilege {
+public enum ProjectPrivilege {
 
     MEMBER("member"),
     PRODUCER("producer"),
     CONSUMER("consumer"),
     ADMIN("admin");
 
-    private static Map<String, NamespacePrivilege> namesMap = new HashMap<>(4);
+    private static Map<String, ProjectPrivilege> namesMap = new HashMap<>(4);
 
     public final String name;
 
-    NamespacePrivilege(String name) {
+    ProjectPrivilege(String name) {
         this.name = name;
     }
 
@@ -31,7 +31,7 @@ public enum NamespacePrivilege {
     }
 
     @JsonCreator
-    private static NamespacePrivilege forValue(String value) {
+    private static ProjectPrivilege forValue(String value) {
         return namesMap.get(StringUtils.lowerCase(value));
     }
 

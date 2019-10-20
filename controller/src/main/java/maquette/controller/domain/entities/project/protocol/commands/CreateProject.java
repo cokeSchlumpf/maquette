@@ -11,14 +11,18 @@ import maquette.controller.domain.entities.project.protocol.ProjectMessage;
 import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
 import maquette.controller.domain.entities.project.protocol.events.CreatedProject;
 import maquette.controller.domain.values.core.ErrorMessage;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
+import sun.jvm.hotspot.oops.Mark;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateProject implements ProjectMessage, ProjectsMessage {
 
+    private static final String DESCRIPTION = "description";
     private static final String EXECUTOR = "executor";
+    private static final String IS_PRIVATE = "private";
     private static final String NAME = "name";
     private static final String REPLY_TO = "reply-to";
     private static final String ERROR_TO = "error-to";
@@ -28,6 +32,12 @@ public class CreateProject implements ProjectMessage, ProjectsMessage {
 
     @JsonProperty(EXECUTOR)
     private final User executor;
+
+    @JsonProperty(DESCRIPTION)
+    private final Markdown description;
+
+    @JsonProperty(IS_PRIVATE)
+    private final boolean isPrivate;
 
     @JsonProperty(REPLY_TO)
     private final ActorRef<CreatedProject> replyTo;
@@ -39,10 +49,12 @@ public class CreateProject implements ProjectMessage, ProjectsMessage {
     public static CreateProject apply(
         @JsonProperty(NAME) ResourceName name,
         @JsonProperty(EXECUTOR) User executor,
+        @JsonProperty(DESCRIPTION) Markdown description,
+        @JsonProperty(IS_PRIVATE) boolean isPrivate,
         @JsonProperty(REPLY_TO) ActorRef<CreatedProject> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 
-        return new CreateProject(name, executor, replyTo, errorTo);
+        return new CreateProject(name, executor, description, isPrivate, replyTo, errorTo);
     }
 
 }

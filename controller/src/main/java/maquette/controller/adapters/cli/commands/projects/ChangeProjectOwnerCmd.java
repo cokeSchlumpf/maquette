@@ -20,8 +20,8 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ChangeProjectOwnerCmd implements Command {
 
-    private static final String AUTHORIZATION = "authorization";
     private static final String PROJECT = "project";
+    private static final String AUTHORIZATION = "authorization";
     private static final String TO = "to";
 
     @JsonProperty(PROJECT)

@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.sun.org.apache.regexp.internal.recompile;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -23,11 +22,8 @@ import maquette.controller.adapters.cli.commands.datasets.ChangeDatasetPrivacyCm
 import maquette.controller.adapters.cli.commands.datasets.GrantDatasetAccessCmd;
 import maquette.controller.adapters.cli.commands.datasets.ListDatasetVersionsCmd;
 import maquette.controller.adapters.cli.commands.datasets.PrintDatasetDetailsCmd;
-import maquette.controller.adapters.cli.commands.datasets.PrintDatasetVersionDetailsCmd;
 import maquette.controller.adapters.cli.commands.datasets.RevokeDatasetAccessCmd;
-import maquette.controller.adapters.cli.commands.projects.CreateProjectDatasetCmd;
-import maquette.controller.adapters.cli.commands.users.CreateUserDatasetCmd;
-import maquette.controller.adapters.cli.commands.users.ListUserDatasetsCmd;
+import maquette.controller.adapters.cli.commands.datasets.CreateDatasetCmd;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
@@ -48,7 +44,7 @@ public final class DatasetSteps {
         ResourcePath dataset = ctx.getKnownDataset(datasetName);
 
         GrantDatasetAccessCmd
-            .apply(dataset.getNamespace(), dataset.getName(), EAuthorizationType.USER, DatasetPrivilege.CONSUMER, username)
+            .apply(dataset.getProject(), dataset.getName(), EAuthorizationType.USER, DatasetPrivilege.CONSUMER, username)
             .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
             .toCompletableFuture()
             .get();
@@ -59,7 +55,7 @@ public final class DatasetSteps {
         ResourcePath dataset = ctx.getKnownDataset(datasetName);
 
         GrantDatasetAccessCmd
-            .apply(dataset.getNamespace(), dataset.getName(), EAuthorizationType.USER, DatasetPrivilege.PRODUCER, username)
+            .apply(dataset.getProject(), dataset.getName(), EAuthorizationType.USER, DatasetPrivilege.PRODUCER, username)
             .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
             .toCompletableFuture()
             .get();
@@ -72,7 +68,7 @@ public final class DatasetSteps {
         ResourcePath dataset = ctx.getKnownDataset(datasetName);
 
         assertThatThrownBy(() -> PrintDatasetDetailsCmd
-            .apply(dataset.getNamespace(), dataset.getName())
+            .apply(dataset.getProject(), dataset.getName())
             .run(user, ctx.getSetup().getApp())
             .toCompletableFuture()
             .get()).hasMessageContaining("not authorized");
@@ -99,7 +95,7 @@ public final class DatasetSteps {
         ResourceName project = ResourceName.apply(projectName);
         ResourceName dataset = ResourceName.apply(datasetName);
 
-        CreateProjectDatasetCmd
+        CreateDatasetCmd
             .apply(project, dataset, false)
             .run(user, ctx.getSetup().getApp())
             .toCompletableFuture()
@@ -113,7 +109,7 @@ public final class DatasetSteps {
         ResourcePath dataset = ctx.getKnownDataset(datasetName);
 
         RevokeDatasetAccessCmd
-            .apply(dataset.getNamespace(), dataset.getName(), EAuthorizationType.USER, DatasetPrivilege.CONSUMER, username)
+            .apply(dataset.getProject(), dataset.getName(), EAuthorizationType.USER, DatasetPrivilege.CONSUMER, username)
             .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
             .toCompletableFuture()
             .get();
@@ -125,7 +121,7 @@ public final class DatasetSteps {
         User user = ctx.getSetup().getAdminUser();
 
         ChangeDatasetPrivacyCmd
-            .apply(dataset.getNamespace(), dataset.getName(), true)
+            .apply(dataset.getProject(), dataset.getName(), true)
             .run(user, ctx.getSetup().getApp())
             .toCompletableFuture()
             .get();
@@ -160,7 +156,7 @@ public final class DatasetSteps {
         ResourcePath dataset = ctx.getKnownDataset(datasetName);
 
         CommandResult result = PrintDatasetDetailsCmd
-            .apply(dataset.getNamespace(), dataset.getName())
+            .apply(dataset.getProject(), dataset.getName())
             .run(user, ctx.getSetup().getApp())
             .toCompletableFuture()
             .get();
@@ -201,7 +197,7 @@ public final class DatasetSteps {
         ResourcePath dataset = ctx.getKnownDataset(datasetName);
 
         CommandResult result = PrintDatasetDetailsCmd
-            .apply(dataset.getNamespace(), dataset.getName())
+            .apply(dataset.getProject(), dataset.getName())
             .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
             .toCompletableFuture()
             .get();
@@ -218,7 +214,7 @@ public final class DatasetSteps {
         ResourcePath dataset = ctx.getKnownDataset(datasetName);
 
         ChangeDatasetDescriptionCmd
-            .apply(dataset.getNamespace(), dataset.getName(), Markdown.apply(description))
+            .apply(dataset.getProject(), dataset.getName(), Markdown.apply(description))
             .run(user, ctx.getSetup().getApp())
             .toCompletableFuture()
             .get();
@@ -233,7 +229,7 @@ public final class DatasetSteps {
         ResourcePath dataset = ctx.getKnownDataset(datasetName);
 
         CommandResult result = PrintDatasetDetailsCmd
-            .apply(dataset.getNamespace(), dataset.getName())
+            .apply(dataset.getProject(), dataset.getName())
             .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
             .toCompletableFuture()
             .get();
@@ -253,7 +249,7 @@ public final class DatasetSteps {
         ResourcePath dataset = ctx.getKnownDataset(datasetName);
 
         CommandResult result = ListDatasetVersionsCmd
-            .apply(dataset.getNamespace(), dataset.getName())
+            .apply(dataset.getProject(), dataset.getName())
             .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
             .toCompletableFuture()
             .get();
@@ -295,7 +291,7 @@ public final class DatasetSteps {
         for (List<String> ds : data) {
             ResourceName dataset = ResourceName.apply(ds.get(0));
 
-            CreateProjectDatasetCmd
+            CreateDatasetCmd
                 .apply(project, dataset, ds.get(1).equals("yes"))
                 .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
                 .toCompletableFuture()

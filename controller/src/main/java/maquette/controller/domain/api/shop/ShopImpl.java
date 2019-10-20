@@ -17,18 +17,18 @@ import maquette.controller.domain.services.CollectDatasets;
 import maquette.controller.domain.services.CollectNamespaceInfos;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.dataset.DatasetDetails;
+import maquette.controller.domain.values.deprecatedproject.ProjectDetails;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.project.ProjectInfo;
-import maquette.controller.domain.values.deprecatedproject.ProjectDetails;
 
 @AllArgsConstructor(staticName = "apply")
 public final class ShopImpl implements Shop {
 
-    private final ActorRef<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsMessage> projectsRegistry;
+    private final ActorRef<maquette.controller.domain.entities.project.protocol.ProjectsMessage> projectsRegistry;
 
     private final ActorRef<ProjectsMessage> namespacesRegistry;
 
-    private final ActorRef<ShardingEnvelope<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage>> projects;
+    private final ActorRef<ShardingEnvelope<maquette.controller.domain.entities.project.protocol.ProjectMessage>> projects;
 
     private final ActorRef<ShardingEnvelope<ProjectMessage>> namespaces;
 

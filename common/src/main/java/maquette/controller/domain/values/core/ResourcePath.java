@@ -28,40 +28,40 @@ import maquette.controller.domain.values.iam.User;
 @JsonDeserialize(using = ResourcePath.Deserializer.class)
 public final class ResourcePath {
 
-    private final ResourceName namespace;
+    private final ResourceName project;
 
     private final ResourceName name;
 
     @JsonCreator
     public static ResourcePath apply(
-        @JsonProperty("namespace") ResourceName namespace,
+        @JsonProperty("project") ResourceName project,
         @JsonProperty("name") ResourceName name) {
 
-        return new ResourcePath(namespace, name);
+        return new ResourcePath(project, name);
     }
 
     public static ResourcePath apply(
-        String namespace,
+        String project,
         String name) {
         return new ResourcePath(
-            ResourceName.apply(namespace),
+            ResourceName.apply(project),
             ResourceName.apply(name));
     }
 
     public static ResourcePath apply(
         User executor,
-        String namespace,
+        String project,
         String name) {
 
-        return apply(Objects.isNull(namespace) || namespace.equals("_") ? executor.getUserId().getId() : namespace, name);
+        return apply(Objects.isNull(project) || project.equals("_") ? executor.getUserId().getId() : project, name);
     }
 
     public static ResourcePath apply(
         User executor,
-        ResourceName namespace,
+        ResourceName project,
         ResourceName name) {
 
-        return apply(Objects.isNull(namespace) || namespace.getValue().equals("_") ? executor.getUserId().getId() : namespace.getValue(), name.getValue());
+        return apply(Objects.isNull(project) || project.getValue().equals("_") ? executor.getUserId().getId() : project.getValue(), name.getValue());
     }
 
     public static ResourcePath apply(String s) {
@@ -69,10 +69,10 @@ public final class ResourcePath {
             String[] parts = s.split("/");
 
             if (parts.length == 2) {
-                ResourceName namespace = ResourceName.apply(parts[0]);
+                ResourceName project = ResourceName.apply(parts[0]);
                 ResourceName name = ResourceName.apply(parts[1]);
 
-                return apply(namespace, name);
+                return apply(project, name);
             } else {
                 throw InvalidResourceNameException.apply(s);
             }
@@ -81,13 +81,9 @@ public final class ResourcePath {
         }
     }
 
-    public static Optional<ResourcePath> tryApply(String s) {
-        return Operators.exceptionToNone(() -> apply(s));
-    }
-
     @Override
     public String toString() {
-        return String.format("%s/%s", namespace, name);
+        return String.format("%s/%s", project, name);
     }
 
     public static class Serializer extends StdSerializer<ResourcePath> {

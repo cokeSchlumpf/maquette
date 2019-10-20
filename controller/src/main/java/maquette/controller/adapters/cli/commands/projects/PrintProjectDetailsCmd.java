@@ -44,20 +44,20 @@ public final class PrintProjectDetailsCmd implements Command {
 
                 DataTable properties = DataTable
                     .apply("key", "property")
-                    .withRow("owner", details.getDetails().getAcl().getOwner().getAuthorization())
-                    .withRow("private", details.getProperties().isPrivate())
+                    .withRow("owner", details.getAcl().getOwner().getAuthorization())
+                    .withRow("private", details.getAcl().isPrivate())
                     .withRow("", "")
-                    .withRow("created", details.getDetails().getCreated())
-                    .withRow("created by", details.getDetails().getCreatedBy())
+                    .withRow("created", details.getCreated())
+                    .withRow("created by", details.getCreatedBy())
                     .withRow("", "")
-                    .withRow("modified", details.getDetails().getModified())
-                    .withRow("modified by", details.getDetails().getModifiedBy())
+                    .withRow("modified", details.getModified())
+                    .withRow("modified by", details.getModifiedBy())
                     .withRow("", "")
-                    .withRow("datasets", details.getDetails().getDatasets().size());
+                    .withRow("datasets", details.getDatasets().size());
 
                 DataTable acl = DataTable.apply("granted to", "privilege", "granted by", "granted at");
 
-                for (ProjectGrant grant : details.getDetails().getAcl().getGrants()) {
+                for (ProjectGrant grant : details.getAcl().getGrants()) {
                     acl = acl.withRow(
                         grant.getAuthorization().getAuthorization(),
                         grant.getPrivilege().name,
@@ -65,8 +65,7 @@ public final class PrintProjectDetailsCmd implements Command {
                         grant.getAuthorization().getAt());
                 }
 
-                // TODO format markdown for ASCII
-                out.println(details.getProperties().getDescription());
+                out.println(details.getDescription().asASCIIString());
                 out.println();
 
                 out.println("PROPERTIES");

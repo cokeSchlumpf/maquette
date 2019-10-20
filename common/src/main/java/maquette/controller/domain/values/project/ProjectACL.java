@@ -38,16 +38,11 @@ public class ProjectACL {
         return new ProjectACL(owner, ImmutableSet.copyOf(grants), isPrivate);
     }
 
-    @Deprecated
-    public static ProjectACL apply(GrantedAuthorization owner, Set<ProjectGrant> grants) {
-        return apply(owner, grants, false);
-    }
-
     public boolean canConsume(User user) {
         return isConsumer(user) || isOwner(user) || isMember(user) || isAdmin(user);
     }
 
-    public boolean canCreatedDataset(User user) {
+    public boolean canCreateDataset(User user) {
         return isOwner(user) || isAdmin(user) || isMember(user);
     }
 
@@ -79,7 +74,7 @@ public class ProjectACL {
         return isOwner(user) || isAdmin(user);
     }
 
-    public Optional<ProjectGrant> findGrant(User user, NamespacePrivilege privilege) {
+    public Optional<ProjectGrant> findGrant(User user, ProjectPrivilege privilege) {
         return this.grants
             .stream()
             .filter(grant -> grant.getAuthorization().getAuthorization().hasAuthorization(user) &&
@@ -87,7 +82,7 @@ public class ProjectACL {
             .findFirst();
     }
 
-    public Optional<ProjectGrant> findGrant(Authorization authorization, NamespacePrivilege privilege) {
+    public Optional<ProjectGrant> findGrant(Authorization authorization, ProjectPrivilege privilege) {
         return this.grants
             .stream()
             .filter(
@@ -98,15 +93,15 @@ public class ProjectACL {
     }
 
     private boolean isAdmin(User user) {
-        return user.isAdministrator() || findGrant(user, NamespacePrivilege.ADMIN).isPresent();
+        return user.isAdministrator() || findGrant(user, ProjectPrivilege.ADMIN).isPresent();
     }
 
     private boolean isConsumer(User user) {
-        return findGrant(user, NamespacePrivilege.CONSUMER).isPresent();
+        return findGrant(user, ProjectPrivilege.CONSUMER).isPresent();
     }
 
     private boolean isMember(User user) {
-        return findGrant(user, NamespacePrivilege.MEMBER).isPresent();
+        return findGrant(user, ProjectPrivilege.MEMBER).isPresent();
     }
 
     private boolean isOwner(User user) {
@@ -114,10 +109,10 @@ public class ProjectACL {
     }
 
     private boolean isProducer(User user) {
-        return findGrant(user, NamespacePrivilege.PRODUCER).isPresent();
+        return findGrant(user, ProjectPrivilege.PRODUCER).isPresent();
     }
 
-    public ProjectACL withGrant(GrantedAuthorization authorization, NamespacePrivilege privilege) {
+    public ProjectACL withGrant(GrantedAuthorization authorization, ProjectPrivilege privilege) {
         return withGrant(ProjectGrant.apply(authorization, privilege));
     }
 
@@ -135,7 +130,7 @@ public class ProjectACL {
         return apply(owner, grants, isPrivate);
     }
 
-    public ProjectACL withoutGrant(Authorization authorization, NamespacePrivilege privilege) {
+    public ProjectACL withoutGrant(Authorization authorization, ProjectPrivilege privilege) {
         return this.grants
             .stream()
             .filter(

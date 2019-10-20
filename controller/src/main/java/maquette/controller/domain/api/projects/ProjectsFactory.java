@@ -12,13 +12,9 @@ import maquette.controller.domain.util.ActorPatterns;
 @AllArgsConstructor(staticName = "apply")
 public final class ProjectsFactory {
 
-    private final ActorRef<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectsMessage> projectsRegistry;
+    private final ActorRef<ProjectsMessage> projectRegistry;
 
-    private final ActorRef<ProjectsMessage> namespacesRegistry;
-
-    private final ActorRef<ShardingEnvelope<maquette.controller.domain.entities.deprecatedproject.protocol.ProjectMessage>> projects;
-
-    private final ActorRef<ShardingEnvelope<ProjectMessage>> namespaces;
+    private final ActorRef<ShardingEnvelope<ProjectMessage>> projects;
 
     private final ActorRef<ShardingEnvelope<DatasetMessage>> datasets;
 
@@ -27,8 +23,8 @@ public final class ProjectsFactory {
     private final CreateDefaultNamespace createDefaultNamespace;
 
     public Projects create() {
-        Projects impl = ProjectsImpl.apply(projectsRegistry, namespacesRegistry, projects, namespaces, datasets, patterns);
-        Projects secured = ProjectsSecured.apply(projects, namespaces, datasets, patterns, impl);
+        Projects impl = ProjectsImpl.apply(projectRegistry, projects,datasets, patterns);
+        Projects secured = ProjectsSecured.apply(projects, patterns, impl);
         return ProjectsUserActivity.apply(secured, createDefaultNamespace);
     }
 

@@ -14,12 +14,12 @@ public class ProjectGrant {
 
     private final GrantedAuthorization authorization;
 
-    private final NamespacePrivilege privilege;
+    private final ProjectPrivilege privilege;
 
     @JsonCreator
     public static ProjectGrant apply(
         @JsonProperty("authorization") GrantedAuthorization authorization,
-        @JsonProperty("privilege") NamespacePrivilege privilege) {
+        @JsonProperty("privilege") ProjectPrivilege privilege) {
 
         return new ProjectGrant(authorization, privilege);
     }

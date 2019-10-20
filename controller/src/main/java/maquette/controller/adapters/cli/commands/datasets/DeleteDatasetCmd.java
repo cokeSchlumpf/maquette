@@ -1,4 +1,4 @@
-package maquette.controller.adapters.cli.commands.projects;
+package maquette.controller.adapters.cli.commands.datasets;
 
 import java.util.concurrent.CompletionStage;
 
@@ -18,11 +18,10 @@ import maquette.controller.domain.values.iam.User;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateProjectDatasetCmd implements Command {
+public class DeleteDatasetCmd implements Command {
 
-    private static final String DATASET = "dataset";
     private static final String PROJECT = "project";
-    private static final String IS_PRIVATE = "private";
+    private static final String DATASET = "dataset";
 
     @JsonProperty(PROJECT)
     private final ResourceName project;
@@ -30,16 +29,12 @@ public class CreateProjectDatasetCmd implements Command {
     @JsonProperty(DATASET)
     private final ResourceName dataset;
 
-    @JsonProperty(IS_PRIVATE)
-    private final boolean isPrivate;
-
     @JsonCreator
-    public static CreateProjectDatasetCmd apply(
+    public static DeleteDatasetCmd apply(
         @JsonProperty(PROJECT) ResourceName project,
-        @JsonProperty(DATASET) ResourceName dataset,
-        @JsonProperty(IS_PRIVATE) boolean isPrivate) {
+        @JsonProperty(DATASET) ResourceName dataset) {
 
-        return new CreateProjectDatasetCmd(project, dataset, isPrivate);
+        return new DeleteDatasetCmd(project, dataset);
     }
 
     @Override
@@ -48,8 +43,8 @@ public class CreateProjectDatasetCmd implements Command {
         ObjectValidation.notNull().validate(project, DATASET);
 
         return app
-            .projects()
-            .createDataset(executor, ResourcePath.apply(project, dataset), isPrivate)
+            .datasets()
+            .deleteDataset(executor, ResourcePath.apply(project, dataset))
             .thenApply(info -> CommandResult.success());
     }
 

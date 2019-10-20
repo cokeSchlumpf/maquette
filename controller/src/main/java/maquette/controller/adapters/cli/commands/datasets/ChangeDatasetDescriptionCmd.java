@@ -21,12 +21,12 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChangeDatasetDescriptionCmd implements Command {
 
-    private static final String NAMESPACE = "namespace";
+    private static final String PROJECT = "project";
     private static final String DATASET = "dataset";
     private static final String DESCRIPTION = "description";
 
-    @JsonProperty(NAMESPACE)
-    private final ResourceName namespace;
+    @JsonProperty(PROJECT)
+    private final ResourceName project;
 
     @JsonProperty(DATASET)
     private final ResourceName dataset;
@@ -36,11 +36,11 @@ public class ChangeDatasetDescriptionCmd implements Command {
 
     @JsonCreator
     public static ChangeDatasetDescriptionCmd apply(
-        @JsonProperty(NAMESPACE) ResourceName namespace,
+        @JsonProperty(PROJECT) ResourceName project,
         @JsonProperty(DATASET) ResourceName dataset,
         @JsonProperty(DESCRIPTION) Markdown description) {
 
-        return new ChangeDatasetDescriptionCmd(namespace, dataset, description);
+        return new ChangeDatasetDescriptionCmd(project, dataset, description);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ChangeDatasetDescriptionCmd implements Command {
         ObjectValidation.notNull().validate(dataset, DATASET);
         ObjectValidation.notNull().validate(description, DESCRIPTION);
 
-        ResourcePath rp = ResourcePath.apply(executor, namespace, dataset);
+        ResourcePath rp = ResourcePath.apply(executor, project, dataset);
 
         return app
             .datasets()

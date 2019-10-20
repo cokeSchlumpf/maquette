@@ -15,7 +15,7 @@ import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.project.NamespacePrivilege;
+import maquette.controller.domain.values.project.ProjectPrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -33,7 +33,7 @@ public final class RevokeProjectAccessCmd implements Command {
     private final EAuthorizationType authorization;
 
     @JsonProperty(PRIVILEGE)
-    private final NamespacePrivilege privilege;
+    private final ProjectPrivilege privilege;
 
     @JsonProperty(FROM)
     private final String from;
@@ -42,7 +42,7 @@ public final class RevokeProjectAccessCmd implements Command {
     public static RevokeProjectAccessCmd apply(
         @JsonProperty(PROJECT) ResourceName project,
         @JsonProperty(AUTHORIZATION) EAuthorizationType authorization,
-        @JsonProperty(PRIVILEGE) NamespacePrivilege privilege,
+        @JsonProperty(PRIVILEGE) ProjectPrivilege privilege,
         @JsonProperty(FROM) String from) {
 
         return new RevokeProjectAccessCmd(project, authorization, privilege, from);
@@ -59,7 +59,7 @@ public final class RevokeProjectAccessCmd implements Command {
 
         return app
             .projects()
-            .revokeNamespaceAccess(executor, project, privilege, authorization.asAuthorization(from))
+            .revokeAccess(executor, project, privilege, authorization.asAuthorization(from))
             .thenApply(granted -> CommandResult.success());
     }
 

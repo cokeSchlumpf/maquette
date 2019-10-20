@@ -30,7 +30,6 @@ import maquette.controller.domain.entities.project.protocol.events.RemovedDatase
 import maquette.controller.domain.entities.project.protocol.events.RevokedProjectAccess;
 import maquette.controller.domain.entities.project.protocol.queries.GetProjectDetails;
 import maquette.controller.domain.entities.project.protocol.queries.GetProjectInfo;
-import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.UserAuthorization;
 import maquette.controller.domain.values.project.ProjectACL;
@@ -38,7 +37,7 @@ import maquette.controller.domain.values.project.ProjectDetails;
 import maquette.controller.domain.values.project.ProjectDoesNotExist;
 
 @AllArgsConstructor(staticName = "apply")
-public class UninitializedProject implements State {
+public final class UninitializedProject implements State {
 
     private final ActorContext<ProjectMessage> actor;
 
@@ -107,7 +106,7 @@ public class UninitializedProject implements State {
 
     @Override
     public Effect<ProjectEvent, State> onCreateProject(CreateProject create) {
-        CreatedProject created = CreatedProject.apply(create.getName(), create.getExecutor().getUserId(), Instant.now());
+        CreatedProject created = CreatedProject.apply(create.getName(), create.getDescription(), create.isPrivate(), create.getExecutor().getUserId(), Instant.now());
 
         return effect
             .persist(created)
@@ -121,16 +120,14 @@ public class UninitializedProject implements State {
             created.getCreatedAt(),
             UserAuthorization.apply(created.getCreatedBy()));
 
-        // TODO: New Project
-
         ProjectDetails details = ProjectDetails.apply(
             created.getName(),
             created.getCreatedBy(),
             created.getCreatedAt(),
-            Markdown.apply(),
+            created.getDescription(),
             created.getCreatedBy(),
             created.getCreatedAt(),
-            ProjectACL.apply(owner, Sets.newHashSet()),
+            ProjectACL.apply(owner, Sets.newHashSet(), created.isPrivate()),
             Sets.newHashSet());
 
         return ActiveProject.apply(actor, effect, details);

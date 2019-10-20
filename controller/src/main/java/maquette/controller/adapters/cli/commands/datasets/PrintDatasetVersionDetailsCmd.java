@@ -24,24 +24,32 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PrintDatasetVersionDetailsCmd implements Command {
 
-    private final String namespace;
+    private static final String PROJECT = "project";
+    private static final String DATASET = "dataset";
+    private static final String VERSION = "version";
 
+    @JsonProperty(PROJECT)
+    private final String project;
+
+    @JsonProperty(DATASET)
     private final String dataset;
 
+    @JsonProperty(VERSION)
     private final String version;
 
     @JsonCreator
     public static PrintDatasetVersionDetailsCmd apply(
-        @JsonProperty("namespace") String namespace,
-        @JsonProperty("dataset") String dataset,
-        @JsonProperty("version") String version) {
-        return new PrintDatasetVersionDetailsCmd(namespace, dataset, version);
+        @JsonProperty(PROJECT) String project,
+        @JsonProperty(DATASET) String dataset,
+        @JsonProperty(VERSION) String version) {
+        
+        return new PrintDatasetVersionDetailsCmd(project, dataset, version);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ObjectValidation.notNull().validate(dataset, "dataset");
-        ResourcePath datasetResource = ResourcePath.apply(executor, namespace, dataset);
+        ObjectValidation.notNull().validate(dataset, DATASET);
+        ResourcePath datasetResource = ResourcePath.apply(executor, project, dataset);
 
 
         CompletionStage<VersionDetails> versionDetails;

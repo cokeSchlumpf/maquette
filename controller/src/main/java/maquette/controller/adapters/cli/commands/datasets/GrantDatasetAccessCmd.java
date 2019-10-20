@@ -22,14 +22,14 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GrantDatasetAccessCmd implements Command {
 
-    private static final String NAMESPACE = "namespace";
+    private static final String PROJECT = "project";
     private static final String DATASET = "dataset";
     private static final String AUTHORIZATION = "authorization";
     private static final String PRIVILEGE = "privilege";
     private static final String TO = "to";
 
-    @JsonProperty(NAMESPACE)
-    private final ResourceName namespace;
+    @JsonProperty(PROJECT)
+    private final ResourceName project;
 
     @JsonProperty(DATASET)
     private final ResourceName dataset;
@@ -45,13 +45,13 @@ public final class GrantDatasetAccessCmd implements Command {
 
     @JsonCreator
     public static GrantDatasetAccessCmd apply(
-        @JsonProperty(NAMESPACE) ResourceName namespace,
+        @JsonProperty(PROJECT) ResourceName project,
         @JsonProperty(DATASET) ResourceName dataset,
         @JsonProperty(AUTHORIZATION) EAuthorizationType authorization,
         @JsonProperty(PRIVILEGE) DatasetPrivilege privilege,
         @JsonProperty(TO) String to) {
 
-        return new GrantDatasetAccessCmd(namespace, dataset, authorization, privilege, to);
+        return new GrantDatasetAccessCmd(project, dataset, authorization, privilege, to);
     }
 
     @Override
@@ -64,7 +64,7 @@ public final class GrantDatasetAccessCmd implements Command {
             .and(ObjectValidation.notNull())
             .validate(authorization, AUTHORIZATION);
 
-        ResourcePath resource = ResourcePath.apply(executor, namespace, dataset);
+        ResourcePath resource = ResourcePath.apply(executor, project, dataset);
 
         return app
             .datasets()

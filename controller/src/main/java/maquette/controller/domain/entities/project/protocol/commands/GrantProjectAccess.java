@@ -12,7 +12,7 @@ import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.project.NamespacePrivilege;
+import maquette.controller.domain.values.project.ProjectPrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -32,7 +32,7 @@ public class GrantProjectAccess implements ProjectMessage {
     private final User executor;
 
     @JsonProperty(GRANT)
-    private final NamespacePrivilege grant;
+    private final ProjectPrivilege grant;
 
     @JsonProperty(GRANT_FOR)
     private final Authorization grantFor;
@@ -46,7 +46,7 @@ public class GrantProjectAccess implements ProjectMessage {
     public static GrantProjectAccess apply(
         @JsonProperty(PROJECT) ResourceName project,
         @JsonProperty(EXECUTOR) User executor,
-        @JsonProperty(GRANT) NamespacePrivilege grant,
+        @JsonProperty(GRANT) ProjectPrivilege grant,
         @JsonProperty(GRANT_FOR) Authorization grantFor,
         @JsonProperty(REPLY_TO) ActorRef<GrantedProjectAccess> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {

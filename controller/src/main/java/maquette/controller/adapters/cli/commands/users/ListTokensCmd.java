@@ -21,7 +21,7 @@ import maquette.controller.domain.values.iam.UserId;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ListTokensCmd implements Command {
 
-    private static final String FOR_USER = "for-user";
+    private static final String FOR_USER = "for";
 
     @JsonProperty(FOR_USER)
     private final String forUser;

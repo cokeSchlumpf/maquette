@@ -1,4 +1,4 @@
-package maquette.controller.adapters.cli.commands.users;
+package maquette.controller.adapters.cli.commands.datasets;
 
 import java.util.concurrent.CompletionStage;
 
@@ -18,10 +18,14 @@ import maquette.controller.domain.values.iam.User;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateUserDatasetCmd implements Command {
+public class CreateDatasetCmd implements Command {
 
+    private static final String PROJECT = "project";
     private static final String DATASET = "dataset";
     private static final String IS_PRIVATE = "private";
+
+    @JsonProperty(PROJECT)
+    private final ResourceName project;
 
     @JsonProperty(DATASET)
     private final ResourceName dataset;
@@ -30,21 +34,23 @@ public class CreateUserDatasetCmd implements Command {
     private final boolean isPrivate;
 
     @JsonCreator
-    public static CreateUserDatasetCmd apply(
+    public static CreateDatasetCmd apply(
+        @JsonProperty(PROJECT) ResourceName project,
         @JsonProperty(DATASET) ResourceName dataset,
         @JsonProperty(IS_PRIVATE) boolean isPrivate) {
 
-        return new CreateUserDatasetCmd(dataset, isPrivate);
+        return new CreateDatasetCmd(project, dataset, isPrivate);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
-        ObjectValidation.notNull().validate(dataset, DATASET);
+        ObjectValidation.notNull().validate(project, PROJECT);
+        ObjectValidation.notNull().validate(project, DATASET);
 
         return app
-            .users()
-            .createDataset(executor, dataset, isPrivate)
-            .thenApply(details -> CommandResult.success());
+            .datasets()
+            .createDataset(executor, ResourcePath.apply(project, dataset), isPrivate)
+            .thenApply(info -> CommandResult.success());
     }
 
 }

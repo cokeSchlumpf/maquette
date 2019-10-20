@@ -9,7 +9,7 @@ import lombok.Value;
 import maquette.controller.domain.entities.project.protocol.ProjectEvent;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
-import maquette.controller.domain.values.project.NamespacePrivilege;
+import maquette.controller.domain.values.project.ProjectPrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -23,7 +23,7 @@ public class GrantedProjectAccess implements ProjectEvent {
     private final ResourceName project;
 
     @JsonProperty(GRANTED)
-    private final NamespacePrivilege granted;
+    private final ProjectPrivilege granted;
 
     @JsonProperty(GRANTED_FOR)
     private final GrantedAuthorization grantedFor;
@@ -31,7 +31,7 @@ public class GrantedProjectAccess implements ProjectEvent {
     @JsonCreator
     public static GrantedProjectAccess apply(
         @JsonProperty(PROJECT) ResourceName project,
-        @JsonProperty(GRANTED) NamespacePrivilege granted,
+        @JsonProperty(GRANTED) ProjectPrivilege granted,
         @JsonProperty(GRANTED_FOR) GrantedAuthorization grantedFor) {
 
         return new GrantedProjectAccess(project, granted, grantedFor);

@@ -6,6 +6,7 @@ import java.util.concurrent.CompletionStage;
 
 import org.apache.avro.Schema;
 
+import akka.Done;
 import akka.NotUsed;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
@@ -53,7 +54,7 @@ public final class DatasetsSecured implements Datasets {
                 if (dsDetails.getAcl().canConsume(executor)) {
                     return CompletableFuture.completedFuture(true);
                 } else {
-                    return getNamespaceDetails(dataset.getNamespace())
+                    return getProjectDetails(dataset.getProject())
                         .thenApply(nsDetails -> nsDetails.getAcl().canConsume(executor));
                 }
             });
@@ -65,7 +66,7 @@ public final class DatasetsSecured implements Datasets {
                 if (details.getAcl().canGrantDatasetAccess(executor)) {
                     return CompletableFuture.completedFuture(true);
                 } else {
-                    return getNamespaceDetails(datasetName.getNamespace())
+                    return getProjectDetails(datasetName.getProject())
                         .thenApply(nsDetails -> nsDetails.getAcl().canGrantNamespaceAccess(executor));
                 }
             });
@@ -77,7 +78,7 @@ public final class DatasetsSecured implements Datasets {
                 if (dsDetails.getAcl().canManage(executor)) {
                     return CompletableFuture.completedFuture(true);
                 } else {
-                    return getNamespaceDetails(dataset.getNamespace())
+                    return getProjectDetails(dataset.getProject())
                         .thenApply(nsDetails -> nsDetails.getAcl().canManage(executor));
                 }
             });
@@ -89,7 +90,7 @@ public final class DatasetsSecured implements Datasets {
                 if (dsDetails.getAcl().canProduce(executor)) {
                     return CompletableFuture.completedFuture(true);
                 } else {
-                    return getNamespaceDetails(dataset.getNamespace())
+                    return getProjectDetails(dataset.getProject())
                         .thenApply(nsDetails -> nsDetails.getAcl().canProduce(executor));
                 }
             });
@@ -101,7 +102,7 @@ public final class DatasetsSecured implements Datasets {
                 if (details.getAcl().canRevokeDatasetAccess(executor)) {
                     return CompletableFuture.completedFuture(true);
                 } else {
-                    return getNamespaceDetails(datasetName.getNamespace())
+                    return getProjectDetails(datasetName.getProject())
                         .thenApply(nsDetails -> nsDetails.getAcl().canRevokeNamespaceAccess(executor));
                 }
             });
@@ -118,14 +119,14 @@ public final class DatasetsSecured implements Datasets {
             .thenApply(GetDetailsResult::getDetails);
     }
 
-    private CompletionStage<ProjectDetails> getNamespaceDetails(ResourceName namespace) {
+    private CompletionStage<ProjectDetails> getProjectDetails(ResourceName project) {
         return patterns
             .ask(
                 namespaces,
                 (replyTo, errorTo) ->
                     ShardingEnvelope.apply(
-                        Project.createEntityId(namespace),
-                        GetProjectDetails.apply(namespace, replyTo, errorTo)),
+                        Project.createEntityId(project),
+                        GetProjectDetails.apply(project, replyTo, errorTo)),
                 GetProjectDetailsResult.class)
             .thenApply(GetProjectDetailsResult::getDetails);
     }
@@ -161,7 +162,7 @@ public final class DatasetsSecured implements Datasets {
                 if (dsDetails.getAcl().canManage(executor)) {
                     return CompletableFuture.completedFuture(true);
                 } else {
-                    return getNamespaceDetails(dataset.getNamespace())
+                    return getProjectDetails(dataset.getProject())
                         .thenApply(nsDetails -> nsDetails.getAcl().canManage(executor));
                 }
             })
@@ -176,15 +177,28 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
-    public CompletionStage<Token> createDatasetConsumerToken(User executor, UserId forUser, ResourcePath name) {
-        return canConsume(name, executor)
+    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath dataset, boolean isPrivate) {
+        return getProjectDetails(dataset.getProject())
+            .thenApply(projectDetails -> projectDetails.getAcl().canCreateDataset(executor))
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.createDataset(executor, dataset, isPrivate);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
+    }
+
+    @Override
+    public CompletionStage<Token> createDatasetConsumerToken(User executor, UserId forUser, ResourcePath dataset) {
+        return canConsume(dataset, executor)
             .thenCompose(canDo -> {
                 if (canDo && executor.getUserId().equals(forUser)) {
-                    return delegate.createDatasetConsumerToken(executor, forUser, name);
+                    return delegate.createDatasetConsumerToken(executor, forUser, dataset);
                 } else {
-                    return canGrant(name, executor).thenCompose(canGrant -> {
+                    return canGrant(dataset, executor).thenCompose(canGrant -> {
                         if (canGrant) {
-                            return delegate.createDatasetConsumerToken(executor, forUser, name);
+                            return delegate.createDatasetConsumerToken(executor, forUser, dataset);
                         } else {
                             throw NotAuthorizedException.apply(executor);
                         }
@@ -194,15 +208,15 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
-    public CompletionStage<Token> createDatasetProducerToken(User executor, UserId forUser, ResourcePath name) {
-        return canProduce(name, executor)
+    public CompletionStage<Token> createDatasetProducerToken(User executor, UserId forUser, ResourcePath dataset) {
+        return canProduce(dataset, executor)
             .thenCompose(canDo -> {
                 if (canDo && executor.getUserId().equals(forUser)) {
-                    return delegate.createDatasetProducerToken(executor, forUser, name);
+                    return delegate.createDatasetProducerToken(executor, forUser, dataset);
                 } else {
-                    return canGrant(name, executor).thenCompose(canGrant -> {
+                    return canGrant(dataset, executor).thenCompose(canGrant -> {
                         if (canGrant) {
-                            return delegate.createDatasetProducerToken(executor, forUser, name);
+                            return delegate.createDatasetProducerToken(executor, forUser, dataset);
                         } else {
                             throw NotAuthorizedException.apply(executor);
                         }
@@ -217,6 +231,19 @@ public final class DatasetsSecured implements Datasets {
             .thenCompose(canDo -> {
                 if (canDo) {
                     return delegate.createDatasetVersion(executor, dataset, schema);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
+    }
+
+    @Override
+    public CompletionStage<Done> deleteDataset(User executor, ResourcePath dataset) {
+        return getProjectDetails(dataset.getProject())
+            .thenApply(projectDetails -> projectDetails.getAcl().canDeleteDataset(executor))
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.deleteDataset(executor, dataset);
                 } else {
                     throw NotAuthorizedException.apply(executor);
                 }
@@ -254,7 +281,7 @@ public final class DatasetsSecured implements Datasets {
                 if (dsDetails.getAcl().canReadDetails(executor)) {
                     return CompletableFuture.completedFuture(true);
                 } else {
-                    return getNamespaceDetails(dataset.getNamespace())
+                    return getProjectDetails(dataset.getProject())
                         .thenApply(nsDetails -> nsDetails.getAcl().canReadDetails(executor));
                 }
             })
@@ -274,7 +301,7 @@ public final class DatasetsSecured implements Datasets {
                 if (dsDetails.getAcl().canReadDetails(executor)) {
                     return CompletableFuture.completedFuture(true);
                 } else {
-                    return getNamespaceDetails(dataset.getNamespace())
+                    return getProjectDetails(dataset.getProject())
                         .thenApply(nsDetails -> nsDetails.getAcl().canReadDetails(executor));
                 }
             })
@@ -294,7 +321,7 @@ public final class DatasetsSecured implements Datasets {
                 if (dsDetails.getAcl().canReadDetails(executor)) {
                     return CompletableFuture.completedFuture(true);
                 } else {
-                    return getNamespaceDetails(dataset.getNamespace())
+                    return getProjectDetails(dataset.getProject())
                         .thenApply(nsDetails -> nsDetails.getAcl().canReadDetails(executor));
                 }
             })
@@ -308,12 +335,12 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
-    public CompletionStage<DatasetDetails> grantDatasetAccess(User executor, ResourcePath datasetName, DatasetPrivilege grant,
+    public CompletionStage<DatasetDetails> grantDatasetAccess(User executor, ResourcePath dataset, DatasetPrivilege grant,
                                                               Authorization grantFor) {
-        return canGrant(datasetName, executor)
+        return canGrant(dataset, executor)
             .thenCompose(canDo -> {
                 if (canDo) {
-                    return delegate.grantDatasetAccess(executor, datasetName, grant, grantFor);
+                    return delegate.grantDatasetAccess(executor, dataset, grant, grantFor);
                 } else {
                     throw NotAuthorizedException.apply(executor);
                 }

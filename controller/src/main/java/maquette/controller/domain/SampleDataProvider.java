@@ -28,8 +28,14 @@ public class SampleDataProvider {
 
         Operators.suppressExceptions(() -> {
             app
-                .users()
-                .createDataset(alice, ResourceName.apply("pigs"), false)
+                .projects()
+                .create(alice, ResourceName.apply("alice"), Markdown.apply("# Alice' Playground"), true)
+                .toCompletableFuture()
+                .get();
+
+            app
+                .datasets()
+                .createDataset(alice, ResourcePath.apply("alice", "pigs"), false)
                 .thenCompose(details -> {
                     LOG.info(String.format("Created dataset %s/%s", alice.getUserId(), details.getDataset()));
 
@@ -52,8 +58,14 @@ public class SampleDataProvider {
                 .get();
 
             app
-                .users()
-                .createDataset(bob, ResourceName.apply("ml-samples"), true)
+                .projects()
+                .create(bob, ResourceName.apply("bob"), Markdown.apply("# Bobs Playground"), true)
+                .toCompletableFuture()
+                .get();
+
+            app
+                .datasets()
+                .createDataset(bob, ResourcePath.apply("bob", "ml-samples"), true)
                 .thenCompose(details -> {
                     LOG.info(String.format("Created private dataset %s/%s", bob.getUserId(), details.getDataset()));
 
@@ -68,8 +80,14 @@ public class SampleDataProvider {
                 .get();
 
             app
-                .users()
-                .createDataset(clair, ResourceName.apply("episodes"), false)
+                .projects()
+                .create(clair, ResourceName.apply("clair"), Markdown.apply("# Clairs Playground"), true)
+                .toCompletableFuture()
+                .get();
+
+            app
+                .datasets()
+                .createDataset(clair, ResourcePath.apply("clair", "episodes"), false)
                 .thenCompose(details -> {
                     LOG.info(String.format("Created dataset %s/%s", clair.getUserId(), details.getDataset()));
 
@@ -85,29 +103,29 @@ public class SampleDataProvider {
 
             app
                 .projects()
-                .createProject(
+                .create(
                     debra,
                     ResourceName.apply("twitter-analysis"),
                     Markdown.apply("# Twitter Analysis\n\nFoo Bar"),
                     false)
                 .thenCompose(details -> {
-                    LOG.info(String.format("Created project %s", details.getProperties().getName()));
+                    LOG.info(String.format("Created project %s", details.getName()));
 
                     return app
                         .projects()
                         .changeOwner(debra, ResourceName.apply("twitter-analysis"), RoleAuthorization.apply("team-c"));
                 })
                 .thenCompose(details -> {
-                    LOG.info(String.format("... changed owner to %s", details.getDetails().getAcl().getOwner().getAuthorization()));
+                    LOG.info(String.format("... changed owner to %s", details.getAcl().getOwner().getAuthorization()));
 
                     return app
-                        .projects()
+                        .datasets()
                         .createDataset(debra, ResourcePath.apply("twitter-analysis", "data"), false);
                 })
                 .thenCompose(details -> {
                     LOG.info(String.format(
                         "... Created dataset %s/%s",
-                        details.getDataset().getNamespace(),
+                        details.getDataset().getProject(),
                         details.getDataset().getName()));
 
                     return app

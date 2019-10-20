@@ -20,12 +20,12 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChangeDatasetPrivacyCmd implements Command {
 
-    private static final String NAMESPACE = "namespace";
+    private static final String PROJECT = "project";
     private static final String DATASET = "dataset";
     private static final String IS_PRIVATE = "private";
 
-    @JsonProperty(NAMESPACE)
-    private final ResourceName namespace;
+    @JsonProperty(PROJECT)
+    private final ResourceName project;
 
     @JsonProperty(DATASET)
     private final ResourceName dataset;
@@ -35,17 +35,17 @@ public class ChangeDatasetPrivacyCmd implements Command {
 
     @JsonCreator
     public static ChangeDatasetPrivacyCmd apply(
-        @JsonProperty(NAMESPACE) ResourceName namespace,
+        @JsonProperty(PROJECT) ResourceName project,
         @JsonProperty(DATASET) ResourceName dataset,
         @JsonProperty(IS_PRIVATE) boolean isPrivate) {
 
-        return new ChangeDatasetPrivacyCmd(namespace, dataset, isPrivate);
+        return new ChangeDatasetPrivacyCmd(project, dataset, isPrivate);
     }
 
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
         ObjectValidation.notNull().validate(dataset, DATASET);
-        ResourcePath rp = ResourcePath.apply(executor, namespace, dataset);
+        ResourcePath rp = ResourcePath.apply(executor, project, dataset);
 
         return app
             .datasets()

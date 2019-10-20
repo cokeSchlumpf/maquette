@@ -22,14 +22,14 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RevokeDatasetAccessCmd implements Command {
 
-    private static final String NAMESPACE = "namespace";
+    private static final String PROJECT = "project";
     private static final String DATASET = "dataset";
     private static final String AUTHORIZATION = "authorization";
     private static final String PRIVILEGE = "privilege";
     private static final String FROM = "from";
 
-    @JsonProperty(NAMESPACE)
-    private final ResourceName namespace;
+    @JsonProperty(PROJECT)
+    private final ResourceName project;
 
     @JsonProperty(DATASET)
     private final ResourceName dataset;
@@ -45,13 +45,13 @@ public final class RevokeDatasetAccessCmd implements Command {
 
     @JsonCreator
     public static RevokeDatasetAccessCmd apply(
-        @JsonProperty(NAMESPACE) ResourceName namespace,
+        @JsonProperty(PROJECT) ResourceName project,
         @JsonProperty(DATASET) ResourceName dataset,
         @JsonProperty(AUTHORIZATION) EAuthorizationType authorization,
         @JsonProperty(PRIVILEGE) DatasetPrivilege privilege,
         @JsonProperty(FROM) String from) {
 
-        return new RevokeDatasetAccessCmd(namespace, dataset, authorization, privilege, from);
+        return new RevokeDatasetAccessCmd(project, dataset, authorization, privilege, from);
     }
 
     @Override
@@ -64,7 +64,7 @@ public final class RevokeDatasetAccessCmd implements Command {
             .and(ObjectValidation.notNull())
             .validate(authorization, AUTHORIZATION);
 
-        ResourcePath resource = ResourcePath.apply(executor, namespace, dataset);
+        ResourcePath resource = ResourcePath.apply(executor, project, dataset);
 
         return app
             .datasets()

@@ -15,15 +15,15 @@ import maquette.controller.adapters.cli.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.project.NamespacePrivilege;
+import maquette.controller.domain.values.project.ProjectPrivilege;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GrantProjectAccessCmd implements Command {
 
+    private static final String PROJECT = "project";
     private static final String AUTHORIZATION = "authorization";
     private static final String PRIVILEGE = "privilege";
-    private static final String PROJECT = "project";
     private static final String TO = "to";
 
     @JsonProperty(PROJECT)
@@ -33,7 +33,7 @@ public final class GrantProjectAccessCmd implements Command {
     private final EAuthorizationType authorization;
 
     @JsonProperty(PRIVILEGE)
-    private final NamespacePrivilege privilege;
+    private final ProjectPrivilege privilege;
 
     @JsonProperty(TO)
     private final String to;
@@ -42,7 +42,7 @@ public final class GrantProjectAccessCmd implements Command {
     public static GrantProjectAccessCmd apply(
         @JsonProperty(PROJECT) ResourceName project,
         @JsonProperty(AUTHORIZATION) EAuthorizationType authorization,
-        @JsonProperty(PRIVILEGE) NamespacePrivilege privilege,
+        @JsonProperty(PRIVILEGE) ProjectPrivilege privilege,
         @JsonProperty(TO) String to) {
 
         return new GrantProjectAccessCmd(project, authorization, privilege, to);
