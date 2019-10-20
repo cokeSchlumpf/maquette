@@ -81,7 +81,7 @@ public class CoreApplication {
             .create();
 
         final Shop shop = ShopFactory
-            .apply(projectsRegistry, projectsRegistry, projectShards, projectShards, datasetShards, patterns, createDefaultNamespace)
+            .apply(projectsRegistry, projectShards, datasetShards, patterns, createDefaultNamespace)
             .create();
 
         // initialize application

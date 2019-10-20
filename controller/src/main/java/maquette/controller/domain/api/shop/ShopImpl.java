@@ -17,20 +17,16 @@ import maquette.controller.domain.services.CollectDatasets;
 import maquette.controller.domain.services.CollectNamespaceInfos;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.dataset.DatasetDetails;
-import maquette.controller.domain.values.deprecatedproject.ProjectDetails;
 import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.project.ProjectDetails;
 import maquette.controller.domain.values.project.ProjectInfo;
 
 @AllArgsConstructor(staticName = "apply")
 public final class ShopImpl implements Shop {
 
-    private final ActorRef<maquette.controller.domain.entities.project.protocol.ProjectsMessage> projectsRegistry;
+    private final ActorRef<ProjectsMessage> projectsRegistry;
 
-    private final ActorRef<ProjectsMessage> namespacesRegistry;
-
-    private final ActorRef<ShardingEnvelope<maquette.controller.domain.entities.project.protocol.ProjectMessage>> projects;
-
-    private final ActorRef<ShardingEnvelope<ProjectMessage>> namespaces;
+    private final ActorRef<ShardingEnvelope<ProjectMessage>> projects;
 
     private final ActorRef<ShardingEnvelope<DatasetMessage>> datasets;
 
@@ -52,7 +48,7 @@ public final class ShopImpl implements Shop {
     @Override
     public CompletionStage<Set<DatasetDetails>> listDatasets(User executor) {
         CompletionStage<Set<ProjectInfo>> namespaceInfos = patterns
-            .process(result -> CollectNamespaceInfos.create(namespacesRegistry, namespaces, result));
+            .process(result -> CollectNamespaceInfos.create(projectsRegistry, projects, result));
 
         CompletionStage<Set<DatasetDetails>> allDatasets = namespaceInfos
             .thenCompose(infos -> patterns.process(result -> CollectDatasets.create(infos, datasets, result)));

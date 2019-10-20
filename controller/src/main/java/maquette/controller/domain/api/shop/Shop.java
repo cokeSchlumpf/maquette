@@ -5,7 +5,7 @@ import java.util.concurrent.CompletionStage;
 
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.deprecatedproject.ProjectDetails;
+import maquette.controller.domain.values.project.ProjectDetails;
 
 public interface Shop {
 

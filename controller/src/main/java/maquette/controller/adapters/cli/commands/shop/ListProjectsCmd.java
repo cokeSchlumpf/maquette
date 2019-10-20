@@ -16,7 +16,7 @@ import maquette.controller.adapters.cli.commands.Command;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.deprecatedproject.ProjectDetails;
+import maquette.controller.domain.values.project.ProjectDetails;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -37,16 +37,16 @@ public final class ListProjectsCmd implements Command {
 
                 List<ProjectDetails> sorted = project
                     .stream()
-                    .sorted(Comparator.comparing(p -> p.getProperties().getName().getValue()))
+                    .sorted(Comparator.comparing(p -> p.getName().getValue()))
                     .collect(Collectors.toList());
 
                 for (ProjectDetails info : sorted) {
                     dt = dt.withRow(
-                        info.getProperties().getName(),
-                        info.getDetails().getAcl().getOwner().getAuthorization(),
-                        info.getProperties().isPrivate(),
-                        info.getDetails().getModified(),
-                        info.getDetails().getDatasets().size());
+                        info.getName(),
+                        info.getAcl().getOwner().getAuthorization(),
+                        info.getAcl().isPrivate(),
+                        info.getModified(),
+                        info.getDatasets().size());
                 }
 
                 return CommandResult.success(dt.toAscii(), dt);

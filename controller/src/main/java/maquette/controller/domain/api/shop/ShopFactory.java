@@ -12,13 +12,9 @@ import maquette.controller.domain.util.ActorPatterns;
 @AllArgsConstructor(staticName = "apply")
 public final class ShopFactory {
 
-    private final ActorRef<maquette.controller.domain.entities.project.protocol.ProjectsMessage> projectsRegistry;
+    private final ActorRef<ProjectsMessage> projectsRegistry;
 
-    private final ActorRef<ProjectsMessage> namespacesRegistry;
-
-    private final ActorRef<ShardingEnvelope<maquette.controller.domain.entities.project.protocol.ProjectMessage>> projects;
-
-    private final ActorRef<ShardingEnvelope<ProjectMessage>> namespaces;
+    private final ActorRef<ShardingEnvelope<ProjectMessage>> projects;
 
     private final ActorRef<ShardingEnvelope<DatasetMessage>> datasets;
 
@@ -27,7 +23,7 @@ public final class ShopFactory {
     private final CreateDefaultNamespace createDefaultNamespace;
 
     public Shop create() {
-        Shop impl = ShopImpl.apply(projectsRegistry, namespacesRegistry, projects, namespaces, datasets, patterns);
+        Shop impl = ShopImpl.apply(projectsRegistry, projects, datasets, patterns);
         return ShopUserActivity.apply(impl, createDefaultNamespace);
     }
 
