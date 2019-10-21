@@ -24,6 +24,7 @@ import maquette.controller.adapters.cli.commands.projects.GrantProjectAccessCmd;
 import maquette.controller.adapters.cli.commands.projects.ListProjectDatasetsCmd;
 import maquette.controller.adapters.cli.commands.projects.PrintProjectDetailsCmd;
 import maquette.controller.adapters.cli.commands.projects.RevokeProjectAccessCmd;
+import maquette.controller.adapters.cli.commands.shop.FindProjectsCmd;
 import maquette.controller.adapters.cli.commands.shop.ListDatasetsCmd;
 import maquette.controller.adapters.cli.commands.shop.ListProjectsCmd;
 import maquette.controller.adapters.cli.commands.users.DeleteTokenCmd;
@@ -58,8 +59,9 @@ import maquette.controller.domain.values.iam.User;
         @JsonSubTypes.Type(value = PrintProjectDetailsCmd.class, name = "project show"),
         @JsonSubTypes.Type(value = RevokeProjectAccessCmd.class, name = "project revoke"),
 
-        @JsonSubTypes.Type(value = ListProjectsCmd.class, name = "shop namespaces"),
-        @JsonSubTypes.Type(value = ListDatasetsCmd.class, name = "shop datasets"),
+        @JsonSubTypes.Type(value = FindProjectsCmd.class, name = "shop projects find"),
+        @JsonSubTypes.Type(value = ListProjectsCmd.class, name = "shop projects list"),
+        @JsonSubTypes.Type(value = ListDatasetsCmd.class, name = "shop datasets list"),
 
         @JsonSubTypes.Type(value = DeleteTokenCmd.class, name = "user token delete"),
         @JsonSubTypes.Type(value = ListTokensCmd.class, name = "user tokens"),

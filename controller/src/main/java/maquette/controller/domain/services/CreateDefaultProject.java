@@ -21,7 +21,7 @@ import maquette.controller.domain.values.iam.AuthenticatedUser;
 import maquette.controller.domain.values.iam.User;
 
 @AllArgsConstructor(staticName = "apply")
-public final class CreateDefaultNamespace {
+public final class CreateDefaultProject {
 
     private final ActorRef<ProjectsMessage> namespaces;
 

@@ -14,12 +14,11 @@ import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.project.protocol.ProjectMessage;
 import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
 import maquette.controller.domain.services.CollectDatasets;
-import maquette.controller.domain.services.CollectNamespaceInfos;
+import maquette.controller.domain.services.CollectProjectDetails;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.project.ProjectDetails;
-import maquette.controller.domain.values.project.ProjectInfo;
 
 @AllArgsConstructor(staticName = "apply")
 public final class ShopImpl implements Shop {
@@ -34,34 +33,69 @@ public final class ShopImpl implements Shop {
 
     @Override
     public CompletionStage<Set<DatasetDetails>> findDatasets(User executor, String query) {
-        return listDatasets(executor)
-            .thenApply(datasets -> datasets
+        CompletionStage<Set<ProjectDetails>> namespaceInfos = patterns
+            .process(result -> CollectProjectDetails.create(projectsRegistry, projects, result));
+
+        CompletionStage<Set<DatasetDetails>> allDatasets = namespaceInfos
+            .thenApply(projects -> projects
                 .stream()
-                .filter(ds -> ds.getDescription().map(desc -> desc.getValue().contains(query)).orElse(false))
+                .filter(proj -> proj.getAcl().canReadDetails(executor))
                 .collect(Collectors.toSet()))
-            .thenApply(datasets -> datasets
-                .stream()
-                .filter(ds -> ds.getAcl().canReadDetails(executor))
-                .collect(Collectors.toSet()));
+            .thenCompose(infos -> patterns.process(result -> CollectDatasets.create(infos, datasets, result)));
+
+        return allDatasets.thenApply(datasets -> datasets
+            .stream()
+            .filter(ds -> ds.getAcl().canReadDetails(executor))
+            .filter(ds -> query == null || query.equals("*") || (ds.getDescription().isPresent() && ds
+                .getDescription()
+                .get()
+                .getValue()
+                .contains(query)) || ds
+                              .getDataset()
+                              .getName()
+                              .getValue()
+                              .contains(query))
+            .collect(Collectors.toSet()));
+    }
+
+    @Override
+    public CompletionStage<Set<ProjectDetails>> findProjects(User executor, String query) {
+        CompletionStage<Set<ProjectDetails>> namespaceInfos = patterns
+            .process(result -> CollectProjectDetails.create(projectsRegistry, projects, result));
+
+        return namespaceInfos.thenApply(projects -> projects
+            .stream()
+            .filter(proj -> proj.getAcl().canReadDetails(executor))
+            .filter(proj -> query == null || query.equals("*") || proj.getDescription().getValue().contains(query) || proj
+                .getName()
+                .getValue()
+                .contains(query))
+            .collect(Collectors.toSet()));
     }
 
     @Override
     public CompletionStage<Set<DatasetDetails>> listDatasets(User executor) {
-        CompletionStage<Set<ProjectInfo>> namespaceInfos = patterns
-            .process(result -> CollectNamespaceInfos.create(projectsRegistry, projects, result));
+        CompletionStage<Set<ProjectDetails>> namespaceInfos = patterns
+            .process(result -> CollectProjectDetails.create(projectsRegistry, projects, result));
 
         CompletionStage<Set<DatasetDetails>> allDatasets = namespaceInfos
             .thenCompose(infos -> patterns.process(result -> CollectDatasets.create(infos, datasets, result)));
 
         return allDatasets.thenApply(datasets -> datasets
             .stream()
-            .filter(ds -> !ds.getAcl().isPrivate() || ds.getAcl().canConsume(executor) || ds.getAcl().canProduce(executor))
+            .filter(ds -> ds.getAcl().canConsume(executor) || ds.getAcl().canProduce(executor))
             .collect(Collectors.toSet()));
     }
 
     @Override
     public CompletionStage<Set<ProjectDetails>> listProjects(User executor) {
-        return CompletableFuture.completedFuture(Sets.newHashSet());
+        CompletionStage<Set<ProjectDetails>> namespaceInfos = patterns
+            .process(result -> CollectProjectDetails.create(projectsRegistry, projects, result));
+
+        return namespaceInfos.thenApply(projects -> projects
+            .stream()
+            .filter(proj -> proj.getAcl().canConsume(executor) || proj.getAcl().canProduce(executor))
+            .collect(Collectors.toSet()));
     }
 
 }

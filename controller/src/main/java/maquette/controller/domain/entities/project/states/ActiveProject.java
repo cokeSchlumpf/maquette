@@ -31,15 +31,12 @@ import maquette.controller.domain.entities.project.protocol.events.RegisteredDat
 import maquette.controller.domain.entities.project.protocol.events.RemovedDataset;
 import maquette.controller.domain.entities.project.protocol.events.RevokedProjectAccess;
 import maquette.controller.domain.entities.project.protocol.queries.GetProjectDetails;
-import maquette.controller.domain.entities.project.protocol.queries.GetProjectInfo;
 import maquette.controller.domain.entities.project.protocol.results.GetProjectDetailsResult;
-import maquette.controller.domain.entities.project.protocol.results.GetProjectInfoResult;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.project.ProjectACL;
 import maquette.controller.domain.values.project.ProjectDetails;
 import maquette.controller.domain.values.project.ProjectGrant;
-import maquette.controller.domain.values.project.ProjectInfo;
 
 @AllArgsConstructor(staticName = "apply")
 public final class ActiveProject implements State {
@@ -167,20 +164,6 @@ public final class ActiveProject implements State {
     @Override
     public Effect<ProjectEvent, State> onGetProjectDetails(GetProjectDetails get) {
         get.getReplyTo().tell(GetProjectDetailsResult.apply(details));
-        return effect.none();
-    }
-
-    @Override
-    public Effect<ProjectEvent, State> onGetProjectInfo(GetProjectInfo get) {
-        ProjectInfo info = ProjectInfo.apply(
-            details.getName(),
-            details.getModified(),
-            details.getAcl(),
-            details.getDatasets());
-
-        GetProjectInfoResult result = GetProjectInfoResult.apply(info);
-        get.getReplyTo().tell(result);
-
         return effect.none();
     }
 

@@ -29,7 +29,7 @@ import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
 import maquette.controller.domain.entities.user.User;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.ports.DataStorageAdapter;
-import maquette.controller.domain.services.CreateDefaultNamespace;
+import maquette.controller.domain.services.CreateDefaultProject;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
@@ -65,23 +65,23 @@ public class CoreApplication {
         final ActorRef<ShardingEnvelope<UserMessage>> userShards = createUserSharding(sharding);
         final ActorRef<ProjectsMessage> projectsRegistry = singleton.init(ProjectRegistry.create());
 
-        final CreateDefaultNamespace createDefaultNamespace = CreateDefaultNamespace.apply(
+        final CreateDefaultProject createDefaultProject = CreateDefaultProject.apply(
             projectsRegistry, projectShards, userShards, patterns);
 
         final Datasets datasets = DatasetsFactory
-            .apply(projectShards, datasetShards, userShards, patterns, createDefaultNamespace, materializer)
+            .apply(projectShards, datasetShards, userShards, patterns, createDefaultProject, materializer)
             .create();
 
         final Users users = UsersFactory
-            .apply(userShards, patterns, createDefaultNamespace)
+            .apply(userShards, patterns, createDefaultProject)
             .create();
 
         final Projects projects = ProjectsFactory
-            .apply(projectsRegistry, projectShards, datasetShards, patterns, createDefaultNamespace)
+            .apply(projectsRegistry, projectShards, datasetShards, patterns, createDefaultProject)
             .create();
 
         final Shop shop = ShopFactory
-            .apply(projectsRegistry, projectShards, datasetShards, patterns, createDefaultNamespace)
+            .apply(projectsRegistry, projectShards, datasetShards, patterns, createDefaultProject)
             .create();
 
         // initialize application

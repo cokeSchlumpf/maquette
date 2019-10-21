@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.project.protocol.ProjectMessage;
 import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
-import maquette.controller.domain.services.CreateDefaultNamespace;
+import maquette.controller.domain.services.CreateDefaultProject;
 import maquette.controller.domain.util.ActorPatterns;
 
 @AllArgsConstructor(staticName = "apply")
@@ -20,11 +20,11 @@ public final class ShopFactory {
 
     private final ActorPatterns patterns;
 
-    private final CreateDefaultNamespace createDefaultNamespace;
+    private final CreateDefaultProject createDefaultProject;
 
     public Shop create() {
         Shop impl = ShopImpl.apply(projectsRegistry, projects, datasets, patterns);
-        return ShopUserActivity.apply(impl, createDefaultNamespace);
+        return ShopUserActivity.apply(impl, createDefaultProject);
     }
 
 }

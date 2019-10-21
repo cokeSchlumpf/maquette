@@ -282,7 +282,7 @@ public final class DatasetsSecured implements Datasets {
                     return CompletableFuture.completedFuture(true);
                 } else {
                     return getProjectDetails(dataset.getProject())
-                        .thenApply(nsDetails -> nsDetails.getAcl().canReadDetails(executor));
+                        .thenApply(nsDetails -> nsDetails.getAcl().canReadResourceDetails(executor));
                 }
             })
             .thenCompose(canDo -> {
@@ -302,7 +302,7 @@ public final class DatasetsSecured implements Datasets {
                     return CompletableFuture.completedFuture(true);
                 } else {
                     return getProjectDetails(dataset.getProject())
-                        .thenApply(nsDetails -> nsDetails.getAcl().canReadDetails(executor));
+                        .thenApply(nsDetails -> nsDetails.getAcl().canReadResourceDetails(executor));
                 }
             })
             .thenCompose(canDo -> {
@@ -322,7 +322,7 @@ public final class DatasetsSecured implements Datasets {
                     return CompletableFuture.completedFuture(true);
                 } else {
                     return getProjectDetails(dataset.getProject())
-                        .thenApply(nsDetails -> nsDetails.getAcl().canReadDetails(executor));
+                        .thenApply(nsDetails -> nsDetails.getAcl().canReadResourceDetails(executor));
                 }
             })
             .thenCompose(canDo -> {

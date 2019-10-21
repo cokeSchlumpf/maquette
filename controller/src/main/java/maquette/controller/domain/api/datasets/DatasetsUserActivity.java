@@ -10,7 +10,7 @@ import akka.Done;
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.services.CreateDefaultNamespace;
+import maquette.controller.domain.services.CreateDefaultProject;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
@@ -29,10 +29,10 @@ public final class DatasetsUserActivity implements Datasets {
 
     private final Datasets delegate;
 
-    private final CreateDefaultNamespace createDefaultNamespace;
+    private final CreateDefaultProject createDefaultProject;
 
     private <T> CompletionStage<T> createDefaultProject(User executor, Function<Datasets, CompletionStage<T>> andThen) {
-        return createDefaultNamespace.run(executor, () -> andThen.apply(delegate));
+        return createDefaultProject.run(executor, () -> andThen.apply(delegate));
     }
 
     @Override

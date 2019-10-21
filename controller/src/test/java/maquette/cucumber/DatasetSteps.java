@@ -75,19 +75,6 @@ public final class DatasetSteps {
             .get()).hasMessageContaining("not authorized");
     }
 
-    @Given("{string} creates a dataset called {string}")
-    public void creates_a_dataset_called(String username, String dataset) throws ExecutionException, InterruptedException {
-        User user = ctx.getUser(username);
-
-        CommandResult result = CreateDatasetCmd
-            .apply(ResourceName.apply(username), ResourceName.apply(dataset), false)
-            .run(user, ctx.getSetup().getApp())
-            .toCompletableFuture()
-            .get();
-
-        LOG.debug("$ user datasets create" + result.getOutput());
-    }
-
     @Given("{string} creates a dataset called {string} in project {string}")
     public void creates_a_dataset_called_in_project(String username, String datasetName, String projectName)
         throws ExecutionException, InterruptedException {

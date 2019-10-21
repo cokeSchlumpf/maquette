@@ -21,7 +21,6 @@ import maquette.controller.domain.entities.project.protocol.events.RegisteredDat
 import maquette.controller.domain.entities.project.protocol.events.RemovedDataset;
 import maquette.controller.domain.entities.project.protocol.events.RevokedProjectAccess;
 import maquette.controller.domain.entities.project.protocol.queries.GetProjectDetails;
-import maquette.controller.domain.entities.project.protocol.queries.GetProjectInfo;
 
 public interface State {
 
@@ -46,8 +45,6 @@ public interface State {
     State onCreatedProject(CreatedProject created);
 
     Effect<ProjectEvent, State> onGetProjectDetails(GetProjectDetails get);
-
-    Effect<ProjectEvent, State> onGetProjectInfo(GetProjectInfo get);
 
     Effect<ProjectEvent, State> onGrantProjectAccess(GrantProjectAccess grant);
 

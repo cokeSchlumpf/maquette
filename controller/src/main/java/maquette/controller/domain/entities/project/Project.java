@@ -26,7 +26,6 @@ import maquette.controller.domain.entities.project.protocol.events.RegisteredDat
 import maquette.controller.domain.entities.project.protocol.events.RemovedDataset;
 import maquette.controller.domain.entities.project.protocol.events.RevokedProjectAccess;
 import maquette.controller.domain.entities.project.protocol.queries.GetProjectDetails;
-import maquette.controller.domain.entities.project.protocol.queries.GetProjectInfo;
 import maquette.controller.domain.entities.project.states.State;
 import maquette.controller.domain.entities.project.states.UninitializedProject;
 import maquette.controller.domain.values.core.ResourceName;
@@ -68,7 +67,6 @@ public final class Project extends EventSourcedEntity<ProjectMessage, ProjectEve
             .onCommand(CreateProject.class, State::onCreateProject)
             .onCommand(DeleteProject.class, State::onDeleteProject)
             .onCommand(GetProjectDetails.class, State::onGetProjectDetails)
-            .onCommand(GetProjectInfo.class, State::onGetProjectInfo)
             .onCommand(GrantProjectAccess.class, State::onGrantProjectAccess)
             .onCommand(RegisterDataset.class, State::onRegisterDataset)
             .onCommand(RemoveDataset.class, State::onRemoveDataset)

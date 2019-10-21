@@ -11,20 +11,18 @@ Feature: Datasets
       | alice       | admin                 |
       | bob         | a-team, b-team        |
       | clair       | a-team                |
+      | debra       | b-team                |
+    And we have the following role-owned projects
+      | Project               | Owned by            | Private |
+      | some-project          | a-team              | no      |
+      | some-private-project  | b-team              | yes     |
 ```
 
 Thus datasets can be created in two ways either directly or via an existing project.
 
 ```gherkin
-  Scenario: Create a user dataset
-    When "bob" creates a dataset called "my-first-dataset"
-    Then "bob" should find "my-first-dataset" when listing his own datasets
-    
   Scenario: Create a project dataset
-    Given we have the following role-owned projects
-      | Project               | Owned by            | Private |
-      | some-project          | a-team              | no      |
-    And "clair" creates a dataset called "some-dataset" in project "some-project"
+    Given "clair" creates a dataset called "some-dataset" in project "some-project"
     Then "clair" should find "some-dataset" when listing her own datasets
     And dataset "some-dataset" of project "some-project" should be owned by role "a-team"
 ```
@@ -37,9 +35,6 @@ To identify the version of a dataset, version numbers are calculated based on th
 
 ```gherkin
   Scenario: Adding data to datasets
-    Given we have the following role-owned projects
-      | Project               | Owned by            | Private |
-      | some-project          | a-team              | no      |
     And we have the following datasets in project "some-project"
       | Dataset               | Private |
       | some-data             | no      |
@@ -206,6 +201,7 @@ A use can also only be a producer which allows upload of data, but no download.
     And "clair" becomes a producer of dataset "some-data"
     
     Then "clair" should be able to see dataset "some-data" when browsing available datasets
+    And "clair" should find "some-data" when listing her own datasets
     And "clair" should be able to see details of dataset "some-data"
     
     When "clair" receives data from dataset "some-data" we expect an exception

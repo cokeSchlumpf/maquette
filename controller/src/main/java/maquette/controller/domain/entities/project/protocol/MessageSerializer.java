@@ -24,10 +24,8 @@ import maquette.controller.domain.entities.project.protocol.events.RegisteredDat
 import maquette.controller.domain.entities.project.protocol.events.RemovedDataset;
 import maquette.controller.domain.entities.project.protocol.events.RevokedProjectAccess;
 import maquette.controller.domain.entities.project.protocol.queries.GetProjectDetails;
-import maquette.controller.domain.entities.project.protocol.queries.GetProjectInfo;
 import maquette.controller.domain.entities.project.protocol.queries.ListProjects;
 import maquette.controller.domain.entities.project.protocol.results.GetProjectDetailsResult;
-import maquette.controller.domain.entities.project.protocol.results.GetProjectInfoResult;
 import maquette.controller.domain.entities.project.protocol.results.ListProjectsResult;
 import maquette.controller.domain.util.databind.AbstractMessageSerializer;
 
@@ -62,11 +60,9 @@ public final class MessageSerializer extends AbstractMessageSerializer {
         m.put("project/events/revoked-project-access/v1", RevokedProjectAccess.class);
 
         m.put("project/queries/get-project-details/v1", GetProjectDetails.class);
-        m.put("project/queries/get-project-info/v1", GetProjectInfo.class);
         m.put("project/queries/list-projects/v1", ListProjects.class);
 
         m.put("projects/results/get-project-details/v1", GetProjectDetailsResult.class);
-        m.put("projects/results/get-projects-info/v1", GetProjectInfoResult.class);
         m.put("projects/results/list-projects/v1", ListProjectsResult.class);
 
         return m;

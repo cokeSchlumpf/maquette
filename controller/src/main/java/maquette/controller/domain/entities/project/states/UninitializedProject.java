@@ -29,7 +29,6 @@ import maquette.controller.domain.entities.project.protocol.events.RegisteredDat
 import maquette.controller.domain.entities.project.protocol.events.RemovedDataset;
 import maquette.controller.domain.entities.project.protocol.events.RevokedProjectAccess;
 import maquette.controller.domain.entities.project.protocol.queries.GetProjectDetails;
-import maquette.controller.domain.entities.project.protocol.queries.GetProjectInfo;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.UserAuthorization;
 import maquette.controller.domain.values.project.ProjectACL;
@@ -135,12 +134,6 @@ public final class UninitializedProject implements State {
 
     @Override
     public Effect<ProjectEvent, State> onGetProjectDetails(GetProjectDetails get) {
-        get.getErrorTo().tell(ProjectDoesNotExist.apply(get.getProject()));
-        return effect.none();
-    }
-
-    @Override
-    public Effect<ProjectEvent, State> onGetProjectInfo(GetProjectInfo get) {
         get.getErrorTo().tell(ProjectDoesNotExist.apply(get.getProject()));
         return effect.none();
     }

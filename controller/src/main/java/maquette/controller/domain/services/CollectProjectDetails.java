@@ -16,20 +16,20 @@ import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.project.Project;
 import maquette.controller.domain.entities.project.protocol.ProjectMessage;
 import maquette.controller.domain.entities.project.protocol.ProjectsMessage;
-import maquette.controller.domain.entities.project.protocol.queries.GetProjectInfo;
+import maquette.controller.domain.entities.project.protocol.queries.GetProjectDetails;
 import maquette.controller.domain.entities.project.protocol.queries.ListProjects;
-import maquette.controller.domain.entities.project.protocol.results.GetProjectInfoResult;
+import maquette.controller.domain.entities.project.protocol.results.GetProjectDetailsResult;
 import maquette.controller.domain.entities.project.protocol.results.ListProjectsResult;
 import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.core.ResourceName;
-import maquette.controller.domain.values.project.ProjectInfo;
+import maquette.controller.domain.values.project.ProjectDetails;
 
-public final class CollectNamespaceInfos {
+public final class CollectProjectDetails {
 
     public static Behavior<Message> create(
         ActorRef<ProjectsMessage> namespacesRegistry,
         ActorRef<ShardingEnvelope<ProjectMessage>> sharding,
-        CompletableFuture<Set<ProjectInfo>> result) {
+        CompletableFuture<Set<ProjectDetails>> result) {
 
         return Behaviors.setup(actor -> {
             final ActorRef<ListProjectsResult> listNamespacesResultAdapter =
@@ -64,20 +64,20 @@ public final class CollectNamespaceInfos {
     private static Behavior<Message> requestInfos(
         ActorContext<Message> actor,
         Set<ResourceName> namespaces, ActorRef<ShardingEnvelope<ProjectMessage>> sharding,
-        CompletableFuture<Set<ProjectInfo>> result) {
+        CompletableFuture<Set<ProjectDetails>> result) {
 
         if (namespaces.isEmpty()) {
             result.complete(ImmutableSet.of());
             return Behaviors.stopped();
         } else {
-            final ActorRef<GetProjectInfoResult> resultAdapter =
-                actor.messageAdapter(GetProjectInfoResult.class, GetNamespaceInfoResultWrapper::apply);
+            final ActorRef<GetProjectDetailsResult> resultAdapter =
+                actor.messageAdapter(GetProjectDetailsResult.class, GetNamespaceInfoResultWrapper::apply);
             final ActorRef<ErrorMessage> errorMessageAdapter =
                 actor.messageAdapter(ErrorMessage.class, ErrorMessageWrapper::new);
 
             namespaces.forEach(name -> {
                 final String entityId = Project.createEntityId(name);
-                final GetProjectInfo msg = GetProjectInfo.apply(name, resultAdapter, errorMessageAdapter);
+                final GetProjectDetails msg = GetProjectDetails.apply(name, resultAdapter, errorMessageAdapter);
                 sharding.tell(ShardingEnvelope.apply(entityId, msg));
             });
 
@@ -86,14 +86,14 @@ public final class CollectNamespaceInfos {
     }
 
     private static Behavior<Message> collecting(
-        ActorContext<Message> actor, int count, Set<ProjectInfo> collected,
-        CompletableFuture<Set<ProjectInfo>> result) {
+        ActorContext<Message> actor, int count, Set<ProjectDetails> collected,
+        CompletableFuture<Set<ProjectDetails>> result) {
 
         return Behaviors
             .receive(Message.class)
             .onMessage(GetNamespaceInfoResultWrapper.class, (ctx, wrapper) -> {
-                actor.getLog().debug("Received info " + wrapper.result.getInfo());
-                collected.add(wrapper.result.getInfo());
+                actor.getLog().debug("Received details " + wrapper.result.getDetails());
+                collected.add(wrapper.result.getDetails());
 
                 if (count <= collected.size()) {
                     result.complete(ImmutableSet.copyOf(collected));
@@ -118,7 +118,7 @@ public final class CollectNamespaceInfos {
     @AllArgsConstructor(staticName = "apply")
     private static class GetNamespaceInfoResultWrapper implements Message {
 
-        private final GetProjectInfoResult result;
+        private final GetProjectDetailsResult result;
 
     }
 

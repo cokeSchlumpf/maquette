@@ -14,6 +14,7 @@ import lombok.Value;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.iam.UserId;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -67,6 +68,10 @@ public class ProjectACL {
     }
 
     public boolean canReadDetails(User user) {
+        return !isPrivate() || isOwner(user) || isAdmin(user) || isProducer(user) || isConsumer(user) || isMember(user);
+    }
+
+    public boolean canReadResourceDetails(User user) {
         return isOwner(user) || isAdmin(user) || isProducer(user) || isConsumer(user) || isMember(user);
     }
 

@@ -50,6 +50,8 @@ import maquette.controller.domain.entities.project.protocol.commands.RegisterDat
 import maquette.controller.domain.entities.project.protocol.commands.RemoveDataset;
 import maquette.controller.domain.entities.project.protocol.events.RegisteredDataset;
 import maquette.controller.domain.entities.project.protocol.events.RemovedDataset;
+import maquette.controller.domain.entities.project.protocol.queries.GetProjectDetails;
+import maquette.controller.domain.entities.project.protocol.results.GetProjectDetailsResult;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.entities.user.protocol.commands.RegisterAccessToken;
 import maquette.controller.domain.entities.user.protocol.events.RegisteredAccessToken;
@@ -69,6 +71,7 @@ import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.TokenAuthorization;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserId;
+import maquette.controller.domain.values.project.ProjectDetails;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DatasetsImpl implements Datasets {
@@ -92,6 +95,17 @@ public final class DatasetsImpl implements Datasets {
                     GetDetails.apply(dataset, replyTo, errorTo)),
                 GetDetailsResult.class)
             .thenApply(GetDetailsResult::getDetails);
+    }
+
+    private CompletionStage<ProjectDetails> getProjectDetails(ResourceName project) {
+        return patterns
+            .ask(
+                projects,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Project.createEntityId(project),
+                    GetProjectDetails.apply(project, replyTo, errorTo)),
+                GetProjectDetailsResult.class)
+            .thenApply(GetProjectDetailsResult::getDetails);
     }
 
     @Override
@@ -145,6 +159,13 @@ public final class DatasetsImpl implements Datasets {
                     Dataset.createEntityId(name),
                     CreateDataset.apply(name, executor, isPrivate, replyTo, errorTo)),
                 CreatedDataset.class))
+            .thenCompose(result -> getProjectDetails(name.getProject())
+                .thenCompose(proj -> patterns.ask(
+                    datasets,
+                    (replyTo, errorTo) -> ShardingEnvelope.apply(
+                        Dataset.createEntityId(name),
+                        ChangeOwner.apply(executor, name, proj.getAcl().getOwner().getAuthorization(), replyTo, errorTo)),
+                    ChangedOwner.class)))
             .thenCompose(result -> getDetails(name));
     }
 

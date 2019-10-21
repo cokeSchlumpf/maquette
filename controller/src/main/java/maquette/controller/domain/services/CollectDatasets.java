@@ -23,7 +23,7 @@ import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.DatasetDetails;
-import maquette.controller.domain.values.project.ProjectInfo;
+import maquette.controller.domain.values.project.ProjectDetails;
 
 public final class CollectDatasets {
 
@@ -34,7 +34,7 @@ public final class CollectDatasets {
     }
 
     public static Behavior<Message> create(
-        Set<ProjectInfo> namespaces,
+        Set<ProjectDetails> projects,
         ActorRef<ShardingEnvelope<DatasetMessage>> datasets,
         CompletableFuture<Set<DatasetDetails>> result) {
 
@@ -47,15 +47,15 @@ public final class CollectDatasets {
 
             int count = 0;
 
-            for (ProjectInfo ns : namespaces) {
-                for (ResourceName ds : ns.getDatasets()) {
-                    ResourcePath path = ResourcePath.apply(ns.getName(), ds);
+            for (ProjectDetails proj : projects) {
+                for (ResourceName ds : proj.getDatasets()) {
+                    ResourcePath path = ResourcePath.apply(proj.getName(), ds);
                     datasets.tell(ShardingEnvelope.apply(
                         Dataset.createEntityId(path),
                         GetDetails.apply(path, getDetailsResultAdapter, errorMessageAdapter)));
                 }
 
-                count += ns.getDatasets().size();
+                count += proj.getDatasets().size();
             }
 
             final int count$final = count;

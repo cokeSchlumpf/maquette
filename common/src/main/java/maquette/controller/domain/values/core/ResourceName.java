@@ -44,11 +44,12 @@ public class ResourceName {
         return new ResourceName(name);
     }
 
-    public static ResourceName apply(User executor, String namespace) {
-        if ((Objects.isNull(namespace) || namespace.equals("_") || namespace.length() == 0)) {
+    @Deprecated
+    public static ResourceName apply(User executor, String project) {
+        if ((Objects.isNull(project) || project.equals("_") || project.length() == 0)) {
             return apply(executor.getUserId().getId());
         } else {
-            return apply(namespace);
+            return apply(project);
         }
     }
 

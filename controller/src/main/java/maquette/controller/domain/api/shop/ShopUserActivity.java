@@ -5,7 +5,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.services.CreateDefaultNamespace;
+import maquette.controller.domain.services.CreateDefaultProject;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.project.ProjectDetails;
@@ -15,25 +15,30 @@ public final class ShopUserActivity implements Shop {
 
     private final Shop delegate;
 
-    private final CreateDefaultNamespace createDefaultNamespace;
+    private final CreateDefaultProject createDefaultProject;
 
-    private <T> CompletionStage<T> createDefaultNamespace(User executor, Function<Shop, CompletionStage<T>> andThen) {
-        return createDefaultNamespace.run(executor, () -> andThen.apply(delegate));
+    private <T> CompletionStage<T> createDefaultProject(User executor, Function<Shop, CompletionStage<T>> andThen) {
+        return createDefaultProject.run(executor, () -> andThen.apply(delegate));
     }
 
     @Override
     public CompletionStage<Set<DatasetDetails>> findDatasets(User executor, String query) {
-        return createDefaultNamespace(executor, p -> p.findDatasets(executor, query));
+        return createDefaultProject(executor, p -> p.findDatasets(executor, query));
+    }
+
+    @Override
+    public CompletionStage<Set<ProjectDetails>> findProjects(User executor, String query) {
+        return createDefaultProject(executor, p -> p.findProjects(executor, query));
     }
 
     @Override
     public CompletionStage<Set<DatasetDetails>> listDatasets(User executor) {
-        return createDefaultNamespace(executor, p -> p.listDatasets(executor));
+        return createDefaultProject(executor, p -> p.listDatasets(executor));
     }
 
     @Override
     public CompletionStage<Set<ProjectDetails>> listProjects(User executor) {
-        return createDefaultNamespace(executor, p -> p.listProjects(executor));
+        return createDefaultProject(executor, p -> p.listProjects(executor));
     }
 
 }

@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import akka.Done;
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.services.CreateDefaultNamespace;
+import maquette.controller.domain.services.CreateDefaultProject;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.iam.Token;
@@ -20,10 +20,10 @@ public final class UsersUserActivity implements Users {
 
     private final Users delegate;
 
-    private final CreateDefaultNamespace createDefaultNamespace;
+    private final CreateDefaultProject createDefaultProject;
 
     private <T> CompletionStage<T> createDefaultNamespace(User executor, Function<Users, CompletionStage<T>> andThen) {
-        return createDefaultNamespace.run(executor, () -> andThen.apply(delegate));
+        return createDefaultProject.run(executor, () -> andThen.apply(delegate));
     }
 
     @Override

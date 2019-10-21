@@ -38,7 +38,6 @@ import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.project.ProjectDetails;
-import maquette.controller.domain.values.project.ProjectInfo;
 import maquette.controller.domain.values.project.ProjectPrivilege;
 
 @AllArgsConstructor(staticName = "apply")
@@ -122,13 +121,8 @@ public final class ProjectsImpl implements Projects {
     @Override
     public CompletionStage<Set<DatasetDetails>> getDatasets(User executor, ResourceName project) {
         return getProjectDetails(project)
-            .thenCompose(details -> {
-                ProjectInfo info =
-                    ProjectInfo.apply(details.getName(), details.getModified(), details.getAcl(), details.getDatasets());
-                Set<ProjectInfo> infos = Sets.newHashSet(info);
-
-                return patterns.process(result -> CollectDatasets.create(infos, datasets, result));
-            });
+            .thenCompose(details -> patterns
+                .process(result -> CollectDatasets.create(Sets.newHashSet(details), datasets, result)));
     }
 
     @Override
