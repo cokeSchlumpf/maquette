@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.domain.values.core.governance.DataClassification;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -35,6 +36,8 @@ public final class OutputFormat {
         } else if (value instanceof Boolean) {
             boolean b = (Boolean) value;
             return b ? "yes" : "no";
+        } else if (value instanceof DataClassification) {
+            return ((DataClassification) value).name();
         } else {
             return String.valueOf(value);
         }

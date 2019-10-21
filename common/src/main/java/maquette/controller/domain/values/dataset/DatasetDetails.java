@@ -15,6 +15,7 @@ import lombok.experimental.Wither;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.exceptions.NoVersionException;
 import maquette.controller.domain.values.exceptions.UnknownVersionException;
 import maquette.controller.domain.values.iam.UserId;
@@ -29,6 +30,7 @@ public class DatasetDetails {
     private static final String CREATED_BY = "created-by";
     private static final String DATASET = "dataset";
     private static final String DESCRIPTION = "description";
+    private static final String GOVERNANCE = "governance";
     private static final String MODIFIED = "modified";
     private static final String MODIFIED_BY = "modified-by";
     private static final String VERSIONS = "versions";
@@ -57,6 +59,9 @@ public class DatasetDetails {
     @JsonProperty(DESCRIPTION)
     private final Markdown description;
 
+    @JsonProperty(GOVERNANCE)
+    private final GovernanceProperties governance;
+
     @JsonCreator
     public static DatasetDetails apply(
         @JsonProperty(DATASET) ResourcePath dataset,
@@ -66,16 +71,18 @@ public class DatasetDetails {
         @JsonProperty(MODIFIED_BY) UserId modifiedBy,
         @JsonProperty(VERSIONS) Set<VersionInfo> versions,
         @JsonProperty(ACL) DatasetACL acl,
-        @JsonProperty(DESCRIPTION) Markdown description) {
+        @JsonProperty(DESCRIPTION) Markdown description,
+        @JsonProperty(GOVERNANCE) GovernanceProperties governance) {
 
-        return new DatasetDetails(dataset, created, createdBy, modified, modifiedBy, versions, acl, description);
+        return new DatasetDetails(dataset, created, createdBy, modified, modifiedBy, versions, acl, description, governance);
     }
 
+    @Deprecated
     public static DatasetDetails apply(
         ResourcePath dataset, Instant created, UserId createdBy, Instant modified,
         UserId modifiedBy, Set<VersionInfo> versions, DatasetACL acl) {
 
-        return apply(dataset, created, createdBy, modified, modifiedBy, versions, acl, null);
+        return apply(dataset, created, createdBy, modified, modifiedBy, versions, acl, Markdown.apply(), GovernanceProperties.apply());
     }
 
     public UID findVersionId(VersionTag tag) {
@@ -100,7 +107,11 @@ public class DatasetDetails {
     }
 
     public Optional<Markdown> getDescription() {
-        return Optional.ofNullable(description);
+        if (description == null || description.getValue().length() == 0) {
+            return Optional.empty();
+        } else {
+            return Optional.of(description);
+        }
     }
 
 }

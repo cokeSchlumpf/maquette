@@ -25,6 +25,7 @@ import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
@@ -144,6 +145,18 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
+    public CompletionStage<DatasetDetails> changeGovernance(User executor, ResourcePath dataset, GovernanceProperties governance) {
+        return canManage(dataset, executor)
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.changeGovernance(executor, dataset, governance);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
+    }
+
+    @Override
     public CompletionStage<DatasetDetails> changePrivacy(User executor, ResourcePath dataset, boolean isPrivate) {
         return canManage(dataset, executor)
             .thenCompose(canDo -> {
@@ -177,12 +190,13 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
-    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath dataset, boolean isPrivate) {
+    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath dataset, Markdown description, boolean isPrivate,
+                                                         GovernanceProperties governance) {
         return getProjectDetails(dataset.getProject())
             .thenApply(projectDetails -> projectDetails.getAcl().canCreateDataset(executor))
             .thenCompose(canDo -> {
                 if (canDo) {
-                    return delegate.createDataset(executor, dataset, isPrivate);
+                    return delegate.createDataset(executor, dataset, description, isPrivate, governance);
                 } else {
                     throw NotAuthorizedException.apply(executor);
                 }

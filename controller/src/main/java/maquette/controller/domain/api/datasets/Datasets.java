@@ -11,6 +11,7 @@ import akka.stream.javadsl.Source;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
@@ -35,6 +36,19 @@ public interface Datasets {
      * @return Updated details of the dataset
      */
     CompletionStage<DatasetDetails> changeDescription(User executor, ResourcePath dataset, Markdown description);
+
+    /**
+     * Change the description of an existing dataset.
+     *
+     * @param executor
+     *     The user which executes the command
+     * @param dataset
+     *     The dataset which description should be changed
+     * @param governance
+     *     The new governance properties
+     * @return Updated details of the dataset
+     */
+    CompletionStage<DatasetDetails> changeGovernance(User executor, ResourcePath dataset, GovernanceProperties governance);
 
     /**
      * Changes the privacy setting of a dataset.
@@ -73,7 +87,8 @@ public interface Datasets {
      *     Whether the dataset should be private or not
      * @return Updated details of the dataset
      */
-    CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, boolean isPrivate);
+    CompletionStage<DatasetDetails> createDataset(
+        User executor, ResourcePath name, Markdown description, boolean isPrivate, GovernanceProperties governance);
 
     /**
      * Create a token for a user to consume from a dataset.

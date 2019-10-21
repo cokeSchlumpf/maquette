@@ -9,50 +9,39 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
-import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.iam.UserId;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreatedDataset implements DatasetEvent {
+public class ChangedDatasetGovernance implements DatasetEvent {
 
-    private static final String CREATED_AT = "created-at";
-    private static final String CREATED_BY = "created-by";
-    private static final String DESCRIPTION = "description";
+    private static final String CHANGED_AT = "changed-at";
+    private static final String CHANGED_BY = "changed-by";
     private static final String GOVERNANCE = "governance";
-    private static final String IS_PRIVATE = "private";
     private static final String DATASET = "dataset";
 
     @JsonProperty(DATASET)
     private final ResourcePath dataset;
 
-    @JsonProperty(DESCRIPTION)
-    private final Markdown description;
-
-    @JsonProperty(IS_PRIVATE)
-    private final boolean isPrivate;
-
     @JsonProperty(GOVERNANCE)
     private final GovernanceProperties governance;
 
-    @JsonProperty(CREATED_BY)
-    private final UserId createdBy;
+    @JsonProperty(CHANGED_BY)
+    private final UserId changedBy;
 
-    @JsonProperty(CREATED_AT)
-    private final Instant createdAt;
+    @JsonProperty(CHANGED_AT)
+    private final Instant changedAt;
 
     @JsonCreator
-    public static CreatedDataset apply(
+    public static ChangedDatasetGovernance apply(
         @JsonProperty(DATASET) ResourcePath dataset,
-        @JsonProperty(DESCRIPTION) Markdown description,
-        @JsonProperty(IS_PRIVATE) boolean isPrivate,
         @JsonProperty(GOVERNANCE) GovernanceProperties governance,
-        @JsonProperty(CREATED_BY) UserId createdBy,
-        @JsonProperty(CREATED_AT) Instant createdAt) {
+        @JsonProperty(CHANGED_BY) UserId changedBy,
+        @JsonProperty(CHANGED_AT) Instant changedAt) {
 
-        return new CreatedDataset(dataset, description, isPrivate, governance, createdBy, createdAt);
+        return new ChangedDatasetGovernance(dataset, governance, changedBy, changedAt);
     }
 
 }

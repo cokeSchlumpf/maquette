@@ -28,6 +28,7 @@ import maquette.controller.adapters.cli.commands.shop.ListDatasetsCmd;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionTag;
@@ -84,7 +85,7 @@ public final class DatasetSteps {
         ResourceName dataset = ResourceName.apply(datasetName);
 
         CreateDatasetCmd
-            .apply(project, dataset, false)
+            .apply(project, dataset, Markdown.apply(), false, GovernanceProperties.apply())
             .run(user, ctx.getSetup().getApp())
             .toCompletableFuture()
             .get();
@@ -280,7 +281,7 @@ public final class DatasetSteps {
             ResourceName dataset = ResourceName.apply(ds.get(0));
 
             CreateDatasetCmd
-                .apply(project, dataset, ds.get(1).equals("yes"))
+                .apply(project, dataset, Markdown.apply(), ds.get(1).equals("yes"), GovernanceProperties.apply())
                 .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
                 .toCompletableFuture()
                 .get();

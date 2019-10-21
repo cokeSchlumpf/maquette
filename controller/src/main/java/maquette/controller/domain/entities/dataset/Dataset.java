@@ -8,6 +8,7 @@ import akka.persistence.typed.javadsl.EventHandler;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetDescription;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
@@ -19,6 +20,7 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishData
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
@@ -76,6 +78,7 @@ public class Dataset extends EventSourcedEntity<DatasetMessage, DatasetEvent, St
         return newCommandHandlerBuilder()
             .forAnyState()
             .onCommand(ChangeDatasetDescription.class, State::onChangeDatasetDescription)
+            .onCommand(ChangeDatasetGovernance.class, State::onChangeDatasetGovernance)
             .onCommand(ChangeDatasetPrivacy.class, State::onChangeDatasetPrivacy)
             .onCommand(ChangeOwner.class, State::onChangeOwner)
             .onCommand(CreateDataset.class, State::onCreateDataset)
@@ -97,6 +100,7 @@ public class Dataset extends EventSourcedEntity<DatasetMessage, DatasetEvent, St
         return newEventHandlerBuilder()
             .forAnyState()
             .onEvent(ChangedDatasetDescription.class, State::onChangedDatasetDescription)
+            .onEvent(ChangedDatasetGovernance.class, State::onChangedDatasetGovernance)
             .onEvent(ChangedDatasetPrivacy.class, State::onChangedDatasetPrivacy)
             .onEvent(ChangedOwner.class, State::onChangedOwner)
             .onEvent(CreatedDataset.class, State::onCreatedDataset)

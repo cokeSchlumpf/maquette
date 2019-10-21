@@ -19,6 +19,7 @@ import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.VersionMessage;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetDescription;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
@@ -30,6 +31,7 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishData
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
@@ -44,6 +46,7 @@ import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDe
 import maquette.controller.domain.entities.dataset.services.CollectDetails;
 import maquette.controller.domain.entities.dataset.services.PublishVersion;
 import maquette.controller.domain.ports.DataStorageAdapter;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.dataset.DatasetACL;
 import maquette.controller.domain.values.dataset.DatasetDetails;
@@ -98,6 +101,31 @@ public final class ActiveDataset implements State {
             .withDescription(changed.getDescription())
             .withModifiedBy(changed.getChangedBy())
             .withModified(changed.getChangedAt());
+
+        return this;
+    }
+
+    @Override
+    public Effect<DatasetEvent, State> onChangeDatasetGovernance(ChangeDatasetGovernance change) {
+        ChangedDatasetGovernance changed = ChangedDatasetGovernance.apply(
+            change.getDataset(), change.getGovernance(), change.getExecutor().getUserId(), Instant.now());
+
+        if (details.getGovernance().equals(changed.getGovernance())) {
+            change.getReplyTo().tell(changed);
+            return effect.none();
+        } else {
+            return effect
+                .persist(changed)
+                .thenRun(() -> change.getReplyTo().tell(changed));
+        }
+    }
+
+    @Override
+    public State onChangedDatasetGovernance(ChangedDatasetGovernance changed) {
+        this.details = details
+            .withGovernance(changed.getGovernance())
+            .withModifiedBy(changed.getChangedBy())
+            .withModified(Instant.now());
 
         return this;
     }
@@ -162,7 +190,11 @@ public final class ActiveDataset implements State {
 
     @Override
     public Effect<DatasetEvent, State> onCreateDataset(CreateDataset create) {
-        CreatedDataset created = CreatedDataset.apply(details.getDataset(), details.getAcl().isPrivate(), details.getCreatedBy(), details.getCreated());
+        CreatedDataset created = CreatedDataset.apply(
+            details.getDataset(), details.getDescription().orElse(Markdown.apply()),
+            details.getAcl().isPrivate(), details.getGovernance(),
+            details.getCreatedBy(), details.getCreated());
+
         create.getReplyTo().tell(created);
         return effect.none();
     }

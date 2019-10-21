@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetDescription;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
@@ -29,6 +30,7 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishData
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
@@ -61,6 +63,7 @@ import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
@@ -121,6 +124,18 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
+    public CompletionStage<DatasetDetails> changeGovernance(User executor, ResourcePath dataset, GovernanceProperties governance) {
+        return patterns
+            .ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    ChangeDatasetGovernance.apply(dataset, executor, governance, replyTo, errorTo)),
+                ChangedDatasetGovernance.class)
+            .thenCompose(result -> getDetails(dataset));
+    }
+
+    @Override
     public CompletionStage<DatasetDetails> changePrivacy(User executor, ResourcePath dataset, boolean isPrivate) {
         return patterns
             .ask(
@@ -145,7 +160,8 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
-    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, boolean isPrivate) {
+    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, Markdown description, boolean isPrivate,
+                                                         GovernanceProperties governance) {
         return patterns
             .ask(
                 projects,
@@ -157,7 +173,7 @@ public final class DatasetsImpl implements Datasets {
                 datasets,
                 (replyTo, errorTo) -> ShardingEnvelope.apply(
                     Dataset.createEntityId(name),
-                    CreateDataset.apply(name, executor, isPrivate, replyTo, errorTo)),
+                    CreateDataset.apply(name, executor, description, isPrivate, governance, replyTo, errorTo)),
                 CreatedDataset.class))
             .thenCompose(result -> getProjectDetails(name.getProject())
                 .thenCompose(proj -> patterns.ask(

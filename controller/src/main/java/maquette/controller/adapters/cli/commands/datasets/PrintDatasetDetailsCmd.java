@@ -54,6 +54,8 @@ public final class PrintDatasetDetailsCmd implements Command {
                 DataTable properties = DataTable
                     .apply("key", "value")
                     .withRow("owner", details.getAcl().getOwner().getAuthorization())
+                    .withRow("requires approval", details.getGovernance().isApprovalRequired())
+                    .withRow("classification", details.getGovernance().getClassification())
                     .withRow("", "")
                     .withRow("created", details.getCreated())
                     .withRow("created by", details.getCreatedBy())

@@ -14,6 +14,7 @@ import maquette.controller.domain.services.CreateDefaultProject;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
@@ -41,6 +42,11 @@ public final class DatasetsUserActivity implements Datasets {
     }
 
     @Override
+    public CompletionStage<DatasetDetails> changeGovernance(User executor, ResourcePath dataset, GovernanceProperties governance) {
+        return createDefaultProject(executor, d -> d.changeGovernance(executor, dataset, governance));
+    }
+
+    @Override
     public CompletionStage<DatasetDetails> changePrivacy(User executor, ResourcePath dataset, boolean isPrivate) {
         return createDefaultProject(executor, d -> d.changePrivacy(executor, dataset, isPrivate));
     }
@@ -51,8 +57,9 @@ public final class DatasetsUserActivity implements Datasets {
     }
 
     @Override
-    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, boolean isPrivate) {
-        return createDefaultProject(executor, d -> d.createDataset(executor, name, isPrivate));
+    public CompletionStage<DatasetDetails> createDataset(User executor, ResourcePath name, Markdown description, boolean isPrivate,
+                                                         GovernanceProperties governance) {
+        return createDefaultProject(executor, d -> d.createDataset(executor, name, description, isPrivate, governance));
     }
 
     @Override

@@ -8,6 +8,7 @@ import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
 import maquette.controller.domain.values.iam.RoleAuthorization;
@@ -35,7 +36,7 @@ public class SampleDataProvider {
 
             app
                 .datasets()
-                .createDataset(alice, ResourcePath.apply("alice", "pigs"), false)
+                .createDataset(alice, ResourcePath.apply("alice", "pigs"), Markdown.apply(), false, GovernanceProperties.apply())
                 .thenCompose(details -> {
                     LOG.info(String.format("Created dataset %s/%s", alice.getUserId(), details.getDataset()));
 
@@ -65,7 +66,7 @@ public class SampleDataProvider {
 
             app
                 .datasets()
-                .createDataset(bob, ResourcePath.apply("bob", "ml-samples"), true)
+                .createDataset(bob, ResourcePath.apply("bob", "ml-samples"), Markdown.apply(), true, GovernanceProperties.apply())
                 .thenCompose(details -> {
                     LOG.info(String.format("Created private dataset %s/%s", bob.getUserId(), details.getDataset()));
 
@@ -87,7 +88,12 @@ public class SampleDataProvider {
 
             app
                 .datasets()
-                .createDataset(clair, ResourcePath.apply("clair", "episodes"), false)
+                .createDataset(
+                    clair,
+                    ResourcePath.apply("clair", "episodes"),
+                    Markdown.apply(),
+                    false,
+                    GovernanceProperties.apply())
                 .thenCompose(details -> {
                     LOG.info(String.format("Created dataset %s/%s", clair.getUserId(), details.getDataset()));
 
@@ -120,7 +126,12 @@ public class SampleDataProvider {
 
                     return app
                         .datasets()
-                        .createDataset(debra, ResourcePath.apply("twitter-analysis", "data"), false);
+                        .createDataset(
+                            debra,
+                            ResourcePath.apply("twitter-analysis", "data"),
+                            Markdown.apply(),
+                            false,
+                            GovernanceProperties.apply());
                 })
                 .thenCompose(details -> {
                     LOG.info(String.format(

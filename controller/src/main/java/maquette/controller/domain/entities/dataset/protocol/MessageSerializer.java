@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 
 import akka.actor.ExtendedActorSystem;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetDescription;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CommitDatasetVersion;
@@ -18,6 +19,7 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishData
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CommittedDatasetVersion;
@@ -47,6 +49,7 @@ public final class MessageSerializer extends AbstractMessageSerializer {
         Map<String, Class<?>> m = Maps.newHashMap();
 
         m.put("dataset/commands/change-dataset-description/v1", ChangeDatasetDescription.class);
+        m.put("dataset/commands/change-dataset-governance/v1", ChangeDatasetGovernance.class);
         m.put("dataset/commands/change-dataset-privacy/v1", ChangeDatasetPrivacy.class);
         m.put("dataset/commands/change-owner/v1", ChangeOwner.class);
         m.put("dataset/commands/commit-dataset-version/v1", CommitDatasetVersion.class);
@@ -60,6 +63,7 @@ public final class MessageSerializer extends AbstractMessageSerializer {
         m.put("dataset/commands/revoke-dataset-access/v1", RevokeDatasetAccess.class);
 
         m.put("dataset/events/changed-dataset-description/v1", ChangedDatasetDescription.class);
+        m.put("dataset/events/changed-dataset-governance/v1", ChangedDatasetGovernance.class);
         m.put("dataset/events/changed-dataset-privacy/v1", ChangedDatasetPrivacy.class);
         m.put("dataset/events/changed-owner/v1", ChangedOwner.class);
         m.put("dataset/events/committed-dataset-version/v1", CommittedDatasetVersion.class);

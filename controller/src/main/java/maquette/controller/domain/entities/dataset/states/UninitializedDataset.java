@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetDescription;
+import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
@@ -22,6 +23,7 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishData
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
+import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
@@ -71,6 +73,17 @@ public final class UninitializedDataset implements State {
     }
 
     @Override
+    public Effect<DatasetEvent, State> onChangeDatasetGovernance(ChangeDatasetGovernance change) {
+        change.getErrorTo().tell(DatasetDoesNotExistError.apply(change.getDataset()));
+        return effect.none();
+    }
+
+    @Override
+    public State onChangedDatasetGovernance(ChangedDatasetGovernance changed) {
+        return this;
+    }
+
+    @Override
     public Effect<DatasetEvent, State> onChangeDatasetPrivacy(ChangeDatasetPrivacy change) {
         change.getErrorTo().tell(DatasetDoesNotExistError.apply(change.getDataset()));
         return effect.none();
@@ -96,7 +109,9 @@ public final class UninitializedDataset implements State {
     public Effect<DatasetEvent, State> onCreateDataset(CreateDataset create) {
         CreatedDataset created = CreatedDataset.apply(
             create.getDataset(),
+            create.getDescription(),
             create.isPrivate(),
+            create.getGovernance(),
             create.getExecutor().getUserId(),
             Instant.now());
 
@@ -119,7 +134,9 @@ public final class UninitializedDataset implements State {
             Instant.now(),
             created.getCreatedBy(),
             Sets.newHashSet(),
-            DatasetACL.apply(granted, Sets.newHashSet(), created.isPrivate()));
+            DatasetACL.apply(granted, Sets.newHashSet(), created.isPrivate()),
+            created.getDescription(),
+            created.getGovernance());
 
         return ActiveDataset.apply(actor, effect, store, details);
     }
