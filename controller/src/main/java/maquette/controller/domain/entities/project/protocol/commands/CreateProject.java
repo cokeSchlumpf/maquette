@@ -14,7 +14,6 @@ import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
-import sun.jvm.hotspot.oops.Mark;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
