@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import maquette.controller.adapters.cli.CommandResult;
+import maquette.controller.adapters.cli.commands.datasets.ApproveDatasetAccessRequestCmd;
 import maquette.controller.adapters.cli.commands.datasets.ChangeDatasetDescriptionCmd;
 import maquette.controller.adapters.cli.commands.datasets.ChangeDatasetPrivacyCmd;
 import maquette.controller.adapters.cli.commands.datasets.CreateDatasetConsumerToken;
@@ -29,10 +30,12 @@ import maquette.controller.adapters.cli.commands.shop.FindProjectsCmd;
 import maquette.controller.adapters.cli.commands.shop.ListDatasetsCmd;
 import maquette.controller.adapters.cli.commands.shop.ListProjectsCmd;
 import maquette.controller.adapters.cli.commands.users.DeleteTokenCmd;
+import maquette.controller.adapters.cli.commands.users.GetNotificationsCmd;
 import maquette.controller.adapters.cli.commands.users.ListTokensCmd;
 import maquette.controller.adapters.cli.commands.users.RegisterTokenCmd;
 import maquette.controller.adapters.cli.commands.users.RenewTokenCmd;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.entities.notifcation.protocol.commands.MarkNotificationAsRead;
 import maquette.controller.domain.values.iam.User;
 
 @JsonTypeInfo(
@@ -40,6 +43,7 @@ import maquette.controller.domain.values.iam.User;
     property = "command")
 @JsonSubTypes(
     {
+        @JsonSubTypes.Type(value = ApproveDatasetAccessRequestCmd.class, name = "dataset approve access request"),
         @JsonSubTypes.Type(value = ChangeDatasetDescriptionCmd.class, name = "dataset change description"),
         @JsonSubTypes.Type(value = ChangeDatasetPrivacyCmd.class, name = "dataset change privacy"),
         @JsonSubTypes.Type(value = CreateDatasetConsumerToken.class, name = "dataset create consumer"),
@@ -66,7 +70,9 @@ import maquette.controller.domain.values.iam.User;
         @JsonSubTypes.Type(value = ListDatasetsCmd.class, name = "shop datasets list"),
 
         @JsonSubTypes.Type(value = DeleteTokenCmd.class, name = "user token delete"),
+        @JsonSubTypes.Type(value = GetNotificationsCmd.class, name = "user get notifications"),
         @JsonSubTypes.Type(value = ListTokensCmd.class, name = "user tokens"),
+        @JsonSubTypes.Type(value = MarkNotificationAsRead.class, name = "user mark notification read"),
         @JsonSubTypes.Type(value = RegisterTokenCmd.class, name = "user token register"),
         @JsonSubTypes.Type(value = RenewTokenCmd.class, name = "user token renew")
     })
