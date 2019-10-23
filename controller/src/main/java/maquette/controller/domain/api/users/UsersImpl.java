@@ -8,6 +8,13 @@ import akka.Done;
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
 import lombok.AllArgsConstructor;
+import maquette.controller.domain.entities.notifcation.protocol.NotificationsMessage;
+import maquette.controller.domain.entities.notifcation.protocol.commands.MarkNotificationAsRead;
+import maquette.controller.domain.entities.notifcation.protocol.events.MarkedNotificationAsRead;
+import maquette.controller.domain.entities.notifcation.protocol.queries.GetNotification;
+import maquette.controller.domain.entities.notifcation.protocol.queries.GetNotifications;
+import maquette.controller.domain.entities.notifcation.protocol.results.GetNotificationResult;
+import maquette.controller.domain.entities.notifcation.protocol.results.GetNotificationsResult;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.entities.user.protocol.commands.RegisterAccessToken;
 import maquette.controller.domain.entities.user.protocol.commands.RemoveAccessToken;
@@ -25,11 +32,14 @@ import maquette.controller.domain.values.iam.TokenDetails;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserDetails;
 import maquette.controller.domain.values.iam.UserId;
+import maquette.controller.domain.values.notification.Notification;
 
 @AllArgsConstructor(staticName = "apply")
 final class UsersImpl implements Users {
 
     private final ActorRef<ShardingEnvelope<UserMessage>> users;
+
+    private final ActorRef<NotificationsMessage> notifications;
 
     private final ActorPatterns patterns;
 
@@ -47,6 +57,30 @@ final class UsersImpl implements Users {
     @Override
     public CompletionStage<TokenAuthenticatedUser> authenticate(UserId id, UID secret) {
         return getDetails(id).thenApply(details -> details.authenticateWithToken(secret));
+    }
+
+    @Override
+    public CompletionStage<Notification> markNotificationAsRead(User executor, UID notification) {
+        return patterns
+            .ask(
+                notifications,
+                (replyTo, errorTo) -> MarkNotificationAsRead.apply(executor, notification, replyTo, errorTo),
+                MarkedNotificationAsRead.class)
+            .thenCompose(marked -> patterns.ask(
+                notifications,
+                (replyTo, errorTo) -> GetNotification.apply(executor, marked.getNotification(), replyTo, errorTo),
+                GetNotificationResult.class))
+            .thenApply(GetNotificationResult::getNotification);
+    }
+
+    @Override
+    public CompletionStage<Set<Notification>> getNotifications(User executor) {
+        return patterns
+            .ask(
+                notifications,
+                (replyTo, errorTo) -> GetNotifications.apply(executor, replyTo, errorTo),
+                GetNotificationsResult.class)
+            .thenApply(GetNotificationsResult::getNotifications);
     }
 
     @Override

@@ -134,8 +134,15 @@ public final class DatasetsSecured implements Datasets {
     }
 
     @Override
-    public CompletionStage<DatasetAccessRequest> approveAccessRequest(User executor, UID id, String comment) {
-        return null;
+    public CompletionStage<DatasetAccessRequest> approveAccessRequest(User executor, ResourcePath dataset, UID id, String comment) {
+        return canManage(dataset, executor)
+            .thenCompose(canDo -> {
+                if (canDo) {
+                    return delegate.approveAccessRequest(executor, dataset, id, comment);
+                } else {
+                    throw NotAuthorizedException.apply(executor);
+                }
+            });
     }
 
     @Override
@@ -408,7 +415,7 @@ public final class DatasetsSecured implements Datasets {
     @Override
     public CompletionStage<DatasetAccessRequest> requestDatasetAccess(User executor, ResourcePath dataset, String justification,
                                                                       DatasetPrivilege grant, Authorization grantFor) {
-        return null;
+        return delegate.requestDatasetAccess(executor, dataset, justification, grant, grantFor);
     }
 
     @Override

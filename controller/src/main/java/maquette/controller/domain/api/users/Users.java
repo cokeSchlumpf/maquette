@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 import akka.Done;
+import maquette.controller.domain.entities.notifcation.Notifications;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.iam.Token;
@@ -11,6 +12,7 @@ import maquette.controller.domain.values.iam.TokenAuthenticatedUser;
 import maquette.controller.domain.values.iam.TokenDetails;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserId;
+import maquette.controller.domain.values.notification.Notification;
 
 public interface Users {
 
@@ -24,6 +26,26 @@ public interface Users {
      * @return An authenticated user if the user is successfully authenticated based on the token, otherwise exception will be thrown
      */
     CompletionStage<TokenAuthenticatedUser> authenticate(UserId id, UID secret);
+
+    /**
+     * Marks a notification as read by the user.
+     *
+     * @param executor
+     *     The user which has read the notification
+     * @param notification
+     *     The id of the notification
+     * @return The updated notification
+     */
+    CompletionStage<Notification> markNotificationAsRead(User executor, UID notification);
+
+    /**
+     * Returns the notifications of a user.
+     *
+     * @param executor
+     *     The user for which the notifications should be received.
+     * @return A list of all notifications which are addressed to the user.
+     */
+    CompletionStage<Set<Notification>> getNotifications(User executor);
 
     /**
      * Get tokens of a user.

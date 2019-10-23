@@ -14,6 +14,7 @@ import maquette.controller.domain.values.iam.TokenAuthenticatedUser;
 import maquette.controller.domain.values.iam.TokenDetails;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserId;
+import maquette.controller.domain.values.notification.Notification;
 
 @AllArgsConstructor(staticName = "apply")
 public final class UsersUserActivity implements Users {
@@ -22,7 +23,7 @@ public final class UsersUserActivity implements Users {
 
     private final CreateDefaultProject createDefaultProject;
 
-    private <T> CompletionStage<T> createDefaultNamespace(User executor, Function<Users, CompletionStage<T>> andThen) {
+    private <T> CompletionStage<T> createDefaultProject(User executor, Function<Users, CompletionStage<T>> andThen) {
         return createDefaultProject.run(executor, () -> andThen.apply(delegate));
     }
 
@@ -32,23 +33,33 @@ public final class UsersUserActivity implements Users {
     }
 
     @Override
+    public CompletionStage<Notification> markNotificationAsRead(User executor, UID notification) {
+        return createDefaultProject(executor, u -> u.markNotificationAsRead(executor, notification));
+    }
+
+    @Override
+    public CompletionStage<Set<Notification>> getNotifications(User executor) {
+        return createDefaultProject(executor, u -> u.getNotifications(executor));
+    }
+
+    @Override
     public CompletionStage<Set<TokenDetails>> getTokens(User executor, UserId forUser) {
-        return createDefaultNamespace(executor, u -> u.getTokens(executor, forUser));
+        return createDefaultProject(executor, u -> u.getTokens(executor, forUser));
     }
 
     @Override
     public CompletionStage<Token> registerToken(User executor, UserId forUser, ResourceName name) {
-        return createDefaultNamespace(executor, u -> u.registerToken(executor, forUser, name));
+        return createDefaultProject(executor, u -> u.registerToken(executor, forUser, name));
     }
 
     @Override
     public CompletionStage<Token> renewAccessToken(User executor, UserId forUser, ResourceName name) {
-        return createDefaultNamespace(executor, u -> u.renewAccessToken(executor, forUser, name));
+        return createDefaultProject(executor, u -> u.renewAccessToken(executor, forUser, name));
     }
 
     @Override
     public CompletionStage<Done> deleteAccessToken(User executor, UserId forUser, ResourceName name) {
-        return createDefaultNamespace(executor, u -> u.deleteAccessToken(executor, forUser, name));
+        return createDefaultProject(executor, u -> u.deleteAccessToken(executor, forUser, name));
     }
 
 }

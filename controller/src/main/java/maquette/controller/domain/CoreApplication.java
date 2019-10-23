@@ -72,11 +72,11 @@ public class CoreApplication {
             projectsRegistry, projectShards, userShards, patterns);
 
         final Datasets datasets = DatasetsFactory
-            .apply(projectShards, datasetShards, userShards, patterns, createDefaultProject, materializer)
+            .apply(projectShards, datasetShards, userShards, notifications, patterns, createDefaultProject, materializer)
             .create();
 
         final Users users = UsersFactory
-            .apply(userShards, patterns, createDefaultProject)
+            .apply(userShards, notifications, patterns, createDefaultProject)
             .create();
 
         final Projects projects = ProjectsFactory

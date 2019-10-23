@@ -16,6 +16,7 @@ import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
+import maquette.controller.domain.values.dataset.DatasetAccessRequest;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
@@ -34,6 +35,11 @@ public final class DatasetsUserActivity implements Datasets {
 
     private <T> CompletionStage<T> createDefaultProject(User executor, Function<Datasets, CompletionStage<T>> andThen) {
         return createDefaultProject.run(executor, () -> andThen.apply(delegate));
+    }
+
+    @Override
+    public CompletionStage<DatasetAccessRequest> approveAccessRequest(User executor, ResourcePath dataset, UID id, String comment) {
+        return createDefaultProject(executor, d -> d.approveAccessRequest(executor, dataset, id, comment));
     }
 
     @Override
@@ -128,6 +134,12 @@ public final class DatasetsUserActivity implements Datasets {
     public CompletionStage<VersionTag> putData(User executor, ResourcePath dataset, Source<ByteBuffer, NotUsed> data,
                                                String message) {
         return createDefaultProject(executor, d -> d.putData(executor, dataset, data, message));
+    }
+
+    @Override
+    public CompletionStage<DatasetAccessRequest> requestDatasetAccess(User executor, ResourcePath dataset, String justification,
+                                                                      DatasetPrivilege grant, Authorization grantFor) {
+        return createDefaultProject(executor, d -> d.requestDatasetAccess(executor, dataset, justification, grant, grantFor));
     }
 
     @Override
