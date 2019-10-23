@@ -72,7 +72,7 @@ public final class Notifications extends EventSourcedBehavior<NotificationsMessa
         UID id = UID.apply(8);
 
         Notification notification = Notification.apply(
-            id, Instant.now(), create.getTo(), create.getTitle(), create.getMessage(), create.getActions());
+            id, Instant.now(), create.getTo(), create.getMessage(), create.getActions());
 
         CreatedNotification created = CreatedNotification.apply(Instant.now(), notification);
 

@@ -40,9 +40,6 @@ public class Notification {
     @JsonProperty(TO)
     private final Authorization to;
 
-    @JsonProperty(TITLE)
-    private final String title;
-
     @JsonProperty(MESSAGE)
     private final Markdown message;
 
@@ -57,27 +54,26 @@ public class Notification {
         @JsonProperty(ID) UID id,
         @JsonProperty(SENT) Instant sent,
         @JsonProperty(TO) Authorization to,
-        @JsonProperty(TITLE) String title,
         @JsonProperty(MESSAGE) Markdown message,
         @JsonProperty(ACTIONS) List<NotificationAction> actions,
         @JsonProperty(READ) Set<NotificationRead> read) {
 
-        return new Notification(id, sent, to, title, message, ImmutableList.copyOf(actions), ImmutableSet.copyOf(read));
+        return new Notification(id, sent, to, message, ImmutableList.copyOf(actions), ImmutableSet.copyOf(read));
     }
 
-    public static Notification apply(UID id, Instant sent, Authorization to, String title, Markdown message) {
-        return new Notification(id, sent, to, title, message, Lists.newArrayList(), Sets.newHashSet());
+    public static Notification apply(UID id, Instant sent, Authorization to, Markdown message) {
+        return new Notification(id, sent, to, message, Lists.newArrayList(), Sets.newHashSet());
     }
 
-    public static Notification apply(UID id, Instant sent, Authorization to, String title, Markdown message, List<NotificationAction> actions) {
-        return new Notification(id, sent, to, title, message, actions, Sets.newHashSet());
+    public static Notification apply(UID id, Instant sent, Authorization to, Markdown message, List<NotificationAction> actions) {
+        return new Notification(id, sent, to, message, actions, Sets.newHashSet());
     }
 
     public Notification withMarkedAsRead(UserId by, Instant at) {
         Set<NotificationRead> read = Sets.newHashSet(this.read);
         read.add(NotificationRead.apply(by, at));
 
-        return apply(id, sent, to, title, message, actions, read);
+        return apply(id, sent, to, message, actions, read);
     }
 
 }
