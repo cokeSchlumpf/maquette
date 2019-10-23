@@ -5,20 +5,23 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import lombok.experimental.Wither;
+import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.governance.Approved;
 import maquette.controller.domain.values.core.governance.Revoked;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.UserId;
 
 @Value
+@Wither
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatasetAccessRequest {
 
+    private static final String ID = "id";
     private static final String INITIATED_BY = "initiated-by";
     private static final String INITIATED = "initiated";
     private static final String JUSTIFICATION = "justification";
@@ -26,6 +29,9 @@ public class DatasetAccessRequest {
     private static final String GRANT_FOR = "grant-for";
     private static final String APPROVED = "approved";
     private static final String REVOKED = "revoked";
+
+    @JsonProperty(ID)
+    private final UID id;
 
     @JsonProperty(INITIATED_BY)
     private final UserId initiatedBy;
@@ -37,7 +43,7 @@ public class DatasetAccessRequest {
     private final String justification;
 
     @JsonProperty(GRANT)
-    private final DatasetGrant grant;
+    private final DatasetPrivilege grant;
 
     @JsonProperty(GRANT_FOR)
     private final Authorization grantFor;
@@ -50,20 +56,21 @@ public class DatasetAccessRequest {
 
     @JsonCreator
     public static DatasetAccessRequest apply(
+        @JsonProperty(ID) UID id,
         @JsonProperty(INITIATED_BY) UserId initiatedBy,
         @JsonProperty(INITIATED) Instant initiated,
         @JsonProperty(JUSTIFICATION) String justification,
-        @JsonProperty(GRANT) DatasetGrant grant,
+        @JsonProperty(GRANT) DatasetPrivilege grant,
         @JsonProperty(GRANT_FOR) Authorization grantFor,
         @JsonProperty(APPROVED) Approved approved,
         @JsonProperty(REVOKED) Revoked revoked) {
 
-        return new DatasetAccessRequest(initiatedBy, initiated, justification, grant, grantFor, approved, revoked);
+        return new DatasetAccessRequest(id, initiatedBy, initiated, justification, grant, grantFor, approved, revoked);
     }
 
-    public static DatasetAccessRequest apply(UserId initiatedBy, Instant initiated, String justification, DatasetGrant grant,
+    public static DatasetAccessRequest apply(UID id, UserId initiatedBy, Instant initiated, String justification, DatasetPrivilege grant,
                                              Authorization grantFor) {
-        return apply(initiatedBy, initiated, justification, grant, grantFor, null, null);
+        return apply(id, initiatedBy, initiated, justification, grant, grantFor, null, null);
     }
 
     public Optional<Approved> getApproved() {

@@ -18,11 +18,13 @@ import maquette.controller.domain.entities.dataset.Version;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.VersionMessage;
+import maquette.controller.domain.entities.dataset.protocol.commands.ApproveDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
+import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.DeleteDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatasetAccess;
@@ -30,11 +32,13 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishComm
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.ApprovedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
+import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
@@ -48,7 +52,10 @@ import maquette.controller.domain.entities.dataset.services.PublishVersion;
 import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.core.governance.Approved;
+import maquette.controller.domain.values.dataset.ApproveDatasetAccessRequestDoesNotExistError;
 import maquette.controller.domain.values.dataset.DatasetACL;
+import maquette.controller.domain.values.dataset.DatasetAccessRequest;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetGrant;
 import maquette.controller.domain.values.dataset.VersionDoesNotExistError;
@@ -78,6 +85,37 @@ public final class ActiveDataset implements State {
         DatasetDetails details) {
 
         return apply(actor, effect, store, details, Maps.newHashMap(), Maps.newHashMap());
+    }
+
+    @Override
+    public Effect<DatasetEvent, State> onApproveDatasetAccessRequest(ApproveDatasetAccessRequest approve) {
+        if (details.getAccessRequests().containsKey(approve.getId())) {
+            DatasetAccessRequest request = details.getAccessRequests().get(approve.getId());
+            Optional<Approved> approved = request.getApproved();
+
+            if (approved.isPresent()) {
+                ApprovedDatasetAccessRequest approvedRequest = ApprovedDatasetAccessRequest.apply(request, approved.get());
+                approve.getReplyTo().tell(approvedRequest);
+                return effect.none();
+            } else {
+                Approved approvedNow = Approved.apply(approve.getExecutor().getUserId(), Instant.now(), approve.getComment());
+                ApprovedDatasetAccessRequest approvedRequest =
+                    ApprovedDatasetAccessRequest.apply(request.withApproved(approvedNow), approvedNow);
+
+                return effect
+                    .persist(approvedRequest)
+                    .thenRun(() -> approve.getReplyTo().tell(approvedRequest));
+            }
+        } else {
+            approve.getErrorTo().tell(ApproveDatasetAccessRequestDoesNotExistError.apply(details.getDataset(), approve.getId()));
+            return effect.none();
+        }
+    }
+
+    @Override
+    public State onApprovedDatasetAccessRequest(ApprovedDatasetAccessRequest approved) {
+        details = details.withAccessRequest(approved.getRequest().withApproved(approved.getApproval()));
+        return this;
     }
 
     @Override
@@ -201,6 +239,30 @@ public final class ActiveDataset implements State {
 
     @Override
     public State onCreatedDataset(CreatedDataset created) {
+        return this;
+    }
+
+    @Override
+    public Effect<DatasetEvent, State> onCreateDatasetAccessRequest(CreateDatasetAccessRequest create) {
+        DatasetAccessRequest request = DatasetAccessRequest.apply(
+            UID.apply(8),
+            create.getExecutor().getUserId(),
+            Instant.now(),
+            create.getJustification(),
+            create.getGrant(),
+            create.getGrantFor());
+
+        CreatedDatasetAccessRequest created = CreatedDatasetAccessRequest
+            .apply(create.getDataset(), request);
+
+        return effect
+            .persist(created)
+            .thenRun(() -> create.getReplyTo().tell(created));
+    }
+
+    @Override
+    public State onCreatedDatasetAccessRequest(CreatedDatasetAccessRequest created) {
+        this.details = this.details.withAccessRequest(created.getRequest());
         return this;
     }
 

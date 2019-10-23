@@ -13,6 +13,7 @@ import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
+import maquette.controller.domain.values.dataset.DatasetAccessRequest;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
@@ -23,6 +24,19 @@ import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserId;
 
 public interface Datasets {
+
+    /**
+     * Approve a dataset access request.
+     *
+     * @param executor
+     *     The user which approves the request
+     * @param id
+     *     The id of the request
+     * @param comment
+     *     The comment for the approval
+     * @return The updated request
+     */
+    CompletionStage<DatasetAccessRequest> approveAccessRequest(User executor, ResourcePath dataset, UID id, String comment);
 
     /**
      * Change the description of an existing dataset.
@@ -263,6 +277,24 @@ public interface Datasets {
     CompletionStage<VersionTag> putData(
         User executor, ResourcePath dataset, Source<ByteBuffer, NotUsed> data,
         String message);
+
+    /**
+     * An executor requests access to an existing dataset.
+     *
+     * @param executor
+     *     The user which executes the command
+     * @param dataset
+     *     The dataset for which access should be requested
+     * @param justification
+     *     The reason why access is required
+     * @param grant
+     *     The access right which is requested
+     * @param grantFor
+     *     The authorization for which access is requested
+     * @return The initiated request
+     */
+    CompletionStage<DatasetAccessRequest> requestDatasetAccess(
+        User executor, ResourcePath dataset, String justification, DatasetPrivilege grant, Authorization grantFor);
 
     /**
      * Revoke the access for an authorization from an existing dataset.

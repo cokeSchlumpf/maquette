@@ -1,0 +1,1 @@
+The request by '{{ user }}' to get access to {{ dataset }} was automatically approved. 

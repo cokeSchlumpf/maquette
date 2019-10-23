@@ -2,11 +2,15 @@ package maquette.controller.domain.values.dataset;
 
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,6 +30,7 @@ import maquette.controller.domain.values.iam.UserId;
 public class DatasetDetails {
 
     private static final String ACL = "acl";
+    private static final String ACCESS_REQUESTS = "access-requests";
     private static final String CREATED = "created";
     private static final String CREATED_BY = "created-by";
     private static final String DATASET = "dataset";
@@ -62,6 +67,9 @@ public class DatasetDetails {
     @JsonProperty(GOVERNANCE)
     private final GovernanceProperties governance;
 
+    @JsonProperty(ACCESS_REQUESTS)
+    private final Map<UID, DatasetAccessRequest> accessRequests;
+
     @JsonCreator
     public static DatasetDetails apply(
         @JsonProperty(DATASET) ResourcePath dataset,
@@ -72,9 +80,12 @@ public class DatasetDetails {
         @JsonProperty(VERSIONS) Set<VersionInfo> versions,
         @JsonProperty(ACL) DatasetACL acl,
         @JsonProperty(DESCRIPTION) Markdown description,
-        @JsonProperty(GOVERNANCE) GovernanceProperties governance) {
+        @JsonProperty(GOVERNANCE) GovernanceProperties governance,
+        @JsonProperty(ACCESS_REQUESTS) Map<UID, DatasetAccessRequest> accessRequests) {
 
-        return new DatasetDetails(dataset, created, createdBy, modified, modifiedBy, versions, acl, description, governance);
+        return new DatasetDetails(
+            dataset, created, createdBy, modified, modifiedBy,
+            ImmutableSet.copyOf(versions), acl, description, governance, ImmutableMap.copyOf(accessRequests));
     }
 
     @Deprecated
@@ -82,7 +93,17 @@ public class DatasetDetails {
         ResourcePath dataset, Instant created, UserId createdBy, Instant modified,
         UserId modifiedBy, Set<VersionInfo> versions, DatasetACL acl) {
 
-        return apply(dataset, created, createdBy, modified, modifiedBy, versions, acl, Markdown.apply(), GovernanceProperties.apply());
+        return apply(
+            dataset,
+            created,
+            createdBy,
+            modified,
+            modifiedBy,
+            versions,
+            acl,
+            Markdown.apply(),
+            GovernanceProperties.apply(),
+            Maps.newHashMap());
     }
 
     public UID findVersionId(VersionTag tag) {
@@ -112,6 +133,12 @@ public class DatasetDetails {
         } else {
             return Optional.of(description);
         }
+    }
+
+    public DatasetDetails withAccessRequest(DatasetAccessRequest request) {
+        Map<UID, DatasetAccessRequest> requests = Maps.newHashMap(accessRequests);
+        requests.put(request.getId(), request);
+        return withAccessRequests(ImmutableMap.copyOf(requests));
     }
 
 }

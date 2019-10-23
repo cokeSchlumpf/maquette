@@ -2,6 +2,7 @@ package maquette.controller.domain.entities.dataset.states;
 
 import java.time.Instant;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import akka.actor.typed.javadsl.ActorContext;
@@ -10,11 +11,13 @@ import akka.persistence.typed.javadsl.EffectFactories;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
+import maquette.controller.domain.entities.dataset.protocol.commands.ApproveDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
+import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.DeleteDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatasetAccess;
@@ -22,11 +25,13 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishComm
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.ApprovedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
+import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
@@ -59,6 +64,17 @@ public final class UninitializedDataset implements State {
         DataStorageAdapter store) {
 
         return apply(actor, effect, store,null);
+    }
+
+    @Override
+    public Effect<DatasetEvent, State> onApproveDatasetAccessRequest(ApproveDatasetAccessRequest approve) {
+        approve.getErrorTo().tell(DatasetDoesNotExistError.apply(approve.getDataset()));
+        return effect.none();
+    }
+
+    @Override
+    public State onApprovedDatasetAccessRequest(ApprovedDatasetAccessRequest approved) {
+        return this;
     }
 
     @Override
@@ -136,9 +152,21 @@ public final class UninitializedDataset implements State {
             Sets.newHashSet(),
             DatasetACL.apply(granted, Sets.newHashSet(), created.isPrivate()),
             created.getDescription(),
-            created.getGovernance());
+            created.getGovernance(),
+            Maps.newHashMap());
 
         return ActiveDataset.apply(actor, effect, store, details);
+    }
+
+    @Override
+    public Effect<DatasetEvent, State> onCreateDatasetAccessRequest(CreateDatasetAccessRequest create) {
+        create.getErrorTo().tell(DatasetDoesNotExistError.apply(create.getDataset()));
+        return effect.none();
+    }
+
+    @Override
+    public State onCreatedDatasetAccessRequest(CreatedDatasetAccessRequest created) {
+        return this;
     }
 
     @Override

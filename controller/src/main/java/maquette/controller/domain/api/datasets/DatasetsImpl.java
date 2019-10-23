@@ -3,9 +3,13 @@ package maquette.controller.domain.api.datasets;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 import org.apache.avro.Schema;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import akka.Done;
 import akka.NotUsed;
@@ -18,22 +22,26 @@ import akka.util.ByteString;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
+import maquette.controller.domain.entities.dataset.protocol.commands.ApproveDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.commands.ChangeOwner;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDataset;
+import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.commands.CreateDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.DeleteDataset;
 import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.ApprovedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetGovernance;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetPrivacy;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedOwner;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDataset;
+import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
@@ -46,6 +54,9 @@ import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDe
 import maquette.controller.domain.entities.dataset.protocol.results.GetDataResult;
 import maquette.controller.domain.entities.dataset.protocol.results.GetDetailsResult;
 import maquette.controller.domain.entities.dataset.protocol.results.GetVersionDetailsResult;
+import maquette.controller.domain.entities.notifcation.protocol.NotificationsMessage;
+import maquette.controller.domain.entities.notifcation.protocol.commands.CreateNotification;
+import maquette.controller.domain.entities.notifcation.protocol.events.CreatedNotification;
 import maquette.controller.domain.entities.project.Project;
 import maquette.controller.domain.entities.project.protocol.ProjectMessage;
 import maquette.controller.domain.entities.project.protocol.commands.RegisterDataset;
@@ -65,6 +76,7 @@ import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
+import maquette.controller.domain.values.dataset.DatasetAccessRequest;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
@@ -74,6 +86,8 @@ import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.TokenAuthorization;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserId;
+import maquette.controller.domain.values.notification.actions.ShowDataset;
+import maquette.controller.domain.values.notification.actions.ShowDatasetAccessRequest;
 import maquette.controller.domain.values.project.ProjectDetails;
 
 @AllArgsConstructor(staticName = "apply")
@@ -84,6 +98,8 @@ public final class DatasetsImpl implements Datasets {
     private final ActorRef<ShardingEnvelope<UserMessage>> users;
 
     private final ActorRef<ShardingEnvelope<ProjectMessage>> projects;
+
+    private final ActorRef<NotificationsMessage> notifications;
 
     private final ActorPatterns patterns;
 
@@ -109,6 +125,33 @@ public final class DatasetsImpl implements Datasets {
                     GetProjectDetails.apply(project, replyTo, errorTo)),
                 GetProjectDetailsResult.class)
             .thenApply(GetProjectDetailsResult::getDetails);
+    }
+
+    @Override
+    public CompletionStage<DatasetAccessRequest> approveAccessRequest(User executor, ResourcePath dataset, UID id, String comment) {
+        return patterns
+            .ask(
+                datasets,
+                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                    Dataset.createEntityId(dataset),
+                    ApproveDatasetAccessRequest.apply(executor, dataset, id, comment, replyTo, errorTo)),
+                ApprovedDatasetAccessRequest.class)
+            .thenCompose(approved -> {
+                Map<String, Object> notificationVars = Maps.newHashMap();
+                notificationVars.put("dataset", dataset);
+
+                return patterns
+                    .ask(
+                        notifications,
+                        (replyTo, errorTo) -> CreateNotification.apply(
+                            approved.getRequest().getGrantFor(),
+                            Markdown.fromResource("approved-dataset-access-request.md", notificationVars),
+                            Lists.newArrayList(ShowDataset.apply(dataset)),
+                            replyTo,
+                            errorTo),
+                        CreatedNotification.class)
+                    .thenApply(createdNotification -> approved.getRequest());
+            });
     }
 
     @Override
@@ -384,6 +427,64 @@ public final class DatasetsImpl implements Datasets {
                     Operators.ignoreExceptions(() -> Files.delete(tmpFile));
                 }
             });
+    }
+
+    @Override
+    public CompletionStage<DatasetAccessRequest> requestDatasetAccess(User executor, ResourcePath dataset, String justification,
+                                                                      DatasetPrivilege grant, Authorization grantFor) {
+        return getDetails(dataset)
+            .thenCompose(details -> patterns
+                .ask(
+                    datasets,
+                    (replyTo, errorTo) -> ShardingEnvelope.apply(
+                        Dataset.createEntityId(dataset),
+                        CreateDatasetAccessRequest.apply(dataset, executor, justification, grant, grantFor, replyTo, errorTo)),
+                    CreatedDatasetAccessRequest.class)
+                .thenCompose(created -> {
+                    Map<String, Object> notificationVars = Maps.newHashMap();
+                    notificationVars.put("user", executor.getUserId());
+                    notificationVars.put("dataset", dataset);
+
+                    if (details.getGovernance().isApprovalRequired()) {
+                        return patterns
+                            .ask(
+                                notifications,
+                                (replyTo, errorTo) -> CreateNotification.apply(
+                                    details.getAcl().getOwner().getAuthorization(),
+                                    Markdown.fromResource("new-dataset-access-request.md", notificationVars),
+                                    Lists.newArrayList(ShowDatasetAccessRequest.apply(dataset, created.getRequest().getId())),
+                                    replyTo,
+                                    errorTo),
+                                CreatedNotification.class)
+                            .thenApply(createdNotification -> created.getRequest());
+                    } else {
+                        return patterns
+                            .ask(
+                                datasets,
+                                (replyTo, errorTo) -> ShardingEnvelope.apply(
+                                    Dataset.createEntityId(dataset),
+                                    ApproveDatasetAccessRequest.apply(
+                                        executor,
+                                        dataset,
+                                        created.getRequest().getId(),
+                                        "Automatically approved.",
+                                        replyTo,
+                                        errorTo)),
+                                ApprovedDatasetAccessRequest.class)
+
+                            .thenCompose(approved -> patterns
+                                .ask(
+                                    notifications,
+                                    (replyTo, errorTo) -> CreateNotification.apply(
+                                        details.getAcl().getOwner().getAuthorization(),
+                                        Markdown.fromResource("dataset-access-auto-approved.md", notificationVars),
+                                        Lists.newArrayList(ShowDatasetAccessRequest.apply(dataset, created.getRequest().getId())),
+                                        replyTo,
+                                        errorTo),
+                                    CreatedNotification.class)
+                                .thenApply(createdNotification -> approved.getRequest()));
+                    }
+                }));
     }
 
     @Override

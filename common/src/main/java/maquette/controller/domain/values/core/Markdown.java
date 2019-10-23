@@ -1,6 +1,10 @@
 package maquette.controller.domain.values.core;
 
 import java.io.IOException;
+import java.util.Map;
+
+import org.jtwig.JtwigModel;
+import org.jtwig.JtwigTemplate;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -24,6 +28,13 @@ public class Markdown {
 
     public static Markdown apply() {
         return apply("");
+    }
+
+    public static Markdown fromResource(String resource, Map<String, Object> values) {
+        JtwigTemplate template = JtwigTemplate.classpathTemplate(String.format("notifications/%s", resource));
+        JtwigModel model = JtwigModel.newModel(values);
+
+        return apply(template.render(model));
     }
 
     public String asASCIIString() {

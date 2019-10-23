@@ -22,6 +22,8 @@ import maquette.controller.domain.api.users.Users;
 import maquette.controller.domain.api.users.UsersFactory;
 import maquette.controller.domain.entities.dataset.Dataset;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
+import maquette.controller.domain.entities.notifcation.Notifications;
+import maquette.controller.domain.entities.notifcation.protocol.NotificationsMessage;
 import maquette.controller.domain.entities.project.Project;
 import maquette.controller.domain.entities.project.ProjectRegistry;
 import maquette.controller.domain.entities.project.protocol.ProjectMessage;
@@ -64,6 +66,7 @@ public class CoreApplication {
         final ActorRef<ShardingEnvelope<ProjectMessage>> projectShards = createNamespaceSharding(sharding);
         final ActorRef<ShardingEnvelope<UserMessage>> userShards = createUserSharding(sharding);
         final ActorRef<ProjectsMessage> projectsRegistry = singleton.init(ProjectRegistry.create());
+        final ActorRef<NotificationsMessage> notifications = singleton.init(Notifications.create());
 
         final CreateDefaultProject createDefaultProject = CreateDefaultProject.apply(
             projectsRegistry, projectShards, userShards, patterns);

@@ -27,6 +27,7 @@ import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
+import maquette.controller.domain.values.dataset.DatasetAccessRequest;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
@@ -130,6 +131,11 @@ public final class DatasetsSecured implements Datasets {
                         GetProjectDetails.apply(project, replyTo, errorTo)),
                 GetProjectDetailsResult.class)
             .thenApply(GetProjectDetailsResult::getDetails);
+    }
+
+    @Override
+    public CompletionStage<DatasetAccessRequest> approveAccessRequest(User executor, UID id, String comment) {
+        return null;
     }
 
     @Override
@@ -397,6 +403,12 @@ public final class DatasetsSecured implements Datasets {
                     throw NotAuthorizedException.apply(executor);
                 }
             });
+    }
+
+    @Override
+    public CompletionStage<DatasetAccessRequest> requestDatasetAccess(User executor, ResourcePath dataset, String justification,
+                                                                      DatasetPrivilege grant, Authorization grantFor) {
+        return null;
     }
 
     @Override
