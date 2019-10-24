@@ -1,6 +1,6 @@
 import UrlUtil from './url-util';
 import _ from '../underscore';
-import { _ as __ } from 'lodash';
+import __ from 'lodash';
 
 export default class FetchClient {
     /**

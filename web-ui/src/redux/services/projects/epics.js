@@ -1,12 +1,28 @@
 import { ofType, combineEpics } from 'redux-observable'
-import { mapTo } from "rxjs/operators";
+import { mergeMap } from "rxjs/operators";
 
 import { types } from './actions';
+import { findFail, findSuccess, listFail, listSuccess } from './actions';
 
-export const sampleEpic = action$ => action$.pipe(
-    ofType(types.FOO),
-    mapTo({ type: types.LOREM, payload: { foo: 'foo' }}));
+import FetchClient from "../../../utils/fetch-client";
+
+const service = new FetchClient('/api/v1/commands');
+
+export const findEpic = (action$, store) => action$.pipe(
+    ofType(types.FIND),
+    mergeMap(action => service
+        .command("shop find projects", action.payload)
+        .then(findSuccess)
+        .catch(findFail)));
+
+export const listEpic = (action$, store) => action$.pipe(
+    ofType(types.LIST),
+    mergeMap(action => service
+        .command("shop list projects")
+        .then(listSuccess)
+        .catch(listFail)));
 
 export default combineEpics(
-    sampleEpic
+    findEpic,
+    listEpic
 );
