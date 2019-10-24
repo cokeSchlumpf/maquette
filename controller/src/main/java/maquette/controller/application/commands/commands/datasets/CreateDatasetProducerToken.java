@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import maquette.controller.application.commands.CommandResult;
+import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.commands.Command;
 import maquette.controller.application.commands.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
@@ -41,7 +42,8 @@ public final class CreateDatasetProducerToken implements Command {
     }
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
+    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
+                                              OutputFormat outputFormat) {
         ObjectValidation.notNull().validate(dataset, DATASET);
         ResourcePath datasetResource = ResourcePath.apply(executor, project, dataset);
 

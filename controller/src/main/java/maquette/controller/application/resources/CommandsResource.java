@@ -14,6 +14,7 @@ import org.springframework.web.server.ServerWebExchange;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import maquette.controller.application.commands.CommandResult;
+import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.commands.Command;
 import maquette.controller.application.util.ContextUtils;
 import maquette.controller.domain.CoreApplication;
@@ -22,7 +23,7 @@ import maquette.controller.domain.values.exceptions.DomainException;
 
 @AllArgsConstructor
 @RestController("CLI")
-@RequestMapping("api/v1/cli")
+@RequestMapping("api/v1/commands")
 public class CommandsResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(CommandsResource.class);
@@ -39,7 +40,7 @@ public class CommandsResource {
     public CompletionStage<CommandResult> process(@RequestBody Command command, ServerWebExchange exchange) {
         return ctx
             .getUser(exchange)
-            .thenCompose(user -> command.run(user, core))
+            .thenCompose(user -> command.run(user, core, OutputFormat.apply()))
             .exceptionally(throwable -> Operators
                 .hasCause(throwable, DomainException.class)
                 .map(e -> CommandResult.error(e.getMessage()))

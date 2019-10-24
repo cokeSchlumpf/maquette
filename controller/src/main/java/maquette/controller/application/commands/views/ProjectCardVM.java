@@ -3,12 +3,14 @@ package maquette.controller.application.commands.views;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.domain.values.project.ProjectDetails;
 
 @Value
@@ -46,14 +48,12 @@ public final class ProjectCardVM {
         return new ProjectCardVM(name, description, datasets, lastUpdate, data);
     }
 
-    public static ProjectCardVM apply(ProjectDetails details) {
-        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm");
-
+    public static ProjectCardVM apply(ProjectDetails details, OutputFormat out) {
         return apply(
             details.getName().getValue(),
             details.getDescription().getHTMLString(),
             details.getDatasets().size(),
-            sdf.format(details.getModified()),
+            out.format(details.getModified()),
             details);
     }
 

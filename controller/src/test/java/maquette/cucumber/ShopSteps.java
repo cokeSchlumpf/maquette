@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import cucumber.api.java.en.Then;
 import lombok.AllArgsConstructor;
 import maquette.controller.application.commands.CommandResult;
+import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.commands.shop.FindDatasetsCmd;
 import maquette.controller.application.commands.commands.shop.FindProjectsCmd;
 import maquette.controller.application.commands.commands.shop.ListProjectsCmd;
@@ -31,7 +32,7 @@ public final class ShopSteps {
 
         CommandResult result = FindDatasetsCmd
             .apply()
-            .run(user, ctx.getSetup().getApp())
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 
@@ -48,7 +49,7 @@ public final class ShopSteps {
 
         CommandResult result = FindProjectsCmd
             .apply()
-            .run(user, ctx.getSetup().getApp())
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 
@@ -65,7 +66,7 @@ public final class ShopSteps {
 
         CommandResult result = FindProjectsCmd
             .apply()
-            .run(user, ctx.getSetup().getApp())
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 
@@ -81,7 +82,7 @@ public final class ShopSteps {
 
         CommandResult result = ListProjectsCmd
             .apply()
-            .run(user, ctx.getSetup().getApp())
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 
@@ -98,7 +99,7 @@ public final class ShopSteps {
 
         CommandResult result = FindDatasetsCmd
             .apply()
-            .run(user, ctx.getSetup().getApp())
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 

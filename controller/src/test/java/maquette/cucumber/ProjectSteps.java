@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import cucumber.api.java.en.Given;
 import io.cucumber.datatable.DataTable;
 import lombok.AllArgsConstructor;
+import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.commands.EAuthorizationType;
 import maquette.controller.application.commands.commands.projects.ChangeProjectOwnerCmd;
 import maquette.controller.application.commands.commands.projects.CreateProjectCmd;
@@ -78,10 +79,10 @@ public final class ProjectSteps {
             ResourceName name = ResourceName.apply(project.get(0));
             CreateProjectCmd
                 .apply(name, Markdown.apply(""), project.get(2).equals("yes"))
-                .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
+                .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply())
                 .thenCompose(result -> ChangeProjectOwnerCmd
                     .apply(name, EAuthorizationType.ROLE, project.get(1))
-                    .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp()))
+                    .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply()))
                 .toCompletableFuture()
                 .get();
         }

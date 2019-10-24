@@ -2,19 +2,18 @@ import { fromJS } from 'immutable';
 import { types } from './actions';
 
 export const initialState = fromJS({
-    name: 'anonymous',
-    roles: [],
-    notifications: 0
+    value: "",
+    output: "Enter your name and press submit!"
 });
 
-const fetchSuccess = (state, payload) => {
-    return fromJS(payload);
+const foo = state => {
+    return state;
 };
 
 export default (state = initialState, action) => {
     switch (action.type) {
-        case types.FETCH_SUCCESS:
-            return fetchSuccess(state, action.payload);
+        case types.FOO:
+            return foo(state, action.payload);
         default:
             return state;
     }

@@ -16,6 +16,7 @@ import cucumber.api.java.en.Then;
 import io.cucumber.datatable.DataTable;
 import lombok.AllArgsConstructor;
 import maquette.controller.application.commands.CommandResult;
+import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.commands.EAuthorizationType;
 import maquette.controller.application.commands.commands.datasets.ChangeDatasetDescriptionCmd;
 import maquette.controller.application.commands.commands.datasets.ChangeDatasetPrivacyCmd;
@@ -47,7 +48,7 @@ public final class DatasetSteps {
 
         GrantDatasetAccessCmd
             .apply(dataset.getProject(), dataset.getName(), EAuthorizationType.USER, DatasetPrivilege.CONSUMER, username)
-            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
+            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
     }
@@ -58,7 +59,7 @@ public final class DatasetSteps {
 
         GrantDatasetAccessCmd
             .apply(dataset.getProject(), dataset.getName(), EAuthorizationType.USER, DatasetPrivilege.PRODUCER, username)
-            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
+            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
     }
@@ -71,7 +72,7 @@ public final class DatasetSteps {
 
         assertThatThrownBy(() -> PrintDatasetDetailsCmd
             .apply(dataset.getProject(), dataset.getName())
-            .run(user, ctx.getSetup().getApp())
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get()).hasMessageContaining("not authorized");
     }
@@ -86,7 +87,7 @@ public final class DatasetSteps {
 
         CreateDatasetCmd
             .apply(project, dataset, Markdown.apply(), false, GovernanceProperties.apply())
-            .run(user, ctx.getSetup().getApp())
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
     }
@@ -99,7 +100,7 @@ public final class DatasetSteps {
 
         RevokeDatasetAccessCmd
             .apply(dataset.getProject(), dataset.getName(), EAuthorizationType.USER, DatasetPrivilege.CONSUMER, username)
-            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
+            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
     }
@@ -111,7 +112,7 @@ public final class DatasetSteps {
 
         ChangeDatasetPrivacyCmd
             .apply(dataset.getProject(), dataset.getName(), true)
-            .run(user, ctx.getSetup().getApp())
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 
@@ -126,7 +127,7 @@ public final class DatasetSteps {
 
         CommandResult result = PrintDatasetDetailsCmd
             .apply(project, dataset)
-            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
+            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 
@@ -146,7 +147,7 @@ public final class DatasetSteps {
 
         CommandResult result = PrintDatasetDetailsCmd
             .apply(dataset.getProject(), dataset.getName())
-            .run(user, ctx.getSetup().getApp())
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 
@@ -163,7 +164,7 @@ public final class DatasetSteps {
 
         CommandResult result = ListDatasetsCmd
             .apply()
-            .run(user, ctx.getSetup().getApp())
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 
@@ -187,7 +188,7 @@ public final class DatasetSteps {
 
         CommandResult result = PrintDatasetDetailsCmd
             .apply(dataset.getProject(), dataset.getName())
-            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
+            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 
@@ -204,7 +205,7 @@ public final class DatasetSteps {
 
         ChangeDatasetDescriptionCmd
             .apply(dataset.getProject(), dataset.getName(), Markdown.apply(description))
-            .run(user, ctx.getSetup().getApp())
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 
@@ -219,7 +220,7 @@ public final class DatasetSteps {
 
         CommandResult result = PrintDatasetDetailsCmd
             .apply(dataset.getProject(), dataset.getName())
-            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
+            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 
@@ -239,7 +240,7 @@ public final class DatasetSteps {
 
         CommandResult result = ListDatasetVersionsCmd
             .apply(dataset.getProject(), dataset.getName())
-            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
+            .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 
@@ -282,7 +283,7 @@ public final class DatasetSteps {
 
             CreateDatasetCmd
                 .apply(project, dataset, Markdown.apply(), ds.get(1).equals("yes"), GovernanceProperties.apply())
-                .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp())
+                .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply())
                 .toCompletableFuture()
                 .get();
 

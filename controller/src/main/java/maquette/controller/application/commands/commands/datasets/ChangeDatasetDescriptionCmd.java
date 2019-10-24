@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.application.commands.CommandResult;
+import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.commands.Command;
 import maquette.controller.application.commands.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
@@ -44,7 +45,8 @@ public class ChangeDatasetDescriptionCmd implements Command {
     }
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
+    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
+                                              OutputFormat outputFormat) {
         ObjectValidation.notNull().validate(dataset, DATASET);
         ObjectValidation.notNull().validate(description, DESCRIPTION);
 

@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.ViewModel;
 import maquette.controller.domain.values.project.ProjectDetails;
 
@@ -36,11 +37,11 @@ public final class ProjectsVM implements ViewModel {
         return new ProjectsVM(count, ImmutableList.copyOf(projects));
     }
 
-    public static ProjectsVM apply(Collection<ProjectDetails> projects) {
+    public static ProjectsVM apply(Collection<ProjectDetails> projects, OutputFormat out) {
         List<ProjectCardVM> cards = projects
             .stream()
             .sorted(Comparator.comparing(p -> p.getName().getValue()))
-            .map(ProjectCardVM::apply)
+            .map(details -> ProjectCardVM.apply(details, out))
             .collect(Collectors.toList());
 
         return apply(cards.size(), cards);

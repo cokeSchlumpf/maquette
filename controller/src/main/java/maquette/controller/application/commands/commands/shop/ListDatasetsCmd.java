@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import maquette.controller.application.commands.CommandResult;
 import maquette.controller.application.commands.DataTable;
 import maquette.controller.application.commands.DataTables;
+import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.commands.Command;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.iam.User;
@@ -21,7 +22,8 @@ public final class ListDatasetsCmd implements Command {
     }
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
+    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
+                                              OutputFormat outputFormat) {
         return app
             .shop()
             .listDatasets(executor)

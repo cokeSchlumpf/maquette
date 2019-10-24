@@ -9,9 +9,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.application.commands.CommandResult;
-import maquette.controller.application.commands.DataTable;
+import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.views.ApplicationVM;
-import maquette.controller.application.commands.views.UserVM;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.iam.User;
 
@@ -25,7 +24,8 @@ public class AboutCmd implements Command {
     }
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
+    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
+                                              OutputFormat outputFormat) {
         String about = "IBM Maquette Data Platform, v0.0.42, local";
         ApplicationVM vm = ApplicationVM.apply("IBM Maquette", "Data Platform", "v0.0.42", "local");
 

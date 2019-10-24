@@ -6,12 +6,12 @@ import { fetchFail, fetchSuccess } from './actions';
 
 import FetchClient from '../../../utils/fetch-client';
 
-const service = new FetchClient('/api/v1/about/user');
+const service = new FetchClient('/api/v1/commands');
 
 export const fetchEpic = (action$, store) => action$.pipe(
     ofType(types.FETCH),
     mergeMap(action => service
-        .read()
+        .command("user show")
         .then(fetchSuccess)
         .catch(fetchFail)));
 

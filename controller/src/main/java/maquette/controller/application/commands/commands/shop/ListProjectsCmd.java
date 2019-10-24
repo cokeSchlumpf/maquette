@@ -10,6 +10,7 @@ import lombok.Value;
 import maquette.controller.application.commands.CommandResult;
 import maquette.controller.application.commands.DataTable;
 import maquette.controller.application.commands.DataTables;
+import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.commands.Command;
 import maquette.controller.application.commands.views.ProjectsVM;
 import maquette.controller.domain.CoreApplication;
@@ -26,13 +27,13 @@ public final class ListProjectsCmd implements Command {
     }
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app) {
+    public CompletionStage<CommandResult> run(User executor, CoreApplication app, OutputFormat outputFormat) {
         return app
             .shop()
             .listProjects(executor)
             .thenApply(projects -> Operators.suppressExceptions(() -> {
                 DataTable dt = DataTables.createProjects(projects);
-                ProjectsVM vm = ProjectsVM.apply(projects);
+                ProjectsVM vm = ProjectsVM.apply(projects, outputFormat);
 
                 return CommandResult
                     .success(dt.toAscii(), dt)

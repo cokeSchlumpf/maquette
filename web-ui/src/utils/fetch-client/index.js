@@ -1,5 +1,6 @@
 import UrlUtil from './url-util';
 import _ from '../underscore';
+import { _ as __ } from 'lodash';
 
 export default class FetchClient {
     /**
@@ -151,6 +152,30 @@ export default class FetchClient {
         };
 
         return this._callMethod('POST', args);
+    }
+
+    /**
+     * Submits a command towards the backend.
+     *
+     * @param cmd {string} the command name
+     * @param args {object} arguments for the command
+     * @param headers {object} additional headers
+     * @returns {object} aa JSON response entity
+     */
+    command(cmd, args = {}, headers = {}) {
+        const entity = _.extend({ "command": cmd }, args);
+
+        const req = {
+            body: entity,
+            headers: _.extend({
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }, headers)
+        };
+
+        return this
+            ._callMethod('POST', req)
+            .then(result => __.get(result, 'view', {}));
     }
 
     /**
