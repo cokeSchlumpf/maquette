@@ -42,6 +42,11 @@ public class Markdown {
         return value;
     }
 
+    public String getHTMLString() {
+        // TODO: Implement
+        return value;
+    }
+
     public static class Serializer extends StdSerializer<Markdown> {
 
         private Serializer() {

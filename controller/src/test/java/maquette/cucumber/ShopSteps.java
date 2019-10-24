@@ -9,11 +9,10 @@ import org.slf4j.LoggerFactory;
 
 import cucumber.api.java.en.Then;
 import lombok.AllArgsConstructor;
-import maquette.controller.adapters.cli.CommandResult;
-import maquette.controller.adapters.cli.commands.shop.FindDatasetsCmd;
-import maquette.controller.adapters.cli.commands.shop.FindProjectsCmd;
-import maquette.controller.adapters.cli.commands.shop.ListDatasetsCmd;
-import maquette.controller.adapters.cli.commands.shop.ListProjectsCmd;
+import maquette.controller.application.commands.CommandResult;
+import maquette.controller.application.commands.commands.shop.FindDatasetsCmd;
+import maquette.controller.application.commands.commands.shop.FindProjectsCmd;
+import maquette.controller.application.commands.commands.shop.ListProjectsCmd;
 import maquette.controller.domain.values.iam.User;
 
 @AllArgsConstructor

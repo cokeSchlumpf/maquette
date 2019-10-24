@@ -1,42 +1,24 @@
 package maquette.controller.application.resources;
 
-import java.io.FileOutputStream;
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
-import org.apache.avro.util.ByteBufferOutputStream;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
-import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
-import akka.japi.Pair;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
-import maquette.controller.adapters.cli.CommandResult;
-import maquette.controller.adapters.cli.commands.Command;
+import maquette.controller.application.commands.CommandResult;
+import maquette.controller.application.commands.commands.Command;
 import maquette.controller.application.util.ContextUtils;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.util.Operators;
-import maquette.controller.domain.values.core.ResourcePath;
-import maquette.controller.domain.values.core.UID;
-import maquette.controller.domain.values.core.records.Records;
-import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.exceptions.DomainException;
-import maquette.controller.domain.values.iam.User;
-import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
 @RestController("CLI")
