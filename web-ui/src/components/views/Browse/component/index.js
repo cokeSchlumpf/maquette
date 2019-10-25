@@ -1,7 +1,7 @@
 import React from 'react';
 import './styles.scss';
 
-import ContentContainer from '../../../../elements/ContentContainer';
+import ContentContainer from '../../../elements/ContentContainer';
 
 import {
     DataTable,
