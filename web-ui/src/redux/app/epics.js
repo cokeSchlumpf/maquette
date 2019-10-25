@@ -1,5 +1,5 @@
 import { combineEpics, ofType } from 'redux-observable'
-import {flatMap, mergeMap} from "rxjs/operators";
+import {flatMap, mergeMap, filter} from "rxjs/operators";
 
 import actions, { types } from '../actions';
 
@@ -21,5 +21,14 @@ export default combineEpics(
             flatMap(action => [
                 actions.services.user.fetch(),
                 actions.app.fetchSettings()
-            ]))
+            ])),
+
+    action$ => action$
+        .pipe(
+            ofType("@@router/LOCATION_CHANGE"),
+            filter(($action) => $action.payload.location.pathname === "/browse"),
+            mergeMap(action => [
+                actions.services.projects.list()
+            ])
+        )
 );

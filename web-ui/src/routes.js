@@ -5,9 +5,9 @@ import {
 
 import App from './components/App';
 
-import Assets from './views/Assets';
-import Dashboard from './views/Dashboard';
-import NotFound from './views/NotFound';
+import Browse from './components/views/Browse';
+import Dashboard from './components/views/Dashboard';
+import NotFound from './components/views/NotFound';
 
 import React from 'react';
 import { ConnectedRouter as Router } from 'connected-react-router/immutable'
@@ -20,7 +20,7 @@ const Routes = (props) => (
         <App>
             <Switch>
                 <Route path='/' exact component={Dashboard} />
-                <Route path='/assets' component={Assets} />
+                <Route path='/browse' component={Browse} />
                 <Route path='*' component={NotFound} />
             </Switch>
         </App>

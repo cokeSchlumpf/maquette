@@ -1,4 +1,4 @@
-import assets, { types as assetsTypes } from '../../views/Assets/redux/actions';
+import assets, { types as assetsTypes } from '../../components/views/Browse/redux/actions';
 
 export const types = {
     assets: assetsTypes

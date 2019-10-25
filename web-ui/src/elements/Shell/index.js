@@ -22,14 +22,19 @@ import {
     SwitcherItemLink,
 } from 'carbon-components-react';
 
-export default ({
-                            children,
-                            notifications = 0,
-                            userPanelExpanded = false,
-                            user = {},
+const emptyFunc = () => {};
 
-                            onClickNotifications = () => {},
-                            onClickUser = () => {}}) => {
+export default ({
+    children,
+    brand = "",
+    name = "",
+    notifications = 0,
+    userPanelExpanded = false,
+    user = {},
+
+    onClickNotifications = emptyFunc(),
+    onClickUser = emptyFunc()
+}) => {
 
     let userPanel = false;
 
@@ -56,14 +61,14 @@ export default ({
 
     return (
         <>
-            <Header aria-label="Peppermint Insurance Data Services">
-                <HeaderName href="#" prefix="Peppermint">
-                    Data Services
+            <Header aria-label={ brand + " " + name }>
+                <HeaderName href="#" prefix={ brand }>
+                    { name }
                 </HeaderName>
 
-                <HeaderNavigation aria-label="IBM [Platform]">
+                <HeaderNavigation aria-label={ brand + " " + name }>
                     <HeaderMenuItem element={Link} to="/">Dashboard</HeaderMenuItem>
-                    <HeaderMenuItem element={Link} to="/assets">Assets</HeaderMenuItem>
+                    <HeaderMenuItem element={Link} to="/browse" key="browse">Browse</HeaderMenuItem>
                 </HeaderNavigation>
 
                 <HeaderGlobalBar>

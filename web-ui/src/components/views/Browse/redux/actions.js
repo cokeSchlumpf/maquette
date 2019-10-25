@@ -1,4 +1,4 @@
-import constantsFromArray from '../../../utils/constants-from-array';
+import constantsFromArray from '../../../../utils/constants-from-array';
 
 export const types = constantsFromArray([
     'FOO',
