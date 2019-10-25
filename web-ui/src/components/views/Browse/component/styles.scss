@@ -4,7 +4,12 @@
 @import 'carbon-components/scss/globals/scss/vars.scss';
 
 .mq--view-heading {
-  @include carbon--type-style('productive-heading-04');
+  @include carbon--type-style('productive-heading-03');
+  padding-top: $spacing-05;
+  padding-bottom: $spacing-05;
+}
+
+.mq--browse--search {
   padding-top: $spacing-07;
-  padding-bottom: $spacing-07;
+  padding-bottom: $spacing-05;
 }

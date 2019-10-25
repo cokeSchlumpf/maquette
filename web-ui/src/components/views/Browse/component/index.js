@@ -3,6 +3,7 @@ import './styles.scss';
 
 import ContentContainer from '../../../elements/ContentContainer';
 import PageBanner from '../../../elements/PageBanner';
+import Search from '../../../elements/Search';
 
 import {
     DataTable,
@@ -93,6 +94,13 @@ export default (props) => {
                 }/>
 
             <ContentContainer>
+                <div className="mq--browse--search">
+                    <Search
+                        onChange={ console.log }
+                        placeHolderText="Search"
+                        name="q" />
+                </div>
+
                 <h3 className="mq--view-heading">Data Assets</h3>
                 <DataTable
                     rows={initialRows}
