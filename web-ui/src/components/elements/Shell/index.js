@@ -68,7 +68,7 @@ export default ({
 
                 <HeaderNavigation aria-label={ brand + " " + name }>
                     <HeaderMenuItem element={Link} to="/">Dashboard</HeaderMenuItem>
-                    <HeaderMenuItem element={Link} to="/browse" key="browse">Browse</HeaderMenuItem>
+                    <HeaderMenuItem element={Link} to="/browse">Browse</HeaderMenuItem>
                 </HeaderNavigation>
 
                 <HeaderGlobalBar>

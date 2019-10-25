@@ -2,6 +2,7 @@ import React from 'react';
 import './styles.scss';
 
 import ContentContainer from '../../../elements/ContentContainer';
+import PageBanner from '../../../elements/PageBanner';
 
 import {
     DataTable,
@@ -73,36 +74,55 @@ export const headers = [
 
 export default (props) => {
     return (
-        <ContentContainer>
-            <h1 className="mq--view-heading">Data Assets</h1>
-            <DataTable
-                rows={initialRows}
-                headers={headers}
-                {...props}
-                render={({ rows, headers, getHeaderProps, getRowProps, getTableProps }) => (
-                    <TableContainer>
-                        <Table {...getTableProps()}>
-                            <TableHead>
-                                <TableRow>
-                                    {headers.map(header => (
-                                        <TableHeader {...getHeaderProps({ header })}>
-                                            {header.header}
-                                        </TableHeader>
-                                    ))}
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {rows.map(row => (
-                                    <TableRow {...getRowProps({ row })}>
-                                        {row.cells.map(cell => (
-                                            <TableCell key={cell.id}>{cell.value}</TableCell>
+        <>
+            <PageBanner
+                title="Browse Assets"
+                centered={ true }
+                showDescription={ false }
+                breadcrumbsItems={
+                    [
+                        {
+                            name: "Browse",
+                            to: "/browse"
+                        },
+                        {
+                            name: "Search Results",
+                            to: "/browse?q=foo"
+                        }
+                    ]
+                }/>
+
+            <ContentContainer>
+                <h3 className="mq--view-heading">Data Assets</h3>
+                <DataTable
+                    rows={initialRows}
+                    headers={headers}
+                    {...props}
+                    render={({ rows, headers, getHeaderProps, getRowProps, getTableProps }) => (
+                        <TableContainer>
+                            <Table {...getTableProps()}>
+                                <TableHead>
+                                    <TableRow>
+                                        {headers.map(header => (
+                                            <TableHeader {...getHeaderProps({ header })}>
+                                                {header.header}
+                                            </TableHeader>
                                         ))}
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                )}
-            />
-        </ContentContainer>);
+                                </TableHead>
+                                <TableBody>
+                                    {rows.map(row => (
+                                        <TableRow {...getRowProps({ row })}>
+                                            {row.cells.map(cell => (
+                                                <TableCell key={cell.id}>{cell.value}</TableCell>
+                                            ))}
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )}
+                />
+            </ContentContainer>
+        </>);
 }
