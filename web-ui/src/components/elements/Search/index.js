@@ -18,5 +18,5 @@ export default (props) => {
         }
     };
 
-    return <Search { ...props } value={ value } onChange={ onChangeValue } />;
+    return <Search { ...props } labelText="Search" value={ value } onChange={ onChangeValue } />;
 }

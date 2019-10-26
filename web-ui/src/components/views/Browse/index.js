@@ -6,7 +6,9 @@ import { connect } from 'react-redux';
 
 const mapStateToProps = (state) => {
     const s = state.toJS();
-    return _.assign({});
+    return _.assign({
+        projects: s.services.projects.projects
+    });
 };
 
 const mapDispatchToProps = (dispatch) => {

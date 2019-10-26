@@ -14,7 +14,7 @@ const defaultViewModel = {
 export default ({
     data = defaultViewModel
 }) => {
-    data = _.assign({}, data, defaultViewModel);
+    data = _.assign({}, defaultViewModel, data);
 
     return (
         <div className="mq--dataset-card">
