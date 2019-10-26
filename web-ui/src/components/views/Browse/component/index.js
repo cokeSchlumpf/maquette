@@ -1,8 +1,11 @@
 import React from 'react';
 import './styles.scss';
 
+import Cards from '../../../elements/Cards';
 import ContentContainer from '../../../elements/ContentContainer';
+import DatasetCard from '../../../elements/DatasetCard';
 import PageBanner from '../../../elements/PageBanner';
+import ProjectCard from '../../../elements/ProjectCard';
 import Search from '../../../elements/Search';
 
 import {
@@ -101,36 +104,11 @@ export default (props) => {
                         name="q" />
                 </div>
 
-                <h3 className="mq--view-heading">Data Assets</h3>
-                <DataTable
-                    rows={initialRows}
-                    headers={headers}
-                    {...props}
-                    render={({ rows, headers, getHeaderProps, getRowProps, getTableProps }) => (
-                        <TableContainer>
-                            <Table {...getTableProps()}>
-                                <TableHead>
-                                    <TableRow>
-                                        {headers.map(header => (
-                                            <TableHeader {...getHeaderProps({ header })}>
-                                                {header.header}
-                                            </TableHeader>
-                                        ))}
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {rows.map(row => (
-                                        <TableRow {...getRowProps({ row })}>
-                                            {row.cells.map(cell => (
-                                                <TableCell key={cell.id}>{cell.value}</TableCell>
-                                            ))}
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )}
-                />
+                <Cards title="Projects" component={ ProjectCard } cards={ [{}, {}, {}, {}, {}, {}, {}] } />
+
+                <Cards title="Datasets" component={ DatasetCard } cards={ [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}] } />
+
+                <Cards title="Data-Collections" component={ ProjectCard } cards={ [] } />
             </ContentContainer>
         </>);
 }
