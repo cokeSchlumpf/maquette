@@ -13,6 +13,7 @@ import maquette.controller.application.commands.DataTable;
 import maquette.controller.application.commands.DataTables;
 import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.commands.Command;
+import maquette.controller.application.commands.views.DatasetsVM;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.iam.User;
 
@@ -44,7 +45,11 @@ public class FindDatasetsCmd implements Command {
             .findDatasets(executor, query)
             .thenApply(datasets -> {
                 DataTable dt = DataTables.createDatasets(datasets);
-                return CommandResult.success(dt.toAscii(), dt);
+                DatasetsVM vm = DatasetsVM.apply(datasets, executor, outputFormat);
+
+                return CommandResult
+                    .success(dt.toAscii(), dt)
+                    .withView(vm);
             });
     }
 

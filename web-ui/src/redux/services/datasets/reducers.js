@@ -2,18 +2,41 @@ import { fromJS } from 'immutable';
 import { types } from './actions';
 
 export const initialState = fromJS({
-    value: "",
-    output: "Enter your name and press submit!"
+    datasetsLoading: false,
+    datasets: [],
+    dataset: undefined
 });
 
-const foo = state => {
-    return state;
+const find = (state) => {
+    return state.setIn(['datasetsLoading'], true);
+};
+
+const findSuccess = (state, payload) => {
+    return state
+        .setIn(['projects'], payload.projects)
+        .setIn(['datasetsLoading'], false);
+};
+
+const list = (state) => {
+    return state.setIn(['datasetsLoading'], true);
+};
+
+const listSuccess = (state, payload) => {
+    return state
+        .setIn(['projects'], payload.projects)
+        .setIn(['datasetsLoading'], false);
 };
 
 export default (state = initialState, action) => {
     switch (action.type) {
-        case types.FOO:
-            return foo(state, action.payload);
+        case types.FIND:
+            return find(state, action.payload);
+        case types.FIND_SUCCESS:
+            return findSuccess(state, action.payload);
+        case types.LIST:
+            return list(state, action.payload);
+        case types.LIST_SUCCESS:
+            return listSuccess(state, action.payload);
         default:
             return state;
     }

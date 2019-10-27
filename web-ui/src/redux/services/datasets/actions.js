@@ -1,19 +1,43 @@
 import constantsFromArray from '../../../utils/constants-from-array';
 
 export const types = constantsFromArray([
-    'FOO',
-    'LOREM'
-], 'BAR_');
+    'FIND',
+    'FIND_SUCCESS',
+    'FIND_FAIL',
+    'LIST',
+    'LIST_SUCCESS',
+    'LIST_FAIL'
+], 'DATASETS_');
 
-export const foo = (payload) => (
-    { type: types.FOO, payload }
+export const find = (query) => (
+    { type: types.FIND, payload: { query } }
 );
 
-export const lorem = (payload) => (
-    { type: types.LOREM, payload }
+export const findFail = (error) => (
+    { type: types.FIND_FAIL, payload: { error } }
+);
+
+export const findSuccess = (payload) => (
+    { type: types.FIND_SUCCESS, payload }
+);
+
+export const list = () => (
+    { type: types.LIST, payload: {} }
+);
+
+export const listFail = (error) => (
+    { type: types.LIST_FAIL, payload: { error } }
+);
+
+export const listSuccess = (payload) => (
+    { type: types.LIST_SUCCESS, payload }
 );
 
 export default {
-    foo,
-    lorem
+    find,
+    findFail,
+    findSuccess,
+    list,
+    listFail,
+    listSuccess
 }

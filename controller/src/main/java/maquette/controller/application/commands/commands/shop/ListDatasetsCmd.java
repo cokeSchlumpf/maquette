@@ -11,6 +11,7 @@ import maquette.controller.application.commands.DataTable;
 import maquette.controller.application.commands.DataTables;
 import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.commands.Command;
+import maquette.controller.application.commands.views.DatasetsVM;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.values.iam.User;
 
@@ -22,14 +23,19 @@ public final class ListDatasetsCmd implements Command {
     }
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
-                                              OutputFormat outputFormat) {
+    public CompletionStage<CommandResult> run(
+        User executor, CoreApplication app, OutputFormat outputFormat) {
+
         return app
             .shop()
             .listDatasets(executor)
             .thenApply(datasets -> {
                 DataTable dt = DataTables.createDatasets(datasets);
-                return CommandResult.success(dt.toAscii(), dt);
+                DatasetsVM vm = DatasetsVM.apply(datasets, executor, outputFormat);
+
+                return CommandResult
+                    .success(dt.toAscii(), dt)
+                    .withView(vm);
             });
     }
 

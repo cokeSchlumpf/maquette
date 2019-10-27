@@ -43,7 +43,7 @@ public final class FindProjectsCmd implements Command {
             .findProjects(executor, query)
             .thenApply(projects -> Operators.suppressExceptions(() -> {
                 DataTable dt = DataTables.createProjects(projects);
-                ProjectsVM vm = ProjectsVM.apply(projects, outputFormat);
+                ProjectsVM vm = ProjectsVM.apply(projects, executor, outputFormat);
 
                 return CommandResult
                     .success(dt.toAscii(), dt)

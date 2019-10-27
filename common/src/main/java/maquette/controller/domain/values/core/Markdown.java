@@ -42,7 +42,12 @@ public class Markdown {
         return value;
     }
 
-    public String getHTMLString() {
+    public String asHTMLString() {
+        // TODO: Implement
+        return value;
+    }
+
+    public String asPreviewText() {
         // TODO: Implement
         return value;
     }

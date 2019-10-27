@@ -2,9 +2,9 @@ import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import './styles.scss';
 
-import { Button } from 'carbon-components-react';
+import { Button, InlineLoading } from 'carbon-components-react';
 
-export default ({ component, cards = [], title = "Items", pageSize = 3 }) => {
+export default ({ component, cards = [], title = "Items", pageSize = 3, loading = false }) => {
     const itemsCount = _.size(cards);
     const [items, setItems] = useState(0);
 
@@ -21,15 +21,17 @@ export default ({ component, cards = [], title = "Items", pageSize = 3 }) => {
         setItems(_.min([itemsCount, pageSize]))
     }, [itemsCount, pageSize]);
 
+    const content = (itemsCount > 0 &&
+       <>
+           { visibleCards }
+           <div className="mq--cards-button">
+               <Button size="small" disabled={ items >= itemsCount} onClick={ onButtonClick }>Show more</Button>
+           </div>
+       </>) || <p className="mq--cards-no-items">No items to show</p>
+
     return (
         <>
             <h3 className="mq--cards-heading">{ title } ({items} of {itemsCount})</h3>
-            { (itemsCount > 0 &&
-                <>
-                    { visibleCards }
-                    <div className="mq--cards-button">
-                        <Button size="small" disabled={ items >= itemsCount} onClick={ onButtonClick }>Show more</Button>
-                </div>
-                </>) || <p className="mq--cards-no-items">No items to show</p> }
+            { (loading && <InlineLoading description="Loading data ..." />) || content }
         </>);
 }

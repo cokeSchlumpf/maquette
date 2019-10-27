@@ -8,10 +8,7 @@ import PageBanner from '../../../elements/PageBanner';
 import ProjectCard from '../../../elements/ProjectCard';
 import Search from '../../../elements/Search';
 
-export default ({ projects }) => {
-
-    console.log(projects);
-
+export default ({ datasets, datasetsLoading, projects, projectsLoading }) => {
     return (
         <>
             <PageBanner
@@ -35,9 +32,17 @@ export default ({ projects }) => {
                         name="q" />
                 </div>
 
-                <Cards title="Projects" component={ ProjectCard } cards={ projects } />
+                <Cards
+                   title="Projects"
+                   component={ ProjectCard }
+                   cards={ projects }
+                   loading={ projectsLoading }/>
 
-                <Cards title="Datasets" component={ DatasetCard } cards={ [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}] } />
+                <Cards
+                    title="Datasets"
+                    component={ DatasetCard }
+                    cards={ datasets }
+                    loading={ datasetsLoading } />
 
                 <Cards title="Data-Collections" component={ ProjectCard } cards={ [] } />
             </ContentContainer>

@@ -7,6 +7,9 @@ import { connect } from 'react-redux';
 const mapStateToProps = (state) => {
     const s = state.toJS();
     return _.assign({
+        datasetsLoading: s.services.datasets.datasetsLoading,
+        datasets: s.services.datasets.datasets,
+        projectsLoading: s.services.projects.projectsLoading,
         projects: s.services.projects.projects
     });
 };

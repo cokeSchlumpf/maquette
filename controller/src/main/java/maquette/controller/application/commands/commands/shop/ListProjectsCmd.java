@@ -14,7 +14,6 @@ import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.commands.Command;
 import maquette.controller.application.commands.views.ProjectsVM;
 import maquette.controller.domain.CoreApplication;
-import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.iam.User;
 
 @Value
@@ -31,14 +30,14 @@ public final class ListProjectsCmd implements Command {
         return app
             .shop()
             .listProjects(executor)
-            .thenApply(projects -> Operators.suppressExceptions(() -> {
+            .thenApply(projects -> {
                 DataTable dt = DataTables.createProjects(projects);
-                ProjectsVM vm = ProjectsVM.apply(projects, outputFormat);
+                ProjectsVM vm = ProjectsVM.apply(projects, executor, outputFormat);
 
                 return CommandResult
                     .success(dt.toAscii(), dt)
                     .withView(vm);
-            }));
+            });
     }
 
 }

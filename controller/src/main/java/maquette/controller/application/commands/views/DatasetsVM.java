@@ -14,39 +14,35 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.application.commands.OutputFormat;
 import maquette.controller.application.commands.ViewModel;
+import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.iam.User;
-import maquette.controller.domain.values.project.ProjectDetails;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ProjectsVM implements ViewModel {
+public final class DatasetsVM implements ViewModel {
 
     private static final String COUNT = "count";
-    private static final String PROJECTS = "projects";
+    private static final String DATASETS = "datasets";
 
     @JsonProperty(COUNT)
     private final int count;
 
-    @JsonProperty(PROJECTS)
-    private final List<ProjectCardVM> projects;
+    @JsonProperty(DATASETS)
+    private final List<DatasetCardVM> datasets;
 
     @JsonCreator
-    public static ProjectsVM apply(
+    public static DatasetsVM apply(
         @JsonProperty(COUNT) int count,
-        @JsonProperty(PROJECTS) List<ProjectCardVM> projects) {
+        @JsonProperty(DATASETS) List<DatasetCardVM> datasets) {
 
-        return new ProjectsVM(count, ImmutableList.copyOf(projects));
+        return new DatasetsVM(count, ImmutableList.copyOf(datasets));
     }
 
-    public static ProjectsVM apply(
-        Collection<ProjectDetails> projects,
-        User executor,
-        OutputFormat out) {
-
-        List<ProjectCardVM> cards = projects
+    public static DatasetsVM apply(Collection<DatasetDetails> projects, User executor, OutputFormat out) {
+        List<DatasetCardVM> cards = projects
             .stream()
-            .sorted(Comparator.comparing(p -> p.getName().getValue()))
-            .map(details -> ProjectCardVM.apply(details, executor, out))
+            .sorted(Comparator.comparing(p -> p.getDataset().toString()))
+            .map(details -> DatasetCardVM.apply(details, executor, out))
             .collect(Collectors.toList());
 
         return apply(cards.size(), cards);
