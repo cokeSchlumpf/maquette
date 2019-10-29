@@ -1,19 +1,19 @@
 import constantsFromArray from '../../../../utils/constants-from-array';
 
 export const types = constantsFromArray([
-    'FOO',
-    'LOREM'
-], 'VIEWS_ASSETS');
+    'CLEAR_SEARCH',
+    'SEARCH'
+], 'BROWSE');
 
-export const foo = (payload) => (
-    { type: types.FOO, payload }
+export const clearSearch = () => (
+    { type: types.CLEAR_SEARCH, payload: {} }
 );
 
-export const lorem = (payload) => (
-    { type: types.LOREM, payload }
+export const search = (query) => (
+    { type: types.SEARCH, payload: { query } }
 );
 
 export default {
-    foo,
-    lorem
+    clearSearch,
+    search
 }

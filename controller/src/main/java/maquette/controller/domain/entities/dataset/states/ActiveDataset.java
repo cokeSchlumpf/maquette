@@ -163,7 +163,7 @@ public final class ActiveDataset implements State {
         this.details = details
             .withGovernance(changed.getGovernance())
             .withModifiedBy(changed.getChangedBy())
-            .withModified(Instant.now());
+            .withModified(changed.getChangedAt());
 
         return this;
     }

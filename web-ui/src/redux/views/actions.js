@@ -1,9 +1,9 @@
-import assets, { types as assetsTypes } from '../../components/views/Browse/redux/actions';
+import browse, { types as browseTypes } from '../../components/views/Browse/redux/actions';
 
 export const types = {
-    assets: assetsTypes
+    browse: browseTypes
 };
 
 export default {
-    assets
+    browse
 }

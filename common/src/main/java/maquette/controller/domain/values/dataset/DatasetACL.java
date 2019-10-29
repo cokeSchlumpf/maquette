@@ -54,12 +54,16 @@ public class DatasetACL {
         return isAdmin(user) || isOwner(user);
     }
 
+    public boolean canFind(User user) {
+        return !isPrivate || canReadDetails(user);
+    }
+
     public boolean canManage(User user) {
         return isAdmin(user) || isOwner(user);
     }
 
     public boolean canReadDetails(User user) {
-        return !isPrivate || isAdmin(user) || isConsumer(user) || isProducer(user) || isOwner(user);
+        return isAdmin(user) || isConsumer(user) || isProducer(user) || isOwner(user);
     }
 
     public boolean canProduce(User user) {

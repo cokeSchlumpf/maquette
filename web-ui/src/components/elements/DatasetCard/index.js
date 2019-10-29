@@ -38,8 +38,8 @@ export default ({
             }
             <ul className={"mq--dataset-card--details"}>
                 <li>{ access }</li>
-                <li>{ data.versions } Versions</li>
-                <li>Last modified { data['last-update'] }</li>
+                <li>{ data.versions } version(s)</li>
+                <li>{ data['last-update'] }</li>
             </ul>
         </div>);
 }

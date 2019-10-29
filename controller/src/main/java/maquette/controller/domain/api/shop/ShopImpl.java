@@ -1,11 +1,8 @@
 package maquette.controller.domain.api.shop;
 
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.Sets;
 
 import akka.actor.typed.ActorRef;
 import akka.cluster.sharding.typed.ShardingEnvelope;
@@ -39,13 +36,13 @@ public final class ShopImpl implements Shop {
         CompletionStage<Set<DatasetDetails>> allDatasets = namespaceInfos
             .thenApply(projects -> projects
                 .stream()
-                .filter(proj -> proj.getAcl().canReadDetails(executor))
+                .filter(project -> project.getAcl().canFind(executor))
                 .collect(Collectors.toSet()))
             .thenCompose(infos -> patterns.process(result -> CollectDatasets.create(infos, datasets, result)));
 
         return allDatasets.thenApply(datasets -> datasets
             .stream()
-            .filter(ds -> ds.getAcl().canReadDetails(executor))
+            .filter(ds -> ds.getAcl().canFind(executor))
             .filter(ds -> query == null || query.equals("*") || (ds.getDescription().isPresent() && ds
                 .getDescription()
                 .get()
@@ -65,7 +62,7 @@ public final class ShopImpl implements Shop {
 
         return namespaceInfos.thenApply(projects -> projects
             .stream()
-            .filter(proj -> proj.getAcl().canReadDetails(executor))
+            .filter(proj -> proj.getAcl().canFind(executor))
             .filter(proj -> query == null || query.equals("*") || proj.getDescription().getValue().contains(query) || proj
                 .getName()
                 .getValue()
@@ -83,7 +80,7 @@ public final class ShopImpl implements Shop {
 
         return allDatasets.thenApply(datasets -> datasets
             .stream()
-            .filter(ds -> ds.getAcl().canConsume(executor) || ds.getAcl().canProduce(executor))
+            .filter(ds -> ds.getAcl().canFind(executor))
             .collect(Collectors.toSet()));
     }
 
@@ -94,7 +91,7 @@ public final class ShopImpl implements Shop {
 
         return namespaceInfos.thenApply(projects -> projects
             .stream()
-            .filter(proj -> proj.getAcl().canConsume(executor) || proj.getAcl().canProduce(executor))
+            .filter(proj -> proj.getAcl().canFind(executor))
             .collect(Collectors.toSet()));
     }
 

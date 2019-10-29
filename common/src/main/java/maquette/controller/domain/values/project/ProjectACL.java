@@ -55,6 +55,10 @@ public class ProjectACL {
         return isOwner(user) || isAdmin(user);
     }
 
+    public boolean canFind(User user) {
+        return !isPrivate() || canReadDetails(user);
+    }
+
     public boolean canGrantNamespaceAccess(User user) {
         return isOwner(user) || isAdmin(user);
     }
@@ -68,7 +72,7 @@ public class ProjectACL {
     }
 
     public boolean canReadDetails(User user) {
-        return !isPrivate() || isOwner(user) || isAdmin(user) || isProducer(user) || isConsumer(user) || isMember(user);
+        return isOwner(user) || isAdmin(user) || isProducer(user) || isConsumer(user) || isMember(user);
     }
 
     public boolean canReadResourceDetails(User user) {

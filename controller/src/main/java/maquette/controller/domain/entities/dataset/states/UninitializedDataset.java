@@ -140,14 +140,14 @@ public final class UninitializedDataset implements State {
     public State onCreatedDataset(CreatedDataset created) {
         final GrantedAuthorization granted = GrantedAuthorization.apply(
             created.getCreatedBy(),
-            Instant.now(),
+            created.getCreatedAt(),
             UserAuthorization.apply(created.getCreatedBy()));
 
         final DatasetDetails details = DatasetDetails.apply(
             created.getDataset(),
-            Instant.now(),
+            created.getCreatedAt(),
             created.getCreatedBy(),
-            Instant.now(),
+            created.getCreatedAt(),
             created.getCreatedBy(),
             Sets.newHashSet(),
             DatasetACL.apply(granted, Sets.newHashSet(), created.isPrivate()),

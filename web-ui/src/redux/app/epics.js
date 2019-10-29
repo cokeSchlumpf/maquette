@@ -25,6 +25,22 @@ export default combineEpics(
 
     action$ => action$
         .pipe(
+            ofType(types.views.browse.CLEAR_SEARCH),
+            flatMap(action => [
+                actions.services.datasets.list(),
+                actions.services.projects.list()
+            ])),
+
+    action$ => action$
+        .pipe(
+            ofType(types.views.browse.SEARCH),
+            flatMap(action => [
+                actions.services.datasets.find(action.payload.query),
+                actions.services.projects.find(action.payload.query)
+            ])),
+
+    action$ => action$
+        .pipe(
             ofType("@@router/LOCATION_CHANGE"),
             filter(($action) => $action.payload.location.pathname === "/browse"),
             mergeMap(action => [

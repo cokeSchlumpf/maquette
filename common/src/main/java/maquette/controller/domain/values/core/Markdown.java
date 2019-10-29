@@ -3,6 +3,7 @@ package maquette.controller.domain.values.core;
 import java.io.IOException;
 import java.util.Map;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 
@@ -47,9 +48,23 @@ public class Markdown {
         return value;
     }
 
-    public String asPreviewText() {
+    public String asPlainText() {
         // TODO: Implement
         return value;
+    }
+
+    public String asPreviewText() {
+        final int maxWords = 25;
+        final int maxRange = 35;
+        final String[] words = asPlainText().split("\\s+");
+        final int wordCount = asPlainText().split("\\s+").length;
+
+        if (wordCount <= maxWords + maxRange) {
+            return asPlainText();
+        } else {
+            final String[] firstWords =  ArrayUtils.subarray(words, 0, maxWords);
+            return String.join(" ", firstWords) + " ...";
+        }
     }
 
     public static class Serializer extends StdSerializer<Markdown> {

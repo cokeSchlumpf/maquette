@@ -16,8 +16,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        // onUserMessageChange: (message) => dispatch(actions.userMessageChange(message)),
-        // onUserMessageSubmit: (message) => dispatch(actions.userMessageSubmit(message))
+        onClearSearch: () => dispatch(actions.clearSearch()),
+        onSearch: (query) => dispatch(actions.search(query))
     };
 };
 

@@ -48,7 +48,7 @@ public final class SampleDataProvider {
         addData(clair, getEpisodesSamples());
 
         createProject(debra, "twitter-analysis", false);
-        // changeProjectOwner(debra, RoleAuthorization.apply("team-c"));
+        changeProjectOwner(debra, RoleAuthorization.apply("team-c"));
         addDataset(debra, "data", false);
         addData(debra, getTwitterSamples());
     }

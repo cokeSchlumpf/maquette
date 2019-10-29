@@ -8,7 +8,24 @@ import PageBanner from '../../../elements/PageBanner';
 import ProjectCard from '../../../elements/ProjectCard';
 import Search from '../../../elements/Search';
 
-export default ({ datasets, datasetsLoading, projects, projectsLoading }) => {
+export default ({
+                    datasets = [],
+                    datasetsLoading = false,
+                    projects = [],
+                    projectsLoading = false,
+
+                    onClearSearch = () => {},
+                    onSearch = () => {}
+}) => {
+
+    const onSearchChangeHandler = (value) => {
+        if (!value || value.trim().length === 0) {
+            onClearSearch();
+        } else {
+            onSearch(value);
+        }
+    };
+
     return (
         <>
             <PageBanner
@@ -27,7 +44,7 @@ export default ({ datasets, datasetsLoading, projects, projectsLoading }) => {
             <ContentContainer>
                 <div className="mq--browse--search">
                     <Search
-                        onChange={ console.log }
+                        onChange={ onSearchChangeHandler }
                         placeHolderText="Search"
                         name="q" />
                 </div>

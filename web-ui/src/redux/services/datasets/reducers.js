@@ -13,7 +13,7 @@ const find = (state) => {
 
 const findSuccess = (state, payload) => {
     return state
-        .setIn(['projects'], payload.projects)
+        .setIn(['datasets'], payload.datasets)
         .setIn(['datasetsLoading'], false);
 };
 
@@ -23,7 +23,7 @@ const list = (state) => {
 
 const listSuccess = (state, payload) => {
     return state
-        .setIn(['projects'], payload.projects)
+        .setIn(['datasets'], payload.datasets)
         .setIn(['datasetsLoading'], false);
 };
 
