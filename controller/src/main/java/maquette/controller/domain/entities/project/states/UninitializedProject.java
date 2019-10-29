@@ -105,7 +105,12 @@ public final class UninitializedProject implements State {
 
     @Override
     public Effect<ProjectEvent, State> onCreateProject(CreateProject create) {
-        CreatedProject created = CreatedProject.apply(create.getName(), create.getDescription(), create.isPrivate(), create.getExecutor().getUserId(), Instant.now());
+        CreatedProject created = CreatedProject.apply(
+            create.getName(),
+            create.getDescription(),
+            create.isPrivate(),
+            create.getExecutor().getUserId(),
+            Instant.now());
 
         return effect
             .persist(created)

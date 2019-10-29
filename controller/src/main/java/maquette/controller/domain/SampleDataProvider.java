@@ -2,9 +2,6 @@ package maquette.controller.domain;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Maps;
 import com.thedeanda.lorem.Lorem;
 
@@ -23,8 +20,6 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(staticName = "apply")
 public final class SampleDataProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SampleDataProvider.class);
-
     private final CoreApplication app;
 
     private final Map<String, Object> variables;
@@ -39,21 +34,21 @@ public final class SampleDataProvider {
         User clair = AuthenticatedUser.apply("clair", "clair", "team-b");
         User debra = AuthenticatedUser.apply("debra", "debra", "team-c");
 
-        createProject(alice, "alice", true);
+        createProject(alice, "animals", true);
         addDataset(alice, "pigs", false);
         addData(alice, getPigsSample());
         addData(alice, getPigsSample());
 
-        createProject(bob, "bob", true);
+        createProject(bob, "learning ml", true);
         addDataset(bob, "ml-samples", true);
         addData(bob, getMLSamples());
 
-        createProject(clair, "clair", true);
+        createProject(clair, "imdb", true);
         addDataset(clair, "episodes", false);
         addData(clair, getEpisodesSamples());
 
         createProject(debra, "twitter-analysis", false);
-        changeProjectOwner(debra, RoleAuthorization.apply("team-c"));
+        // changeProjectOwner(debra, RoleAuthorization.apply("team-c"));
         addDataset(debra, "data", false);
         addData(debra, getTwitterSamples());
     }
