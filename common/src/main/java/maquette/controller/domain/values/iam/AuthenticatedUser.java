@@ -22,6 +22,10 @@ public final class AuthenticatedUser implements User {
 
     private final ImmutableSet<String> roles;
 
+    public static AuthenticatedUser admin() {
+        return apply("admin", "admin", Sets.newHashSet("admin"));
+    }
+
     @JsonCreator
     public static AuthenticatedUser apply(
         @JsonProperty("id") String id,

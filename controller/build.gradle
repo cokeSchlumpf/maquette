@@ -38,6 +38,7 @@ dependencies {
     compile libs['jackson-datatype-jdk8']
     compile libs['jackson-datatype-sr310']
     compile libs['leveldbjni-all']
+    compile libs['lorem']
     compile libs['snappy']
     compile libs['springfox-spring-webflux']
     compile libs['springfox-swagger']

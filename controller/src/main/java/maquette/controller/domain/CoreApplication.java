@@ -1,5 +1,6 @@
 package maquette.controller.domain;
 
+import java.io.PrintStream;
 import java.util.concurrent.ExecutionException;
 
 import akka.actor.ActorSystem;
@@ -12,6 +13,9 @@ import akka.cluster.typed.ClusterSingleton;
 import akka.stream.ActorMaterializer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.api.commands.commands.shop.ListDatasetsCmd;
+import maquette.controller.domain.api.commands.commands.shop.ListProjectsCmd;
 import maquette.controller.domain.api.datasets.Datasets;
 import maquette.controller.domain.api.datasets.DatasetsFactory;
 import maquette.controller.domain.api.projects.Projects;
@@ -33,8 +37,10 @@ import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.services.CreateDefaultProject;
 import maquette.controller.domain.util.ActorPatterns;
+import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.iam.AuthenticatedUser;
 import scala.compat.java8.FutureConverters;
 
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
@@ -91,7 +97,8 @@ public class CoreApplication {
         return CoreApplication.apply(system, datasets, users, projects, shop);
     }
 
-    private static ActorRef<ShardingEnvelope<DatasetMessage>> createDatasetSharding(ClusterSharding sharding, DataStorageAdapter storageAdapter) {
+    private static ActorRef<ShardingEnvelope<DatasetMessage>> createDatasetSharding(ClusterSharding sharding,
+                                                                                    DataStorageAdapter storageAdapter) {
         final Entity<DatasetMessage, ShardingEnvelope<DatasetMessage>> datasetEntity = Entity
             .ofPersistentEntity(
                 Dataset.ENTITY_KEY,
@@ -120,12 +127,48 @@ public class CoreApplication {
         return datasets;
     }
 
-    public Projects projects() { return projects; }
+    public Projects projects() {
+        return projects;
+    }
 
-    public Shop shop() { return shop; }
+    public Shop shop() {
+        return shop;
+    }
 
     public Users users() {
         return users;
+    }
+
+    public void printStatus(PrintStream ps) {
+        Operators.suppressExceptions(() -> {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("\n");
+            sb.append("SYSTEM STATUS\n");
+            sb.append("-------------\n");
+
+            sb.append(
+                ListProjectsCmd
+                    .apply()
+                    .run(AuthenticatedUser.admin(), this, OutputFormat.apply())
+                    .toCompletableFuture()
+                    .get()
+                    .getOutput());
+
+            sb.append("\n\n");
+
+            sb.append(
+                ListDatasetsCmd
+                    .apply()
+                    .run(AuthenticatedUser.admin(), this, OutputFormat.apply())
+                    .toCompletableFuture()
+                    .get()
+                    .getOutput());
+
+            sb.append("\n\n");
+
+            ps.println(sb);
+        });
     }
 
     public void terminate() {

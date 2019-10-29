@@ -74,17 +74,17 @@ export default ({
                 <HeaderGlobalBar>
 
                     <HeaderGlobalAction
+                        className="mq--shell--user-menu"
+                        aria-label="User Menu">
+
+                        <div className="mq--shell--user-menu--text">{ _.get(user, 'id', 'anonymous') }</div>
+                    </HeaderGlobalAction>
+
+                    <HeaderGlobalAction
                         aria-label="Notifications"
                         onClick={ onClickNotifications }>
 
                         { notifications > 0 ? <NotificationNew20 /> : <Notification20 /> }
-                    </HeaderGlobalAction>
-
-                    <HeaderGlobalAction
-                        aria-label="User"
-                        isActive={ userPanelExpanded }
-                        onClick={ onClickUser }>
-                        <User20 />
                     </HeaderGlobalAction>
 
                 </HeaderGlobalBar>

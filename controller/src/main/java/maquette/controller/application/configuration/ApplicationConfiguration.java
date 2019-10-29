@@ -32,10 +32,14 @@ public class ApplicationConfiguration {
 
         if (!Files.exists(journal)) {
             LOG.info("Initialize with sample data");
-            SampleDataProvider.apply(app).initialize();
+            SampleDataProvider
+                .apply(app)
+                .initialize();
         } else {
             LOG.info(String.format("Skipping sample data initialization. %s already exists.", journal.toAbsolutePath()));
         }
+
+        app.printStatus(System.out);
 
         return app;
     }

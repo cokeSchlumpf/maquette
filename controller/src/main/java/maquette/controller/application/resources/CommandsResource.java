@@ -13,9 +13,9 @@ import org.springframework.web.server.ServerWebExchange;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
-import maquette.controller.application.commands.CommandResult;
-import maquette.controller.application.commands.OutputFormat;
-import maquette.controller.application.commands.commands.Command;
+import maquette.controller.domain.api.commands.CommandResult;
+import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.application.util.ContextUtils;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.util.Operators;
