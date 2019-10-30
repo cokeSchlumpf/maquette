@@ -28,6 +28,11 @@
   @include banner-background;
 }
 
+.mq--page-banner--banner-tabs {
+  padding-bottom: $spacing-09;
+  margin-bottom: rem(-40px);
+}
+
 .mq--page-banner--heading {
   @include carbon--type-style('productive-heading-05');
 }

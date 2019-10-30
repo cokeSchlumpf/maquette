@@ -6,7 +6,8 @@ import { Link } from 'react-router-dom';
 
 import Notification20 from '@carbon/icons-react/lib/notification/20'
 import NotificationNew20 from '@carbon/icons-react/lib/notification--new/20'
-import User20 from '@carbon/icons-react/lib/user/20'
+
+import Add20 from '@carbon/icons-react/lib/add/20'
 
 import {
     Content,
@@ -83,6 +84,11 @@ export default ({
                         { notifications > 0 ? <NotificationNew20 /> : <Notification20 /> }
                     </HeaderGlobalAction>
 
+                    <HeaderGlobalAction
+                        aria-label="New Project">
+
+                        <Add20 />
+                    </HeaderGlobalAction>
                 </HeaderGlobalBar>
             </Header>
 

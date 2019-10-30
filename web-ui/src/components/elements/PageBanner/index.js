@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import cx from 'classnames'
 import React from 'react';
 
 import { Link } from 'react-router-dom';
@@ -20,7 +21,15 @@ export default ({
                     title = "Title",
                     description,
                     showDescription = true,
+                    tabSpace = false,
                     centered = false }) => {
+
+    const bannerClassName = cx({
+        'bx--row': true,
+        'mq--page-banner--banner': true,
+        'mq--page-banner--banner-tabs': tabSpace
+    });
+
     const breadcrumbs = _.map(breadcrumbsItems, item => {
         return (
             <BreadcrumbItem key={ item.name }>
@@ -52,7 +61,7 @@ export default ({
 
     return (
         <div className="bx--grid bx--grid--full-width mq--page-banner">
-            <div className="bx--row mq--page-banner--banner">
+            <div className={ bannerClassName }>
                 <div className="bx--col-lg-16">
                     {
                         (centered && <ContentContainer>{ bannerContent } </ContentContainer>) ||
