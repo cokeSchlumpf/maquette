@@ -30,7 +30,7 @@ export default ({
 
     return (
         <div className="mq--dataset-card">
-            <h5 className="mq--dataset-card--name"><Link to="/projects/foo/bar">{ data.name }</Link></h5>
+            <h5 className="mq--dataset-card--name"><Link to={ "/datasets/" + data.name }>{ data.name }</Link></h5>
 
             {
                 (data.description && <p className="mq--dataset-card--description">{ data.description }</p>) ||

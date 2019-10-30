@@ -8,7 +8,7 @@ const mapStateToProps = (state) => {
     return _.assign(
         s.components.app,
         s.app,
-        { foo: 'bar' });
+        { user: _.get(s, 'services.user', {}) });
 };
 
 const mapDispatchToProps = (dispatch) => {

@@ -30,19 +30,3 @@ $feature-flags: (
 .mq--spacing-07 {
   margin-bottom: 2em;
 }
-
-.mq--shell--user-menu {
-  width: auto;
-  padding: 0 1em;
-}
-
-.mq--shell--user-menu:hover {
-  background-color: transparent !important;
-  cursor: auto !important;
-}
-
-.mq--shell--user-menu--text {
-  @include carbon--type-style('body-short-01');
-
-  color: #bebebe;
-}

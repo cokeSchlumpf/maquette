@@ -72,13 +72,9 @@ export default ({
                 </HeaderNavigation>
 
                 <HeaderGlobalBar>
-
-                    <HeaderGlobalAction
-                        className="mq--shell--user-menu"
-                        aria-label="User Menu">
-
-                        <div className="mq--shell--user-menu--text">{ _.get(user, 'id', 'anonymous') }</div>
-                    </HeaderGlobalAction>
+                    <HeaderNavigation aria-label="user menu">
+                        <HeaderMenuItem element={Link} to="/user">{ _.get(user, 'name', 'anonymous') }</HeaderMenuItem>
+                    </HeaderNavigation>
 
                     <HeaderGlobalAction
                         aria-label="Notifications"
