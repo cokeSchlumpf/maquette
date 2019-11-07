@@ -1,3 +1,4 @@
+import { matchPath } from 'react-router-dom';
 import { combineEpics, ofType } from 'redux-observable'
 import {flatMap, mergeMap, filter} from "rxjs/operators";
 
@@ -41,11 +42,36 @@ export default combineEpics(
 
     action$ => action$
         .pipe(
+            ofType(types.views.project.INIT),
+            flatMap(action => [
+                actions.services.project.listDatasets(action.payload.project),
+                actions.services.project.get(action.payload.project)
+            ])),
+
+    action$ => action$
+        .pipe(
             ofType("@@router/LOCATION_CHANGE"),
             filter(($action) => $action.payload.location.pathname === "/browse"),
-            mergeMap(action => [
+            mergeMap($action => [
                 actions.services.datasets.list(),
                 actions.services.projects.list()
             ])
+        ),
+
+    action$ => action$
+        .pipe(
+            ofType("@@router/LOCATION_CHANGE"),
+            mergeMap($action => {
+                const match = matchPath($action.payload.location.pathname, { path: '/projects/:project' });
+
+                if (match) {
+                    return [
+                        actions.services.project.get(match.params.project),
+                        actions.services.project.listDatasets(match.params.project)
+                    ];
+                } else {
+                    return [];
+                }
+            })
         )
 );

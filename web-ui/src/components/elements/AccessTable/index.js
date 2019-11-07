@@ -2,22 +2,14 @@ import React from 'react';
 import './styles.scss';
 
 import {
-    Button,
     DataTable,
-    DataTableSkeleton,
-    InlineNotification,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableHeader,
-    TableRow,
-    TableExpandHeader,
-    TableExpandRow,
-    TableExpandedRow,
-    TableToolbar,
-    TableToolbarContent
+    TableRow
 } from 'carbon-components-react';
 
 export default ({children}) => {
@@ -42,14 +34,14 @@ export default ({children}) => {
 
     const rows = [
         {
-            "id": 1,
+            "id": "1",
             "granted-to": "hippo",
             "privilege": "god",
             "granted-by": "hippo",
             "granted-at": "23min ago"
         },
         {
-            "id": 2,
+            "id": "2",
             "granted-to": "sackgesicht",
             "privilege": "little-god",
             "granted-by": "hippo",

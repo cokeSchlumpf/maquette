@@ -13,6 +13,7 @@ import maquette.controller.domain.api.commands.OutputFormat;
 import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.api.commands.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.api.commands.views.DatasetsVM;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
 
@@ -37,7 +38,13 @@ public final class ListProjectDatasetsCmd implements Command {
         return app
             .projects()
             .getDatasets(executor, project)
-            .thenApply(datasets -> CommandResult.success(DataTables.createDatasets(datasets)));
+            .thenApply(datasets -> {
+                DatasetsVM vm = DatasetsVM.apply(datasets, executor, outputFormat);
+
+                return CommandResult
+                    .success(DataTables.createDatasets(datasets))
+                    .withView(vm);
+            });
     }
 
 }

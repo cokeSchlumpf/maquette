@@ -1,6 +1,5 @@
 import React from 'react';
 import './styles.scss';
-import {Tile} from "carbon-components-react";
 
 export default ({title, children, cols = false, rows = false}) => {
 

@@ -3,13 +3,13 @@ import './styles.scss'
 import _ from 'lodash';
 import React from 'react';
 
-import AccessTable from '../../elements/AccessTable';
-import PageBanner from '../../elements/PageBanner';
-import ContentContainer from '../../elements/ContentContainer';
-import ContentSection from '../../elements/ContentSection';
-import Cards from "../../elements/Cards";
-import ProjectCard from "../../elements/ProjectCard";
-import DatasetCard from "../../elements/DatasetCard";
+import AccessTable from '../../../elements/AccessTable';
+import PageBanner from '../../../elements/PageBanner';
+import ContentContainer from '../../../elements/ContentContainer';
+import ContentSection from '../../../elements/ContentSection';
+import Cards from "../../../elements/Cards";
+import ProjectCard from "../../../elements/ProjectCard";
+import DatasetCard from "../../../elements/DatasetCard";
 
 import {
     Checkbox,
@@ -21,14 +21,20 @@ import {
     TextInput
 } from 'carbon-components-react';
 
-export default (props) => {
-    const project = _.get(props, 'match.params.project', 'no project');
-    const dataset = _.get(props, 'match.params.dataset', 'no dataset');
+export default ({
+                    project,
+                    projectLoading,
+                    projectError,
+                    datasets,
+                    datasetsLoading,
+                    datasetsError,
+                    onInit = () => {},
+                    ...props }) => {
 
     return (
         <>
             <PageBanner
-                title={ project + "/" + dataset }
+                title={ _.get(project, 'name', 'no name') }
                 centered={ true }
                 showDescription={ true }
                 description="Lorem ipsum dolor"
@@ -42,10 +48,6 @@ export default (props) => {
                         {
                             name: "Project Details",
                             to: "/projects/" + project
-                        },
-                        {
-                            name: "Dataset Details",
-                            to: "/datasets/" + project + "/" + dataset
                         }
                     ]
                 }
@@ -53,7 +55,7 @@ export default (props) => {
 
             <ContentContainer>
                 <Tabs selected={ 1 }>
-                    <Tab label="Versions">
+                    <Tab label="Assets">
                         <Cards
                             title="Datasets"
                             component={ DatasetCard }
@@ -83,7 +85,7 @@ export default (props) => {
                                     </fieldset>
                                 </div>
                                 <div className="bx--col-md-2">
-                                    <Select defaultValue="user" labelText="Owner" className="mq--project--owner-type">
+                                    <Select id="owner" defaultValue="user" labelText="Owner" className="mq--project--owner-type">
                                         <SelectItem value="user" text="User" />
                                         <SelectItem value="role" text="Role" />
                                     </Select>
@@ -109,9 +111,6 @@ export default (props) => {
                         <ContentSection title="Members">
                             <AccessTable />
                         </ContentSection>
-                    </Tab>
-
-                    <Tab label="AccessRequest">
                     </Tab>
                 </Tabs>
             </ContentContainer>

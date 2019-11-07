@@ -2,10 +2,12 @@ package maquette.controller.domain.api.commands.commands.projects;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,6 +17,9 @@ import maquette.controller.domain.api.commands.OutputFormat;
 import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.api.commands.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.api.commands.views.AuthorizationVM;
+import maquette.controller.domain.api.commands.views.MembersEntryVM;
+import maquette.controller.domain.api.commands.views.ProjectVM;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.project.ProjectGrant;
@@ -44,7 +49,7 @@ public final class PrintProjectDetailsCmd implements Command {
                 StringWriter sw = new StringWriter();
                 PrintWriter out = new PrintWriter(sw);
 
-                DataTable properties = DataTable
+                final DataTable properties = DataTable
                     .apply("key", "property")
                     .withRow("owner", details.getAcl().getOwner().getAuthorization())
                     .withRow("private", details.getAcl().isPrivate())
@@ -58,6 +63,7 @@ public final class PrintProjectDetailsCmd implements Command {
                     .withRow("datasets", details.getDatasets().size());
 
                 DataTable acl = DataTable.apply("granted to", "privilege", "granted by", "granted at");
+                List<MembersEntryVM> aclVM = Lists.newArrayList();
 
                 for (ProjectGrant grant : details.getAcl().getGrants()) {
                     acl = acl.withRow(
@@ -65,6 +71,12 @@ public final class PrintProjectDetailsCmd implements Command {
                         grant.getPrivilege().name,
                         grant.getAuthorization().getBy(),
                         grant.getAuthorization().getAt());
+
+                    aclVM.add(MembersEntryVM.apply(
+                        outputFormat.format(grant.getAuthorization().getAuthorization()),
+                        outputFormat.format(grant.getPrivilege().name),
+                        outputFormat.format(grant.getAuthorization().getBy()),
+                        outputFormat.format(grant.getAuthorization().getAt())));
                 }
 
                 out.println(details.getDescription().asASCIIString());
@@ -78,7 +90,14 @@ public final class PrintProjectDetailsCmd implements Command {
                 out.println("--------------");
                 out.println(acl.toAscii());
 
-                return CommandResult.success(sw.toString(), properties, acl);
+                ProjectVM vm = ProjectVM.apply(
+                    outputFormat.format(details.getName()),
+                    details.getDescription().asHTMLString(),
+                    details.getAcl().isPrivate(),
+                    AuthorizationVM.apply(details.getAcl().getOwner()),
+                    aclVM);
+
+                return CommandResult.success(sw.toString(), properties, acl).withView(vm);
             });
     }
 
