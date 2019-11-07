@@ -83,13 +83,7 @@ public final class ProjectsSecured implements Projects {
     @Override
     public CompletionStage<Set<DatasetDetails>> getDatasets(User executor, ResourceName project) {
         return getProjectDetails(project)
-            .thenApply(details -> {
-                if (!details.getAcl().isPrivate()) {
-                    return true;
-                } else {
-                    return details.getAcl().canReadDetails(executor);
-                }
-            })
+            .thenApply(details -> details.getAcl().canFind(executor))
             .thenCompose(canDo -> {
                 if (canDo) {
                     return delegate.getDatasets(executor, project);
@@ -99,7 +93,7 @@ public final class ProjectsSecured implements Projects {
             })
             .thenApply(datasets -> datasets
                 .stream()
-                .filter(details -> !details.getAcl().isPrivate())
+                .filter(details -> details.getAcl().canFind(executor))
                 .collect(Collectors.toSet()));
     }
 
@@ -130,7 +124,7 @@ public final class ProjectsSecured implements Projects {
     public CompletionStage<ProjectDetails> getDetails(User executor, ResourceName project) {
         return getProjectDetails(project)
             .thenCompose(details -> {
-                if (details.getAcl().canReadDetails(executor)) {
+                if (details.getAcl().canFind(executor)) {
                     return delegate.getDetails(executor, project);
                 } else {
                     throw NotAuthorizedException.apply(executor);

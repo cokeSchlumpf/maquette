@@ -8,8 +8,8 @@ import PageBanner from '../../../elements/PageBanner';
 import ContentContainer from '../../../elements/ContentContainer';
 import ContentSection from '../../../elements/ContentSection';
 import Cards from "../../../elements/Cards";
-import ProjectCard from "../../../elements/ProjectCard";
 import DatasetCard from "../../../elements/DatasetCard";
+import Properties from '../../../elements/Properties';
 
 import {
     Checkbox,
@@ -31,13 +31,18 @@ export default ({
                     onInit = () => {},
                     ...props }) => {
 
+    project = project || { name: _.get(props, 'match.params.project') };
+    const foo = _.get(project, 'description', 'bla bla');
+
+    console.log(foo);
+
     return (
         <>
             <PageBanner
-                title={ _.get(project, 'name', 'no name') }
+                title={ _.get(project, 'name') }
+                description={ _.get(project, 'description') }
                 centered={ true }
                 showDescription={ true }
-                description="Lorem ipsum dolor"
                 tabSpace={ true }
                 breadcrumbsItems={
                     [
@@ -47,7 +52,7 @@ export default ({
                         },
                         {
                             name: "Project Details",
-                            to: "/projects/" + project
+                            to: "/projects/" + _.get(project, 'name')
                         }
                     ]
                 }
@@ -59,55 +64,37 @@ export default ({
                         <Cards
                             title="Datasets"
                             component={ DatasetCard }
-                            cards={ [] }
-                            loading={ false } />
+                            cards={ datasets || [] }
+                            loading={ datasetsLoading } />
 
-                        <Cards title="Data-Collections" component={ ProjectCard } cards={ [] } />
+                        <Cards title="Data-Collections" component={ DatasetCard } cards={ [] } />
                     </Tab>
 
                     <Tab label="Properties">
-                        <ContentSection title="Settings" rows={ true }>
+                        <ContentSection rows={ true }>
                             <div className="bx--row">
                                 <div className="bx--col-md-4">
-                                    <fieldset className="bx--fieldset">
-                                        <TextInput
-                                            labelText="Project Name"
-                                            id="project_name"
-                                            disabled={ false }
-                                            defaultValue="twitter-analysis" />
-
-                                        <Checkbox
-                                            defaultChecked
-                                            labelText="Private project"
-                                            id="checkbox-label-1"
-                                            disabled={ false }
-                                            className="mq--project--private-checkbox" />
-                                    </fieldset>
+                                    <ContentSection title="Properties">
+                                        <Properties />
+                                    </ContentSection>
                                 </div>
-                                <div className="bx--col-md-2">
-                                    <Select id="owner" defaultValue="user" labelText="Owner" className="mq--project--owner-type">
-                                        <SelectItem value="user" text="User" />
-                                        <SelectItem value="role" text="Role" />
-                                    </Select>
-                                </div>
+                                <div className="bx--col-md-4">
+                                    <ContentSection title="Activity">
 
-                                <div className="bx--col-md-2">
-                                    <TextInput
-                                        labelText="."
-                                        id="project_owner"
-                                        defaultValue="foo bar" />
+                                    </ContentSection>
                                 </div>
                             </div>
+
 
                             <div className="bx--row">
                                 <div className="bx--col">
-                                    <TextArea labelText="Project Description" disabled={ false }>
 
-                                    </TextArea>
                                 </div>
                             </div>
                         </ContentSection>
+                    </Tab>
 
+                    <Tab label="Members">
                         <ContentSection title="Members">
                             <AccessTable />
                         </ContentSection>

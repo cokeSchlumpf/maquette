@@ -48,13 +48,13 @@ export default ({
             </h1>
 
             <div className="bx--row">
-                <div className="bx--col-lg-10">
+                <div className="bx--col-lg-14">
                     {
                         (description && <p className="mq--page-banner--p">{ description }</p>) ||
                         (showDescription && <p className="mq--page-banner--p-no-content">No description yet.</p>)
                     }
                 </div>
-                <div className="bx--col-lg-6"/>
+                <div className="bx--col-lg-2"/>
             </div>
         </>
     );

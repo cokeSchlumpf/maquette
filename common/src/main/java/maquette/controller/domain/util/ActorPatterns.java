@@ -106,6 +106,10 @@ public final class ActorPatterns {
         return process(processor, DEFAULT_TIMEOUT);
     }
 
+    public <T> CompletionStage<T> process(Function<CompletableFuture<T>, Behavior<?>> processor, Class<T> typeHint) {
+        return process(processor);
+    }
+
     public <T> CompletionStage<T> process(Function<CompletableFuture<T>, Behavior<?>> processor, long durationInSeconds) {
         CompletableFuture<T> result = new CompletableFuture<>();
 

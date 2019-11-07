@@ -24,11 +24,13 @@ export default ({title, children, cols = false, rows = false}) => {
 
     return (
         <div className="bx--grid bx--no-gutter mq--content-section">
-            <div className="bx--row">
-                <div className="bx--col">
-                    <h3 className="mq--content-section--header">{ title }</h3>
-                </div>
-            </div>
+            { title &&
+                <div className="bx--row">
+                    <div className="bx--col">
+                        <h3 className="mq--content-section--header">{ title }</h3>
+                    </div>
+                </div> }
+
             { content() }
         </div>);
 }

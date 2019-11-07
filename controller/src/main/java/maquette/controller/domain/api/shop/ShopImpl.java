@@ -28,17 +28,19 @@ public final class ShopImpl implements Shop {
 
     private final ActorPatterns patterns;
 
-    @Override
-    public CompletionStage<Set<DatasetDetails>> findDatasets(User executor, String query) {
-        CompletionStage<Set<ProjectDetails>> namespaceInfos = patterns
-            .process(result -> CollectProjectDetails.create(projectsRegistry, projects, result));
-
-        CompletionStage<Set<DatasetDetails>> allDatasets = namespaceInfos
+    private CompletionStage<Set<DatasetDetails>> getAllDatasets(User executor) {
+        return patterns
+            .<Set<ProjectDetails>>process(result -> CollectProjectDetails.create(projectsRegistry, this.projects, result))
             .thenApply(projects -> projects
                 .stream()
                 .filter(project -> project.getAcl().canFind(executor))
                 .collect(Collectors.toSet()))
             .thenCompose(infos -> patterns.process(result -> CollectDatasets.create(infos, datasets, result)));
+    }
+
+    @Override
+    public CompletionStage<Set<DatasetDetails>> findDatasets(User executor, String query) {
+        CompletionStage<Set<DatasetDetails>> allDatasets = getAllDatasets(executor);
 
         return allDatasets.thenApply(datasets -> datasets
             .stream()
@@ -72,11 +74,7 @@ public final class ShopImpl implements Shop {
 
     @Override
     public CompletionStage<Set<DatasetDetails>> listDatasets(User executor) {
-        CompletionStage<Set<ProjectDetails>> namespaceInfos = patterns
-            .process(result -> CollectProjectDetails.create(projectsRegistry, projects, result));
-
-        CompletionStage<Set<DatasetDetails>> allDatasets = namespaceInfos
-            .thenCompose(infos -> patterns.process(result -> CollectDatasets.create(infos, datasets, result)));
+        CompletionStage<Set<DatasetDetails>> allDatasets = getAllDatasets(executor);
 
         return allDatasets.thenApply(datasets -> datasets
             .stream()
