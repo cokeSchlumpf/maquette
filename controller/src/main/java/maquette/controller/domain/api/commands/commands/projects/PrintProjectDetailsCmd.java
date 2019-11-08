@@ -72,11 +72,7 @@ public final class PrintProjectDetailsCmd implements Command {
                         grant.getAuthorization().getBy(),
                         grant.getAuthorization().getAt());
 
-                    aclVM.add(MembersEntryVM.apply(
-                        outputFormat.format(grant.getAuthorization().getAuthorization()),
-                        outputFormat.format(grant.getPrivilege().name),
-                        outputFormat.format(grant.getAuthorization().getBy()),
-                        outputFormat.format(grant.getAuthorization().getAt())));
+                    aclVM.add(MembersEntryVM.apply(grant, outputFormat));
                 }
 
                 out.println(details.getDescription().asASCIIString());
@@ -90,13 +86,7 @@ public final class PrintProjectDetailsCmd implements Command {
                 out.println("--------------");
                 out.println(acl.toAscii());
 
-                ProjectVM vm = ProjectVM.apply(
-                    outputFormat.format(details.getName()),
-                    details.getDescription().asHTMLString(),
-                    details.getAcl().isPrivate(),
-                    AuthorizationVM.apply(details.getAcl().getOwner()),
-                    aclVM);
-
+                ProjectVM vm = ProjectVM.apply(details, aclVM, outputFormat);
                 return CommandResult.success(sw.toString(), properties, acl).withView(vm);
             });
     }

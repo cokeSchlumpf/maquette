@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 import './styles.scss';
 
@@ -12,7 +13,7 @@ import {
     TableRow
 } from 'carbon-components-react';
 
-export default ({children}) => {
+export default ({members}) => {
     const headers = [
         {
             key: 'granted-to',
@@ -32,22 +33,7 @@ export default ({children}) => {
         }
     ];
 
-    const rows = [
-        {
-            "id": "1",
-            "granted-to": "hippo",
-            "privilege": "god",
-            "granted-by": "hippo",
-            "granted-at": "23min ago"
-        },
-        {
-            "id": "2",
-            "granted-to": "sackgesicht",
-            "privilege": "little-god",
-            "granted-by": "hippo",
-            "granted-at": "23min ago"
-        }
-    ];
+    const rows = _.map(members, (member, id) => _.assign({}, member, { id: id.toString() }));
 
     return (
         <DataTable
@@ -68,9 +54,7 @@ export default ({children}) => {
                             {rows.map(row => (
                                 <React.Fragment key={ "key-" + row.id }>
                                     <TableRow {...getRowProps({ row })}>
-                                        {row.cells.map(cell => cell.info.header !== "description" &&
-                                                               <TableCell key={cell.id}>{cell.value}</TableCell>
-                                        )}
+                                        { row.cells.map(cell =><TableCell key={cell.id}>{cell.value}</TableCell>) }
                                     </TableRow>
                                 </React.Fragment>
                             ))}

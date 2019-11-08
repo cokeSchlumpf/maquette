@@ -3,7 +3,7 @@ import './styles.scss'
 import _ from 'lodash';
 import React from 'react';
 
-import AccessTable from '../../elements/AccessTable';
+import AccessTable from '../../elements/MembersTable';
 import PageBanner from '../../elements/PageBanner';
 import ContentContainer from '../../elements/ContentContainer';
 import ContentSection from '../../elements/ContentSection';

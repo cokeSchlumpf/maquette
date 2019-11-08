@@ -3,22 +3,17 @@ import './styles.scss'
 import _ from 'lodash';
 import React from 'react';
 
-import AccessTable from '../../../elements/AccessTable';
-import PageBanner from '../../../elements/PageBanner';
+import Cards from "../../../elements/Cards";
 import ContentContainer from '../../../elements/ContentContainer';
 import ContentSection from '../../../elements/ContentSection';
-import Cards from "../../../elements/Cards";
 import DatasetCard from "../../../elements/DatasetCard";
+import MembersTable from '../../../elements/MembersTable';
+import PageBanner from '../../../elements/PageBanner';
 import Properties from '../../../elements/Properties';
 
 import {
-    Checkbox,
     Tabs,
-    Tab,
-    Select,
-    SelectItem,
-    TextArea,
-    TextInput
+    Tab
 } from 'carbon-components-react';
 
 export default ({
@@ -32,9 +27,18 @@ export default ({
                     ...props }) => {
 
     project = project || { name: _.get(props, 'match.params.project') };
-    const foo = _.get(project, 'description', 'bla bla');
 
-    console.log(foo);
+    const properties = {
+        'Owner': { 'value': _.get(project, 'owner.authorization') },
+        'Private': { 'value': (_.get(project, 'private', true) && 'yes') || 'true' },
+        'Created': { 'value': _.get(project, 'created') },
+        'Created By': { 'value': _.get(project, 'created-by') }
+    };
+
+    const activity = {
+        'Modified': { 'value': _.get(project, 'modified') },
+        'Modified by': { 'value': _.get(project, 'modified-by') }
+    };
 
     return (
         <>
@@ -59,7 +63,7 @@ export default ({
                 />
 
             <ContentContainer>
-                <Tabs selected={ 1 }>
+                <Tabs selected={ 0 }>
                     <Tab label="Assets">
                         <Cards
                             title="Datasets"
@@ -75,20 +79,13 @@ export default ({
                             <div className="bx--row">
                                 <div className="bx--col-md-4">
                                     <ContentSection title="Properties">
-                                        <Properties />
+                                        <Properties properties={ properties } />
                                     </ContentSection>
                                 </div>
                                 <div className="bx--col-md-4">
                                     <ContentSection title="Activity">
-
+                                        <Properties properties={ activity } />
                                     </ContentSection>
-                                </div>
-                            </div>
-
-
-                            <div className="bx--row">
-                                <div className="bx--col">
-
                                 </div>
                             </div>
                         </ContentSection>
@@ -96,7 +93,7 @@ export default ({
 
                     <Tab label="Members">
                         <ContentSection title="Members">
-                            <AccessTable />
+                            <MembersTable members={ _.get(project, 'members', []) } />
                         </ContentSection>
                     </Tab>
                 </Tabs>

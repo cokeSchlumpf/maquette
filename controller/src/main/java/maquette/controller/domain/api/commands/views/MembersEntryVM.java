@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.values.iam.GrantedAuthorization;
+import maquette.controller.domain.values.project.ProjectGrant;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -36,6 +39,14 @@ public class MembersEntryVM {
         @JsonProperty(GRANTED_AT) String grantedAt) {
 
         return new MembersEntryVM(grantedTo, privilege, grantedBy, grantedAt);
+    }
+
+    public static MembersEntryVM apply(ProjectGrant grant, OutputFormat outputFormat) {
+        return MembersEntryVM.apply(
+            outputFormat.format(grant.getAuthorization().getAuthorization()),
+            outputFormat.format(grant.getPrivilege().name),
+            outputFormat.format(grant.getAuthorization().getBy()),
+            outputFormat.format(grant.getAuthorization().getAt()));
     }
 
 }

@@ -16,6 +16,8 @@ import maquette.controller.domain.values.iam.AuthenticatedUser;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.RoleAuthorization;
 import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.iam.UserAuthorization;
+import maquette.controller.domain.values.project.ProjectPrivilege;
 
 @AllArgsConstructor(staticName = "apply")
 public final class SampleDataProvider {
@@ -49,8 +51,11 @@ public final class SampleDataProvider {
 
         createProject(debra, "twitter-analysis", false);
         changeProjectOwner(debra, RoleAuthorization.apply("team-c"));
+        addProjectConsumer(debra, clair);
+        addProjectConsumer(debra, bob);
         addDataset(debra, "data", false);
         addData(debra, getTwitterSamples());
+
     }
 
     private void addData(User user, Records data) {
@@ -80,9 +85,23 @@ public final class SampleDataProvider {
                 .createDataset(
                     user,
                     ResourcePath.apply(project, name),
-                    Markdown.apply(description + ". " + Lorem.getWords(50, 250)),
+                    Markdown.apply(description + ". " + Lorem.getWords(20, 50)),
                     isPrivate,
                     GovernanceProperties.apply())
+                .toCompletableFuture()
+                .get();
+        });
+    }
+
+    private void addProjectConsumer(User user, User forUser) {
+        Operators.suppressExceptions(() -> {
+            String project = getVariable("project");
+
+            app
+                .projects()
+                .grantAccess(
+                    user, ResourceName.apply(project), ProjectPrivilege.CONSUMER,
+                    UserAuthorization.apply(forUser.getUserId().getId()))
                 .toCompletableFuture()
                 .get();
         });
@@ -108,7 +127,7 @@ public final class SampleDataProvider {
 
             app
                 .projects()
-                .create(user, ResourceName.apply(name), Markdown.apply(description + ". " + Lorem.getWords(50, 250)), isPrivate)
+                .create(user, ResourceName.apply(name), Markdown.apply(description + ". " + Lorem.getWords(20, 50)), isPrivate)
                 .toCompletableFuture()
                 .get();
         });
