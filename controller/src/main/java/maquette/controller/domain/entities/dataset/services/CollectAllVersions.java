@@ -13,28 +13,26 @@ import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.Behaviors;
 import lombok.Value;
 import maquette.controller.domain.entities.dataset.protocol.VersionMessage;
-import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetAllVersions;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
-import maquette.controller.domain.entities.dataset.protocol.results.GetDetailsResult;
+import maquette.controller.domain.entities.dataset.protocol.results.GetAllVersionsResult;
 import maquette.controller.domain.entities.dataset.protocol.results.GetVersionDetailsResult;
 import maquette.controller.domain.values.core.ErrorMessage;
 import maquette.controller.domain.values.core.UID;
-import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.dataset.VersionInfo;
 import maquette.controller.domain.values.dataset.VersionTagInfo;
 
-public final class CollectDetails {
+public final class CollectAllVersions {
 
-    private CollectDetails() {
+    private CollectAllVersions() {
 
     }
 
     public static Behavior<Message> create(
         List<VersionTagInfo> versions,
         Map<UID, ActorRef<VersionMessage>> versionActors,
-        GetDetails request,
-        DatasetDetails datasetDetails) {
+        GetAllVersions request) {
 
         return Behaviors.setup(ctx -> {
             final ActorRef<GetVersionDetailsResult> getVersionDetailsResultAdapter =
@@ -52,28 +50,26 @@ public final class CollectDetails {
 
             return Behaviors.withTimers(scheduler -> {
                 scheduler.startSingleTimer(Timeout.class, new Timeout(), Duration.ofSeconds(5));
-                return collecting(versions, request, datasetDetails, Lists.newArrayList(), versionActors.size());
+                return collecting(versions, request, Lists.newArrayList(), versionActors.size());
             });
         });
     }
 
     private static Behavior<Message> collecting(
         final List<VersionTagInfo> versions,
-        final GetDetails request,
-        final DatasetDetails datasetDetails,
+        final GetAllVersions request,
         final List<VersionInfo> infos,
         final int remaining) {
 
         if (remaining <= 0) {
-            final DatasetDetails details = datasetDetails.withVersions(Sets.newHashSet(infos));
-            request.getReplyTo().tell(GetDetailsResult.apply(details));
+            request.getReplyTo().tell(GetAllVersionsResult.apply(Sets.newHashSet(infos)));
             return Behaviors.stopped();
         } else {
             return Behaviors
                 .receive(Message.class)
                 .onMessage(
                     ErrorMessageWrapper.class,
-                    (ctx, error) -> collecting(versions, request, datasetDetails, infos, remaining - 1))
+                    (ctx, error) -> collecting(versions, request,infos, remaining - 1))
                 .onMessage(GetVersionDetailsResultWrapper.class, (ctx, wrapper) -> {
                     final VersionDetails details = wrapper.result.getDetails();
                     final Optional<VersionTagInfo> versionNumber =
@@ -87,11 +83,11 @@ public final class CollectDetails {
                         versionNumber.map(VersionTagInfo::getVersion).orElse(null));
 
                     infos.add(info);
-                    return collecting(versions, request, datasetDetails, infos, remaining - 1);
+                    return collecting(versions, request, infos, remaining - 1);
                 })
                 .onMessage(
                     Timeout.class,
-                    (ctx, timeout) -> collecting(versions, request, datasetDetails, infos, 0))
+                    (ctx, timeout) -> collecting(versions, request, infos, 0))
                 .build();
         }
     }

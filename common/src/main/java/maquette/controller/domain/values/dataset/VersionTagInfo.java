@@ -20,13 +20,16 @@ public class VersionTagInfo {
 
     private final Schema schema;
 
+    private final Commit commit;
+
     @JsonCreator
     public static VersionTagInfo apply(
         @JsonProperty("id") UID id,
         @JsonProperty("version") VersionTag version,
-        @JsonProperty("schema") Schema schema) {
+        @JsonProperty("schema") Schema schema,
+        @JsonProperty("commit") Commit commit) {
 
-        return new VersionTagInfo(id, version, schema);
+        return new VersionTagInfo(id, version, schema, commit);
     }
 
     public VersionTag nextVersion(Schema newSchema) {

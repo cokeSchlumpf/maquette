@@ -28,6 +28,7 @@ import maquette.controller.domain.entities.dataset.protocol.events.DeletedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetAllVersions;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
@@ -69,6 +70,8 @@ public interface State {
     Effect<DatasetEvent, State> onDeleteDataset(DeleteDataset delete);
 
     State onDeletedDataset(DeletedDataset deleted);
+
+    Effect<DatasetEvent, State> onGetAllVersions(GetAllVersions get);
 
     Effect<DatasetEvent, State> onGetData(GetData get);
 

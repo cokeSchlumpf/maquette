@@ -37,6 +37,7 @@ import maquette.controller.domain.entities.dataset.protocol.events.DeletedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetAllVersions;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
@@ -195,6 +196,12 @@ public final class UninitializedDataset implements State {
     @Override
     public State onDeletedDataset(DeletedDataset deleted) {
         return this;
+    }
+
+    @Override
+    public Effect<DatasetEvent, State> onGetAllVersions(GetAllVersions get) {
+        get.getErrorTo().tell(DatasetDoesNotExistError.apply(get.getDataset()));
+        return effect.none();
     }
 
     @Override

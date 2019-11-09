@@ -44,10 +44,12 @@ import maquette.controller.domain.entities.dataset.protocol.events.DeletedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetAllVersions;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
-import maquette.controller.domain.entities.dataset.services.CollectDetails;
+import maquette.controller.domain.entities.dataset.protocol.results.GetDetailsResult;
+import maquette.controller.domain.entities.dataset.services.CollectAllVersions;
 import maquette.controller.domain.entities.dataset.services.PublishVersion;
 import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.values.core.Markdown;
@@ -76,15 +78,13 @@ public final class ActiveDataset implements State {
 
     private final Map<UID, ActorRef<VersionMessage>> versions;
 
-    private final Map<VersionTag, VersionTagInfo> publishedVersions;
-
     public static ActiveDataset apply(
         ActorContext<DatasetMessage> actor,
         EffectFactories<DatasetEvent, State> effect,
         DataStorageAdapter store,
         DatasetDetails details) {
 
-        return apply(actor, effect, store, details, Maps.newHashMap(), Maps.newHashMap());
+        return apply(actor, effect, store, details, Maps.newHashMap());
     }
 
     @Override
@@ -309,6 +309,16 @@ public final class ActiveDataset implements State {
     }
 
     @Override
+    public Effect<DatasetEvent, State> onGetAllVersions(GetAllVersions get) {
+        actor.spawnAnonymous(CollectAllVersions.create(
+            Lists.newArrayList(this.details.getVersions()),
+            ImmutableMap.copyOf(versions),
+            get));
+
+        return effect.none();
+    }
+
+    @Override
     public Effect<DatasetEvent, State> onGetData(GetData get) {
         if (versions.containsKey(get.getVersionId())) {
             versions.get(get.getVersionId()).tell(get);
@@ -321,12 +331,8 @@ public final class ActiveDataset implements State {
 
     @Override
     public Effect<DatasetEvent, State> onGetDetails(GetDetails get) {
-        actor.spawnAnonymous(CollectDetails.create(
-            Lists.newArrayList(this.publishedVersions.values()),
-            ImmutableMap.copyOf(versions),
-            get,
-            details));
-
+        // TODO add list of versions?
+        get.getReplyTo().tell(GetDetailsResult.apply(details));
         return effect.none();
     }
 
@@ -380,14 +386,14 @@ public final class ActiveDataset implements State {
 
     @Override
     public Effect<DatasetEvent, State> onPublishCommittedDatasetVersion(PublishCommittedDatasetVersion publish) {
-        VersionTag version = publishedVersions
-            .keySet()
+        VersionTag version = details
+            .getVersions()
             .stream()
-            .max(Comparator.naturalOrder())
-            .map(tag -> publishedVersions.get(tag).nextVersion(publish.getSchema()))
+            .max(Comparator.comparing(VersionTagInfo::getVersion))
+            .map(tag -> tag.nextVersion(publish.getSchema()))
             .orElse(VersionTag.apply(1, 0, 0));
 
-        VersionTagInfo info = VersionTagInfo.apply(publish.getVersionId(), version, publish.getSchema());
+        VersionTagInfo info = VersionTagInfo.apply(publish.getVersionId(), version, publish.getSchema(), publish.getCommit());
 
         PublishedDatasetVersion published = PublishedDatasetVersion.apply(details.getDataset(), publish.getCommit(), info);
 
@@ -409,7 +415,7 @@ public final class ActiveDataset implements State {
 
     @Override
     public State onPublishedDatasetVersion(PublishedDatasetVersion published) {
-        this.publishedVersions.put(published.getVersion().getVersion(), published.getVersion());
+        this.details = details.withVersion(published.getVersion());
         return this;
     }
 

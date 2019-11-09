@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -56,7 +57,7 @@ public class DatasetDetails {
     private final UserId modifiedBy;
 
     @JsonProperty(VERSIONS)
-    private final Set<VersionInfo> versions;
+    private final Set<VersionTagInfo> versions;
 
     @JsonProperty(ACL)
     private final DatasetACL acl;
@@ -77,7 +78,7 @@ public class DatasetDetails {
         @JsonProperty(CREATED_BY) UserId createdBy,
         @JsonProperty(MODIFIED) Instant modified,
         @JsonProperty(MODIFIED_BY) UserId modifiedBy,
-        @JsonProperty(VERSIONS) Set<VersionInfo> versions,
+        @JsonProperty(VERSIONS) Set<VersionTagInfo> versions,
         @JsonProperty(ACL) DatasetACL acl,
         @JsonProperty(DESCRIPTION) Markdown description,
         @JsonProperty(GOVERNANCE) GovernanceProperties governance,
@@ -91,7 +92,7 @@ public class DatasetDetails {
     @Deprecated
     public static DatasetDetails apply(
         ResourcePath dataset, Instant created, UserId createdBy, Instant modified,
-        UserId modifiedBy, Set<VersionInfo> versions, DatasetACL acl) {
+        UserId modifiedBy, Set<VersionTagInfo> versions, DatasetACL acl) {
 
         return apply(
             dataset,
@@ -109,11 +110,8 @@ public class DatasetDetails {
     public UID findVersionId(VersionTag tag) {
         return versions
             .stream()
-            .filter(info -> {
-                VersionTag itag = info.getVersion().orElse(null);
-                return itag != null && itag.equals(tag);
-            })
-            .map(VersionInfo::getVersionId)
+            .filter(info -> info.getVersion().equals(tag))
+            .map(VersionTagInfo::getId)
             .findAny()
             .orElseThrow(() -> UnknownVersionException.apply(tag));
     }
@@ -121,9 +119,8 @@ public class DatasetDetails {
     public UID findLatestVersion() {
         return versions
             .stream()
-            .filter(info -> info.getVersion().isPresent())
-            .max(Comparator.comparing(info -> info.getVersion().get()))
-            .map(VersionInfo::getVersionId)
+            .max(Comparator.comparing(VersionTagInfo::getVersion))
+            .map(VersionTagInfo::getId)
             .orElseThrow(NoVersionException::apply);
     }
 
@@ -139,6 +136,12 @@ public class DatasetDetails {
         Map<UID, DatasetAccessRequest> requests = Maps.newHashMap(accessRequests);
         requests.put(request.getId(), request);
         return withAccessRequests(ImmutableMap.copyOf(requests));
+    }
+
+    public DatasetDetails withVersion(VersionTagInfo withVersion) {
+        Set<VersionTagInfo> versions$new = Sets.newHashSet(this.versions);
+        versions$new.add(withVersion);
+        return withVersions(versions$new);
     }
 
 }

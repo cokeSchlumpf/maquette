@@ -55,9 +55,9 @@ export default (props) => {
                 <Tabs selected={ 1 }>
                     <Tab label="Versions">
                         <Cards
-                            title="Datasets"
+                            title="Versions"
                             component={ DatasetCard }
-                            cards={ [] }
+                            cards={ [ "foo" ] }
                             loading={ false } />
 
                         <Cards title="Data-Collections" component={ ProjectCard } cards={ [] } />

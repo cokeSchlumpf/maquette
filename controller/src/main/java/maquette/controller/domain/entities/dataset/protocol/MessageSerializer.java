@@ -34,9 +34,11 @@ import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.queries.GetAllVersions;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
+import maquette.controller.domain.entities.dataset.protocol.results.GetAllVersionsResult;
 import maquette.controller.domain.entities.dataset.protocol.results.GetDataResult;
 import maquette.controller.domain.entities.dataset.protocol.results.GetDetailsResult;
 import maquette.controller.domain.entities.dataset.protocol.results.GetVersionDetailsResult;
@@ -83,10 +85,12 @@ public final class MessageSerializer extends AbstractMessageSerializer {
         m.put("dataset/events/pushed-data/v1", PushedData.class);
         m.put("dataset/events/revoked-dataset-access/v1", RevokedDatasetAccess.class);
 
+        m.put("dataset/queries/get-all-versions/v1", GetAllVersions.class);
         m.put("dataset/queries/get-data/v1", GetData.class);
         m.put("dataset/queries/get-details/v1", GetDetails.class);
         m.put("dataset/queries/get-version-details/v1", GetVersionDetails.class);
 
+        m.put("dataset/results/get-all-versions/v1", GetAllVersionsResult.class);
         m.put("dataset/results/get-data/v1", GetDataResult.class);
         m.put("dataset/results/get-details/v1", GetDetailsResult.class);
         m.put("dataset/results/get-version-details/v1", GetVersionDetailsResult.class);
