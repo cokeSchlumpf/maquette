@@ -22,8 +22,8 @@ import {
     TextInput
 } from 'carbon-components-react';
 
-export default ({ dataset, versions, ...props }) => {
-    const project = _.get(dataset, 'project', _.get(props, 'match.params.project', 'no project'));
+export default ({ dataset, project, versions, ...props }) => {
+    const projectName = _.get(dataset, 'project', _.get(props, 'match.params.project', 'no project'));
     const datasetName = _.get(dataset, 'dataset', _.get(props, 'match.params.dataset', 'no dataset'));
 
     const properties = {
@@ -44,7 +44,7 @@ export default ({ dataset, versions, ...props }) => {
     return (
         <>
             <PageBanner
-                title={ project + "/" + datasetName }
+                title={ projectName + "/" + datasetName }
                 centered={ true }
                 showDescription={ true }
                 description={ _.get(dataset, 'description') }
@@ -57,11 +57,11 @@ export default ({ dataset, versions, ...props }) => {
                         },
                         {
                             name: "Project Details",
-                            to: "/projects/" + project
+                            to: "/projects/" + projectName
                         },
                         {
                             name: "Dataset Details",
-                            to: "/datasets/" + project + "/" + datasetName
+                            to: "/datasets/" + projectName + "/" + datasetName
                         }
                     ]
                 }
@@ -79,7 +79,7 @@ export default ({ dataset, versions, ...props }) => {
                         <Cards title="Data-Collections" component={ ProjectCard } cards={ [] } />
                     </Tab>
 
-                    <Tab label="Properties">
+                    <Tab label="Details">
                         <ContentSection rows={ true }>
                             <div className="bx--row">
                                 <div className="bx--col-md-4">
@@ -98,6 +98,10 @@ export default ({ dataset, versions, ...props }) => {
 
                     <Tab label="Members">
                         <ContentSection title="Members">
+                            <MembersTable members={ _.get(dataset, 'members', []) } />
+                        </ContentSection>
+
+                        <ContentSection title="Members inherited from project">
                             <MembersTable members={ _.get(project, 'members', []) } />
                         </ContentSection>
                     </Tab>

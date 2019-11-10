@@ -82,6 +82,7 @@ export default combineEpics(
 
                 if (match) {
                     return [
+                        actions.services.project.get(match.params.project),
                         actions.services.dataset.get(match.params.project, match.params.dataset),
                         actions.services.dataset.listVersions(match.params.project, match.params.dataset)
                     ];

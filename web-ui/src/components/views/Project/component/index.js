@@ -73,7 +73,7 @@ export default ({
                         <Cards title="Data-Collections" component={ DatasetCard } cards={ [] } />
                     </Tab>
 
-                    <Tab label="Properties">
+                    <Tab label="Details">
                         <ContentSection rows={ true }>
                             <div className="bx--row">
                                 <div className="bx--col-md-4">
