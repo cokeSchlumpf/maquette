@@ -15,6 +15,7 @@ import maquette.controller.domain.api.commands.OutputFormat;
 import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.api.commands.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.api.commands.views.DatasetVM;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.DatasetGrant;
@@ -90,7 +91,9 @@ public final class PrintDatasetDetailsCmd implements Command {
                 out.println("--------------");
                 out.println(acl.toAscii());
 
-                return CommandResult.success(sw.toString(), properties, acl);
+                return CommandResult
+                    .success(sw.toString(), properties, acl)
+                    .withView(DatasetVM.apply(details, outputFormat));
             });
     }
 

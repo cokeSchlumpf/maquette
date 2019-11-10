@@ -14,22 +14,36 @@ import maquette.controller.domain.values.core.UID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class VersionTagInfo {
 
+    private static final String COMMIT = "commit";
+    private static final String ID = "id";
+    private static final String RECORDS = "records";
+    private static final String SCHEMA = "schema";
+    private static final String VERSION = "version";
+
+    @JsonProperty(ID)
     private final UID id;
 
+    @JsonProperty(VERSION)
     private final VersionTag version;
 
+    @JsonProperty(SCHEMA)
     private final Schema schema;
 
+    @JsonProperty(RECORDS)
+    private final long records;
+
+    @JsonProperty(COMMIT)
     private final Commit commit;
 
     @JsonCreator
     public static VersionTagInfo apply(
-        @JsonProperty("id") UID id,
-        @JsonProperty("version") VersionTag version,
-        @JsonProperty("schema") Schema schema,
-        @JsonProperty("commit") Commit commit) {
+        @JsonProperty(ID) UID id,
+        @JsonProperty(VERSION) VersionTag version,
+        @JsonProperty(SCHEMA) Schema schema,
+        @JsonProperty(RECORDS) long records,
+        @JsonProperty(COMMIT) Commit commit) {
 
-        return new VersionTagInfo(id, version, schema, commit);
+        return new VersionTagInfo(id, version, schema, records, commit);
     }
 
     public VersionTag nextVersion(Schema newSchema) {

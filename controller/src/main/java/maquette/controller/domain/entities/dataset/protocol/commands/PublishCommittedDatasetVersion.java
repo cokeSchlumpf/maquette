@@ -26,6 +26,7 @@ public class PublishCommittedDatasetVersion implements DatasetMessage {
     private static final String EXECUTOR = "executor";
     private static final String REPLY_TO = "reply-to";
     private static final String ERROR_TO = "error-to";
+    private static final String RECORDS = "records";
     private static final String SCHEMA = "schema";
     private static final String VERSION_ID = "version-id";
 
@@ -44,6 +45,9 @@ public class PublishCommittedDatasetVersion implements DatasetMessage {
     @JsonProperty(SCHEMA)
     private final Schema schema;
 
+    @JsonProperty(RECORDS)
+    private final long records;
+
     @JsonProperty(REPLY_TO)
     private final ActorRef<PublishedDatasetVersion> replyTo;
 
@@ -57,10 +61,11 @@ public class PublishCommittedDatasetVersion implements DatasetMessage {
         @JsonProperty(VERSION_ID) UID versionId,
         @JsonProperty(COMMIT) Commit commit,
         @JsonProperty(SCHEMA) Schema schema,
+        @JsonProperty(RECORDS) long records,
         @JsonProperty(REPLY_TO) ActorRef<PublishedDatasetVersion> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 
-        return new PublishCommittedDatasetVersion(executor, dataset, versionId, commit, schema, replyTo, errorTo);
+        return new PublishCommittedDatasetVersion(executor, dataset, versionId, commit, schema, records, replyTo, errorTo);
     }
 
 }

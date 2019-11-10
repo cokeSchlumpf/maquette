@@ -1,7 +1,6 @@
 import _ from 'lodash';
 
 import Component from './component';
-import actions from './redux/actions';
 import { connect } from 'react-redux';
 
 const mapStateToProps = (state) => {
@@ -10,9 +9,7 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-    return {
-        onInit: (project) => dispatch(actions.init(project))
-    };
+    return { };
 };
 
 const VisibleComponent = connect(

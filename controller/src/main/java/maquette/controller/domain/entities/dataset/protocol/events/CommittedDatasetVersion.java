@@ -21,6 +21,7 @@ public class CommittedDatasetVersion implements VersionEvent {
     private static final String COMMIT = "commit";
     private static final String DATASET = "dataset";
     private static final String SCHEMA = "schema";
+    private static final String RECORDS = "records";
     private static final String VERSION_ID = "version-id";
 
     @JsonProperty(VERSION_ID)
@@ -32,13 +33,17 @@ public class CommittedDatasetVersion implements VersionEvent {
     @JsonProperty(SCHEMA)
     private final Schema schema;
 
+    @JsonProperty(RECORDS)
+    private final long records;
+
     @JsonCreator
     public static CommittedDatasetVersion apply(
         @JsonProperty(VERSION_ID) UID id,
         @JsonProperty(COMMIT) Commit commit,
-        @JsonProperty(SCHEMA) Schema schema) {
+        @JsonProperty(SCHEMA) Schema schema,
+        @JsonProperty(RECORDS) long records) {
 
-        return new CommittedDatasetVersion(id, commit, schema);
+        return new CommittedDatasetVersion(id, commit, schema, records);
     }
 
 }

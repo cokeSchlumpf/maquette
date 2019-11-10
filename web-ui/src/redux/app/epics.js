@@ -72,6 +72,21 @@ export default combineEpics(
                 } else {
                     return [];
                 }
-            })
-        )
+            })),
+
+    action$ => action$
+        .pipe(
+            ofType("@@router/LOCATION_CHANGE"),
+            mergeMap($action => {
+                const match = matchPath($action.payload.location.pathname, { path: '/datasets/:project/:dataset' });
+
+                if (match) {
+                    return [
+                        actions.services.dataset.get(match.params.project, match.params.dataset),
+                        actions.services.dataset.listVersions(match.params.project, match.params.dataset)
+                    ];
+                } else {
+                    return [];
+                }
+            }))
 );

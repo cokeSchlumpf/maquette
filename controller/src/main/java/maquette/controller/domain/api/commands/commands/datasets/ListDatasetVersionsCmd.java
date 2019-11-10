@@ -16,10 +16,12 @@ import maquette.controller.domain.api.commands.OutputFormat;
 import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.api.commands.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.api.commands.views.DatasetVersionsVM;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.VersionInfo;
 import maquette.controller.domain.values.dataset.VersionTag;
+import maquette.controller.domain.values.dataset.VersionTagInfo;
 import maquette.controller.domain.values.iam.User;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -53,29 +55,31 @@ public final class ListDatasetVersionsCmd implements Command {
             .datasets()
             .getDetails(executor, datasetResource)
             .thenApply(details -> {
-                Comparator<VersionInfo> comparing = Comparator
-                    .<VersionInfo, VersionTag>comparing(v -> v.getVersion().orElse(VersionTag.apply(String.valueOf(Integer.MAX_VALUE))))
+                Comparator<VersionTagInfo> comparing = Comparator
+                    .comparing(VersionTagInfo::getVersion)
                     .reversed();
 
-                List<VersionInfo> sorted = details
+                List<VersionTagInfo> sorted = details
                     .getVersions()
                     .stream()
                     .sorted(comparing)
                     .collect(Collectors.toList());
 
 
-                DataTable dt = DataTable.apply("version", "records", "modified", "by", "id");
+                DataTable dt = DataTable.apply("version", "records", "committed by", "committed at", "message");
 
-                for (VersionInfo v : sorted) {
+                for (VersionTagInfo v : sorted) {
                     dt = dt.withRow(
                         v.getVersion(),
                         v.getRecords(),
-                        v.getLastModified(),
-                        v.getModifiedBy(),
-                        v.getVersionId());
+                        v.getCommit().getCommittedBy(),
+                        v.getCommit().getCommittedAt(),
+                        v.getCommit().getMessage());
                 }
 
-                return CommandResult.success(dt.toAscii(), dt);
+                return CommandResult
+                    .success(dt.toAscii(), dt)
+                    .withView(DatasetVersionsVM.apply(sorted, outputFormat));
             });
     }
 

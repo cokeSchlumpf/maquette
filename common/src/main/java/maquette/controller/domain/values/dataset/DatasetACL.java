@@ -63,7 +63,7 @@ public class DatasetACL {
     }
 
     public boolean canReadDetails(User user) {
-        return isAdmin(user) || isConsumer(user) || isProducer(user) || isOwner(user);
+        return !isPrivate || isAdmin(user) || isConsumer(user) || isProducer(user) || isOwner(user);
     }
 
     public boolean canProduce(User user) {

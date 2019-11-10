@@ -35,7 +35,11 @@ public final class WorkingVersion implements VersionState {
     @Override
     public Effect<VersionEvent, VersionState> onCommitDatasetVersion(CommitDatasetVersion commit) {
         Commit c = Commit.apply(commit.getExecutor().getUserId(), Instant.now(), commit.getMessage());
-        CommittedDatasetVersion committed = CommittedDatasetVersion.apply(details.getVersionId(), c, details.getSchema());
+        CommittedDatasetVersion committed = CommittedDatasetVersion.apply(
+            details.getVersionId(),
+            c,
+            details.getSchema(),
+            details.getRecords());
 
         return effect
             .persist(committed)

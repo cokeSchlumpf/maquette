@@ -1,0 +1,65 @@
+@import 'carbon-components/scss/globals/scss/vendor/@carbon/type/scss/font-family.scss';
+@import 'carbon-components/scss/globals/scss/vendor/@carbon/layout/scss/breakpoint.scss';
+@import 'carbon-components/scss/globals/scss/typography.scss';
+@import 'carbon-components/scss/globals/scss/vars.scss';
+
+.mq-datasetversion-card {
+  border-bottom: 1px solid $ui-03;
+  padding-bottom: $spacing-04;
+  margin-bottom: $spacing-04;
+}
+
+.mq-datasetversion-card--name {
+  @include carbon--type-style('productive-heading-02');
+}
+
+.mq-datasetversion-card--more {
+  background-color: #ccc;
+  height: 0.8em;
+}
+
+.mq-datasetversion-card--more-button {
+  display: inline-block;
+  background-color: $ui-03;
+  height: 0.8em;
+  line-height: 0.6em;
+  padding: 0 5px;
+  vertical-align: middle;
+  cursor: pointer;
+  font-weight: 300;
+  margin-left: 0.6em;
+}
+
+.mq-datasetversion-card--more-button:hover {
+  background-color: $hover-selected-ui;
+}
+
+.mq-datasetversion-card--description {
+  @include carbon--type-style('body-long-02');
+  margin-top: $spacing-02;
+  margin-bottom: $spacing-03;
+}
+
+.mq-datasetversion-card--details {
+  @include carbon--type-style('label-01');
+  color: $text-02;
+
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mq-datasetversion-card--details li {
+  display: inline;
+  margin-right: 1em;
+}
+
+.mq-datasetversion-card--schema {
+  margin-top: $spacing-04;
+  margin-bottom: $spacing-04;
+}
+
+.mq-datasetversion-card--schema-header {
+  @include carbon--type-style('productive-heading-01');
+  margin-bottom: $spacing-03;
+}

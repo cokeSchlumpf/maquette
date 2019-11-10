@@ -51,6 +51,7 @@ public final class PublishVersion {
                             request.getVersionId(),
                             wrapper.getCommitted().getCommit(),
                             wrapper.getCommitted().getSchema(),
+                            wrapper.getCommitted().getRecords(),
                             request.getReplyTo(),
                             request.getErrorTo());
 

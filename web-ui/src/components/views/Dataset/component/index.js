@@ -3,49 +3,51 @@ import './styles.scss'
 import _ from 'lodash';
 import React from 'react';
 
-import Cards from "../../../elements/Cards";
+import PageBanner from '../../../elements/PageBanner';
 import ContentContainer from '../../../elements/ContentContainer';
 import ContentSection from '../../../elements/ContentSection';
-import DatasetCard from "../../../elements/DatasetCard";
+import Cards from '../../../elements/Cards';
 import MembersTable from '../../../elements/MembersTable';
-import PageBanner from '../../../elements/PageBanner';
-import Properties from '../../../elements/Properties';
+import ProjectCard from '../../../elements/ProjectCard';
+import Properties from "../../../elements/Properties";
+import DatasetVersionCard from '../../../elements/DatasetVersionCard';
 
 import {
+    Checkbox,
     Tabs,
-    Tab
+    Tab,
+    Select,
+    SelectItem,
+    TextArea,
+    TextInput
 } from 'carbon-components-react';
 
-export default ({
-                    project,
-                    projectLoading,
-                    projectError,
-                    datasets,
-                    datasetsLoading,
-                    datasetsError,
-                    ...props }) => {
-
-    project = project || { name: _.get(props, 'match.params.project') };
+export default ({ dataset, versions, ...props }) => {
+    const project = _.get(dataset, 'project', _.get(props, 'match.params.project', 'no project'));
+    const datasetName = _.get(dataset, 'dataset', _.get(props, 'match.params.dataset', 'no dataset'));
 
     const properties = {
-        'Owner': { 'value': _.get(project, 'owner.authorization') },
-        'Private': { 'value': (_.get(project, 'private', true) && 'yes') || 'true' },
-        'Created': { 'value': _.get(project, 'created') },
-        'Created By': { 'value': _.get(project, 'created-by') }
+        'Owner': { 'value': _.get(dataset, 'owner.authorization', 'n/a') },
+        'Private': { 'value': _.get(dataset, 'private', 'n/a') },
+        'Requires Approval': { 'value': _.get(dataset, 'requires-approval') },
+        'Data Classification': { 'value': _.get(dataset, 'classification', 'n/a') },
+
+        'Created': { 'value': _.get(dataset, 'created', 'n/a') },
+        'Created By': { 'value': _.get(dataset, 'created-by', 'n/a') }
     };
 
     const activity = {
-        'Modified': { 'value': _.get(project, 'modified') },
-        'Modified by': { 'value': _.get(project, 'modified-by') }
+        'Modified': { 'value': _.get(dataset, 'modified', 'n/a') },
+        'Modified by': { 'value': _.get(dataset, 'modified-by', 'n/a') }
     };
 
     return (
         <>
             <PageBanner
-                title={ _.get(project, 'name') }
-                description={ _.get(project, 'description') }
+                title={ project + "/" + datasetName }
                 centered={ true }
                 showDescription={ true }
+                description={ _.get(dataset, 'description') }
                 tabSpace={ true }
                 breadcrumbsItems={
                     [
@@ -55,7 +57,11 @@ export default ({
                         },
                         {
                             name: "Project Details",
-                            to: "/projects/" + _.get(project, 'name')
+                            to: "/projects/" + project
+                        },
+                        {
+                            name: "Dataset Details",
+                            to: "/datasets/" + project + "/" + datasetName
                         }
                     ]
                 }
@@ -63,14 +69,14 @@ export default ({
 
             <ContentContainer>
                 <Tabs selected={ 0 }>
-                    <Tab label="Assets">
+                    <Tab label="Versions">
                         <Cards
-                            title="Datasets"
-                            component={ DatasetCard }
-                            cards={ datasets || [] }
-                            loading={ datasetsLoading } />
+                            title="Versions"
+                            component={ DatasetVersionCard }
+                            cards={ versions || [] }
+                            loading={ false } />
 
-                        <Cards title="Data-Collections" component={ DatasetCard } cards={ [] } />
+                        <Cards title="Data-Collections" component={ ProjectCard } cards={ [] } />
                     </Tab>
 
                     <Tab label="Properties">
@@ -94,6 +100,9 @@ export default ({
                         <ContentSection title="Members">
                             <MembersTable members={ _.get(project, 'members', []) } />
                         </ContentSection>
+                    </Tab>
+
+                    <Tab label="AccessRequest">
                     </Tab>
                 </Tabs>
             </ContentContainer>

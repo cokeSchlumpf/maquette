@@ -393,9 +393,17 @@ public final class ActiveDataset implements State {
             .map(tag -> tag.nextVersion(publish.getSchema()))
             .orElse(VersionTag.apply(1, 0, 0));
 
-        VersionTagInfo info = VersionTagInfo.apply(publish.getVersionId(), version, publish.getSchema(), publish.getCommit());
+        VersionTagInfo info = VersionTagInfo.apply(
+            publish.getVersionId(),
+            version,
+            publish.getSchema(),
+            publish.getRecords(),
+            publish.getCommit());
 
-        PublishedDatasetVersion published = PublishedDatasetVersion.apply(details.getDataset(), publish.getCommit(), info);
+        PublishedDatasetVersion published = PublishedDatasetVersion.apply(
+            details.getDataset(),
+            publish.getCommit(),
+            info);
 
         return effect
             .persist(published)

@@ -54,7 +54,8 @@ public final class CommittedVersion implements VersionState {
         CommittedDatasetVersion committed = CommittedDatasetVersion.apply(
             this.details.getVersionId(),
             this.commit,
-            this.details.getSchema());
+            this.details.getSchema(),
+            this.details.getRecords());
 
         commit.getReplyTo().tell(committed);
         return effect.none();

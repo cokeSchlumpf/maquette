@@ -98,6 +98,18 @@ public final class DatasetsSecured implements Datasets {
             });
     }
 
+    private CompletionStage<Boolean> canRead(ResourcePath datasetName, User executor) {
+        return getDatasetDetails(datasetName)
+            .thenCompose(details -> {
+                if (details.getAcl().canReadDetails(executor)) {
+                    return CompletableFuture.completedFuture(true);
+                } else {
+                    return getProjectDetails(datasetName.getProject())
+                        .thenApply(nsDetails -> nsDetails.getAcl().canRevokeNamespaceAccess(executor));
+                }
+            });
+    }
+
     private CompletionStage<Boolean> canRevoke(ResourcePath datasetName, User executor) {
         return getDatasetDetails(datasetName)
             .thenCompose(details -> {
