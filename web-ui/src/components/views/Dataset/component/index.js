@@ -3,6 +3,7 @@ import './styles.scss'
 import _ from 'lodash';
 import React from 'react';
 
+import AccessRequestForm from '../../../elements/AccessRequestForm';
 import PageBanner from '../../../elements/PageBanner';
 import ContentContainer from '../../../elements/ContentContainer';
 import ContentSection from '../../../elements/ContentSection';
@@ -106,7 +107,8 @@ export default ({ dataset, project, versions, ...props }) => {
                         </ContentSection>
                     </Tab>
 
-                    <Tab label="AccessRequest">
+                    <Tab label="Request Access">
+                        <AccessRequestForm />
                     </Tab>
                 </Tabs>
             </ContentContainer>
