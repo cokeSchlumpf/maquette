@@ -11,7 +11,7 @@ import maquette.controller.domain.values.dataset.DatasetAccessRequestLink;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreatedDatasetAccessRequest implements UserEvent {
+public class CreatedDatasetAccessRequestLink implements UserEvent {
 
     private static final String REQUEST = "request";
 
@@ -19,10 +19,10 @@ public class CreatedDatasetAccessRequest implements UserEvent {
     private final DatasetAccessRequestLink request;
 
     @JsonCreator
-    public static CreatedDatasetAccessRequest apply(
+    public static CreatedDatasetAccessRequestLink apply(
         @JsonProperty(REQUEST) DatasetAccessRequestLink request) {
 
-        return new CreatedDatasetAccessRequest(request);
+        return new CreatedDatasetAccessRequestLink(request);
     }
 
 }

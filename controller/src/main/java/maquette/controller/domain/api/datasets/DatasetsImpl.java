@@ -66,7 +66,9 @@ import maquette.controller.domain.entities.project.protocol.events.RemovedDatase
 import maquette.controller.domain.entities.project.protocol.queries.GetProjectDetails;
 import maquette.controller.domain.entities.project.protocol.results.GetProjectDetailsResult;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
+import maquette.controller.domain.entities.user.protocol.commands.CreateDatasetAccessRequestLink;
 import maquette.controller.domain.entities.user.protocol.commands.RegisterAccessToken;
+import maquette.controller.domain.entities.user.protocol.events.CreatedDatasetAccessRequestLink;
 import maquette.controller.domain.entities.user.protocol.events.RegisteredAccessToken;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.util.Operators;
@@ -77,6 +79,7 @@ import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.dataset.DatasetAccessRequest;
+import maquette.controller.domain.values.dataset.DatasetAccessRequestLink;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
@@ -440,6 +443,18 @@ public final class DatasetsImpl implements Datasets {
                         Dataset.createEntityId(dataset),
                         CreateDatasetAccessRequest.apply(dataset, executor, justification, grant, grantFor, replyTo, errorTo)),
                     CreatedDatasetAccessRequest.class)
+                .thenCompose(created -> {
+                    DatasetAccessRequestLink link = DatasetAccessRequestLink.apply(created.getDataset(), created.getRequest().getId());
+
+                    return patterns
+                        .ask(
+                            users,
+                            (replyTo, errorTo) -> ShardingEnvelope.apply(
+                                maquette.controller.domain.entities.user.User.createEntityId(executor.getUserId()),
+                                CreateDatasetAccessRequestLink.apply(link, replyTo, errorTo)),
+                            CreatedDatasetAccessRequestLink.class)
+                        .thenApply(createdLink -> created);
+                })
                 .thenCompose(created -> {
                     Map<String, Object> notificationVars = Maps.newHashMap();
                     notificationVars.put("user", executor.getUserId());

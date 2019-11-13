@@ -8,16 +8,19 @@ import akka.persistence.typed.javadsl.EffectFactories;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.entities.user.protocol.UserEvent;
 import maquette.controller.domain.entities.user.protocol.commands.ConfigureNamespace;
+import maquette.controller.domain.entities.user.protocol.commands.CreateDatasetAccessRequestLink;
 import maquette.controller.domain.entities.user.protocol.commands.RegisterAccessToken;
 import maquette.controller.domain.entities.user.protocol.commands.RemoveAccessToken;
 import maquette.controller.domain.entities.user.protocol.commands.RenewAccessTokenSecret;
 import maquette.controller.domain.entities.user.protocol.events.ConfiguredNamespace;
+import maquette.controller.domain.entities.user.protocol.events.CreatedDatasetAccessRequestLink;
 import maquette.controller.domain.entities.user.protocol.events.RegisteredAccessToken;
 import maquette.controller.domain.entities.user.protocol.events.RemovedAccessToken;
 import maquette.controller.domain.entities.user.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.user.protocol.results.GetDetailsResult;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.dataset.DatasetAccessRequestLink;
 import maquette.controller.domain.values.dataset.UserNamespaceAlreadyConfiguredError;
 import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.TokenDetails;
@@ -50,6 +53,27 @@ public final class ActiveUser implements State {
     @Override
     public State onConfiguredNamespace(ConfiguredNamespace configured) {
         details = details.withNamespace(configured.getNamespace());
+        return this;
+    }
+
+    @Override
+    public Effect<UserEvent, State> onCreateDatasetAccessRequest(CreateDatasetAccessRequestLink create) {
+        Optional<DatasetAccessRequestLink> existing = details.getDatasetAccessRequest(create.getRequest().getId());
+        CreatedDatasetAccessRequestLink created = CreatedDatasetAccessRequestLink.apply(create.getRequest());
+
+        if (existing.isPresent()) {
+            create.getReplyTo().tell(created);
+            return effect.none();
+        } else {
+            return effect
+                .persist(created)
+                .thenRun(() -> create.getReplyTo().tell(created));
+        }
+    }
+
+    @Override
+    public State onCreatedDatasetAccessRequest(CreatedDatasetAccessRequestLink created) {
+        this.details = this.details.withDatasetAccessRequest(created.getRequest());
         return this;
     }
 
