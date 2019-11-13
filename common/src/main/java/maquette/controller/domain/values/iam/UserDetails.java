@@ -7,12 +7,14 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.dataset.DatasetAccessRequestLink;
 import maquette.controller.domain.values.exceptions.InvalidTokenException;
 
 @Value
@@ -21,6 +23,7 @@ public class UserDetails {
 
     private static final String ID = "id";
     private static final String ACCESS_TOKENS = "access-tokens";
+    private static final String DATASET_ACCESS_REQUESTS = "dataset-access-requests";
     private static final String NAMESPACE = "namespace";
 
     @JsonProperty(ID)
@@ -29,6 +32,9 @@ public class UserDetails {
     @JsonProperty(ACCESS_TOKENS)
     private final Set<Token> accessTokens;
 
+    @JsonProperty(DATASET_ACCESS_REQUESTS)
+    private final Set<DatasetAccessRequestLink> datasetAccessRequests;
+
     @JsonProperty(NAMESPACE)
     private final ResourceName namespace;
 
@@ -36,13 +42,14 @@ public class UserDetails {
     public static UserDetails apply(
         @JsonProperty(ID) UserId id,
         @JsonProperty(ACCESS_TOKENS) Set<Token> accessTokens,
+        @JsonProperty(DATASET_ACCESS_REQUESTS) Set<DatasetAccessRequestLink> datasetAccessRequestLinks,
         @JsonProperty(NAMESPACE) ResourceName namespace) {
 
-        return new UserDetails(id, ImmutableSet.copyOf(accessTokens), namespace);
+        return new UserDetails(id, ImmutableSet.copyOf(accessTokens), ImmutableSet.copyOf(datasetAccessRequestLinks), namespace);
     }
 
     public static UserDetails apply(UserId id, Set<Token> accessTokens) {
-        return apply(id, accessTokens, null);
+        return apply(id, accessTokens, Sets.newHashSet(), null);
     }
 
     public TokenAuthenticatedUser authenticateWithToken(UID secret) {
@@ -68,7 +75,13 @@ public class UserDetails {
     }
 
     public UserDetails withNamespace(ResourceName namespace) {
-        return apply(id, accessTokens, namespace);
+        return apply(id, accessTokens, datasetAccessRequests, namespace);
+    }
+
+    public UserDetails withDatasetAccessRequest(DatasetAccessRequestLink request) {
+        Set<DatasetAccessRequestLink> requests = Sets.newHashSet(datasetAccessRequests);
+        requests.add(request);
+        return apply(id, accessTokens, requests, namespace);
     }
 
     public UserDetails withToken(Token token) {
