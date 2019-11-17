@@ -17,7 +17,6 @@ import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.User;
-import sun.jvm.hotspot.oops.Mark;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
