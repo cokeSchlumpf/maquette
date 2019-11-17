@@ -7,10 +7,12 @@ import akka.Done;
 import maquette.controller.domain.entities.notifcation.Notifications;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.iam.PersonalUserProfile;
 import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.TokenAuthenticatedUser;
 import maquette.controller.domain.values.iam.TokenDetails;
 import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.iam.UserDetails;
 import maquette.controller.domain.values.iam.UserId;
 import maquette.controller.domain.values.notification.Notification;
 
@@ -37,6 +39,15 @@ public interface Users {
      * @return The updated notification
      */
     CompletionStage<Notification> markNotificationAsRead(User executor, UID notification);
+
+    /**
+     * Return user details of the executor.
+     *
+     * @param executor
+     *     The user which executes the request.
+     * @return The personal user details.
+     */
+    CompletionStage<PersonalUserProfile> getPersonalUserProfile(User executor);
 
     /**
      * Returns the notifications of a user.

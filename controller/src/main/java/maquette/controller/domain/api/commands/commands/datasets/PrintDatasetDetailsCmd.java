@@ -18,7 +18,7 @@ import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.api.commands.views.DatasetVM;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
-import maquette.controller.domain.values.dataset.DatasetGrant;
+import maquette.controller.domain.values.dataset.DatasetMember;
 import maquette.controller.domain.values.iam.User;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -70,7 +70,7 @@ public final class PrintDatasetDetailsCmd implements Command {
 
                 DataTable acl = DataTable.apply("granted to", "privilege", "granted by", "granted at");
 
-                for (DatasetGrant grant : details.getAcl().getGrants()) {
+                for (DatasetMember grant : details.getAcl().getMembers()) {
                     acl = acl.withRow(
                         grant.getAuthorization().getAuthorization(),
                         grant.getPrivilege().name,
@@ -93,7 +93,7 @@ public final class PrintDatasetDetailsCmd implements Command {
 
                 return CommandResult
                     .success(sw.toString(), properties, acl)
-                    .withView(DatasetVM.apply(details, outputFormat));
+                    .withView(DatasetVM.apply(details, executor, outputFormat));
             });
     }
 

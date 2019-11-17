@@ -12,6 +12,7 @@ import lombok.Value;
 import lombok.experimental.Wither;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.governance.Approved;
+import maquette.controller.domain.values.core.governance.Rejected;
 import maquette.controller.domain.values.core.governance.Revoked;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.UserId;
@@ -28,6 +29,7 @@ public class DatasetAccessRequest {
     private static final String GRANT = "grant";
     private static final String GRANT_FOR = "grant-for";
     private static final String APPROVED = "approved";
+    private static final String REJECTED = "rejected";
     private static final String REVOKED = "revoked";
 
     @JsonProperty(ID)
@@ -51,6 +53,9 @@ public class DatasetAccessRequest {
     @JsonProperty(APPROVED)
     private final Approved approved;
 
+    @JsonProperty(REJECTED)
+    private final Rejected rejected;
+
     @JsonProperty(REVOKED)
     private final Revoked revoked;
 
@@ -63,19 +68,22 @@ public class DatasetAccessRequest {
         @JsonProperty(GRANT) DatasetPrivilege grant,
         @JsonProperty(GRANT_FOR) Authorization grantFor,
         @JsonProperty(APPROVED) Approved approved,
+        @JsonProperty(REJECTED) Rejected rejected,
         @JsonProperty(REVOKED) Revoked revoked) {
 
-        return new DatasetAccessRequest(id, initiatedBy, initiated, justification, grant, grantFor, approved, revoked);
+        return new DatasetAccessRequest(id, initiatedBy, initiated, justification, grant, grantFor, approved, rejected, revoked);
     }
 
     public static DatasetAccessRequest apply(UID id, UserId initiatedBy, Instant initiated, String justification, DatasetPrivilege grant,
                                              Authorization grantFor) {
-        return apply(id, initiatedBy, initiated, justification, grant, grantFor, null, null);
+        return apply(id, initiatedBy, initiated, justification, grant, grantFor, null, null, null);
     }
 
     public Optional<Approved> getApproved() {
         return Optional.ofNullable(approved);
     }
+
+    public Optional<Rejected> getRejected() { return Optional.ofNullable(rejected); }
 
     public Optional<Revoked> getRevoked() {
         return Optional.ofNullable(revoked);

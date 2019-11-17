@@ -31,7 +31,9 @@ import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatase
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishCommittedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
+import maquette.controller.domain.entities.dataset.protocol.commands.RejectDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.ApprovedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetGovernance;
@@ -43,7 +45,9 @@ import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
+import maquette.controller.domain.entities.dataset.protocol.events.RejectedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetAllVersions;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
@@ -52,12 +56,12 @@ import maquette.controller.domain.entities.dataset.protocol.results.GetDetailsRe
 import maquette.controller.domain.entities.dataset.services.CollectAllVersions;
 import maquette.controller.domain.entities.dataset.services.PublishVersion;
 import maquette.controller.domain.ports.DataStorageAdapter;
+import maquette.controller.domain.values.core.Executed;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.UID;
-import maquette.controller.domain.values.core.governance.Approved;
-import maquette.controller.domain.values.dataset.ApproveDatasetAccessRequestDoesNotExistError;
+import maquette.controller.domain.values.core.governance.AccessRequest;
 import maquette.controller.domain.values.dataset.DatasetACL;
-import maquette.controller.domain.values.dataset.DatasetAccessRequest;
+import maquette.controller.domain.values.dataset.DatasetAccessRequestDoesNotExistError;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetGrant;
 import maquette.controller.domain.values.dataset.VersionDoesNotExistError;
@@ -89,32 +93,34 @@ public final class ActiveDataset implements State {
 
     @Override
     public Effect<DatasetEvent, State> onApproveDatasetAccessRequest(ApproveDatasetAccessRequest approve) {
-        if (details.getAccessRequests().containsKey(approve.getId())) {
-            DatasetAccessRequest request = details.getAccessRequests().get(approve.getId());
-            Optional<Approved> approved = request.getApproved();
+        Optional<DatasetGrant> optGrant = details.getAcl().findGrantById(approve.getId());
 
-            if (approved.isPresent()) {
-                ApprovedDatasetAccessRequest approvedRequest = ApprovedDatasetAccessRequest.apply(request, approved.get());
-                approve.getReplyTo().tell(approvedRequest);
-                return effect.none();
-            } else {
-                Approved approvedNow = Approved.apply(approve.getExecutor().getUserId(), Instant.now(), approve.getComment());
-                ApprovedDatasetAccessRequest approvedRequest =
-                    ApprovedDatasetAccessRequest.apply(request.withApproved(approvedNow), approvedNow);
+        if (optGrant.isPresent()) {
+            return optGrant
+                .get()
+                .approve(approve.getExecutor().getUserId(), Instant.now(), approve.getComment())
+                .map(
+                    grant$new -> {
+                        ApprovedDatasetAccessRequest approvedRequest = ApprovedDatasetAccessRequest.apply(grant$new);
 
-                return effect
-                    .persist(approvedRequest)
-                    .thenRun(() -> approve.getReplyTo().tell(approvedRequest));
-            }
+                        return effect
+                            .persist(approvedRequest)
+                            .thenRun(() -> approve.getReplyTo().tell(approvedRequest));
+                    },
+                    errorMessage -> {
+                        approve.getErrorTo().tell(errorMessage);
+                        return effect.none();
+                    });
         } else {
-            approve.getErrorTo().tell(ApproveDatasetAccessRequestDoesNotExistError.apply(details.getDataset(), approve.getId()));
+            approve.getErrorTo().tell(DatasetAccessRequestDoesNotExistError.apply(details.getDataset(), approve.getId()));
             return effect.none();
         }
     }
 
     @Override
     public State onApprovedDatasetAccessRequest(ApprovedDatasetAccessRequest approved) {
-        details = details.withAccessRequest(approved.getRequest().withApproved(approved.getApproval()));
+        DatasetACL acl = details.getAcl().withGrant(approved.getGrant());
+        details = details.withAcl(acl);
         return this;
     }
 
@@ -244,25 +250,47 @@ public final class ActiveDataset implements State {
 
     @Override
     public Effect<DatasetEvent, State> onCreateDatasetAccessRequest(CreateDatasetAccessRequest create) {
-        DatasetAccessRequest request = DatasetAccessRequest.apply(
-            UID.apply(8),
-            create.getExecutor().getUserId(),
-            Instant.now(),
-            create.getJustification(),
-            create.getGrant(),
-            create.getGrantFor());
+        Optional<DatasetGrant> existing = this
+            .details
+            .getAcl()
+            .findGrantByAuthorizationAndPrivilegeAndNotClosed(create.getGrantFor(), create.getGrant());
 
-        CreatedDatasetAccessRequest created = CreatedDatasetAccessRequest
-            .apply(create.getDataset(), request);
+        if (existing.isPresent()) {
+            CreatedDatasetAccessRequest created = CreatedDatasetAccessRequest.apply(create.getDataset(), existing.get());
+            create.getReplyTo().tell(created);
+            return effect.none();
+        } else {
+            Executed exec = Executed.apply(create.getExecutor().getUserId(), Instant.now());
+            DatasetGrant grant;
 
-        return effect
-            .persist(created)
-            .thenRun(() -> create.getReplyTo().tell(created));
+            if (details.getAcl().canGrantDatasetAccess(create.getExecutor()) || !details.getGovernance().isApprovalRequired()) {
+                grant = DatasetGrant.createApproved(
+                    UID.apply(8),
+                    create.getGrantFor(),
+                    create.getGrant(),
+                    create.getExecutor().getUserId(),
+                    Instant.now(),
+                    create.getJustification());
+            } else {
+                grant = DatasetGrant.createRequested(
+                    UID.apply(8),
+                    create.getGrantFor(),
+                    create.getGrant(),
+                    AccessRequest.apply(exec, create.getJustification()));
+            }
+
+            CreatedDatasetAccessRequest created = CreatedDatasetAccessRequest.apply(create.getDataset(), grant);
+
+            return effect
+                .persist(created)
+                .thenRun(() -> create.getReplyTo().tell(created));
+        }
     }
 
     @Override
     public State onCreatedDatasetAccessRequest(CreatedDatasetAccessRequest created) {
-        this.details = this.details.withAccessRequest(created.getRequest());
+        DatasetACL acl = this.details.getAcl().withGrant(created.getGrant());
+        this.details = this.details.withAcl(acl);
         return this;
     }
 
@@ -349,27 +377,36 @@ public final class ActiveDataset implements State {
 
     @Override
     public Effect<DatasetEvent, State> onGrantDatasetAccess(GrantDatasetAccess grant) {
-        Optional<DatasetGrant> existing = details.getAcl().findGrant(grant.getGrantFor(), grant.getGrant());
+        Optional<DatasetGrant> existing =
+            details.getAcl().findGrantByAuthorizationAndPrivilegeAndNotClosed(grant.getGrantFor(), grant.getGrant());
 
         if (existing.isPresent()) {
-            GrantedDatasetAccess granted = GrantedDatasetAccess.apply(
-                details.getDataset(),
-                grant.getGrant(),
-                existing.get().getAuthorization());
+            return existing
+                .get()
+                .approve(grant.getExecutor().getUserId(), Instant.now(), grant.getJustification().orElse(null))
+                .map(
+                    grant$updated -> {
+                        GrantedDatasetAccess granted = GrantedDatasetAccess.apply(details.getDataset(), grant$updated);
 
-            grant.getReplyTo().tell(granted);
-
-            return effect.none();
+                        return effect
+                            .persist(granted)
+                            .thenRun(() -> grant.getReplyTo().tell(granted));
+                    },
+                    errorMessage -> {
+                        grant.getErrorTo().tell(errorMessage);
+                        return effect.none();
+                    });
         } else {
-            GrantedAuthorization grantedAuthorization = GrantedAuthorization.apply(
-                grant.getExecutor().getUserId(),
-                Instant.now(),
-                grant.getGrantFor());
+            DatasetGrant grant$new = DatasetGrant
+                .createApproved(
+                    UID.apply(8),
+                    grant.getGrantFor(),
+                    grant.getGrant(),
+                    grant.getExecutor().getUserId(),
+                    Instant.now(),
+                    grant.getJustification().orElse(null));
 
-            GrantedDatasetAccess granted = GrantedDatasetAccess.apply(
-                details.getDataset(),
-                grant.getGrant(),
-                grantedAuthorization);
+            GrantedDatasetAccess granted = GrantedDatasetAccess.apply(details.getDataset(), grant$new);
 
             return effect
                 .persist(granted)
@@ -379,7 +416,7 @@ public final class ActiveDataset implements State {
 
     @Override
     public State onGrantedDatasetAccess(GrantedDatasetAccess granted) {
-        DatasetACL acl = details.getAcl().withGrant(granted.getGrantedFor(), granted.getGranted());
+        DatasetACL acl = details.getAcl().withGrant(granted.getGrant());
         details = details.withAcl(acl);
         return this;
     }
@@ -439,45 +476,119 @@ public final class ActiveDataset implements State {
     }
 
     @Override
+    public Effect<DatasetEvent, State> onRejectDatasetAccessRequest(RejectDatasetAccessRequest reject) {
+        Optional<DatasetGrant> optGrant = details.getAcl().findGrantById(reject.getId());
+
+        if (optGrant.isPresent()) {
+            return optGrant
+                .get()
+                .reject(reject.getExecutor().getUserId(), Instant.now(), reject.getComment())
+                .map(
+                    grant$updated -> {
+                        RejectedDatasetAccessRequest rejected = RejectedDatasetAccessRequest.apply(grant$updated);
+
+                        return effect
+                            .persist(rejected)
+                            .thenRun(() -> reject.getReplyTo().tell(rejected));
+                    },
+                    errorMessage -> {
+                        reject.getErrorTo().tell(errorMessage);
+                        return effect.none();
+                    });
+        } else {
+            reject.getErrorTo().tell(DatasetAccessRequestDoesNotExistError.apply(details.getDataset(), reject.getId()));
+            return effect.none();
+        }
+    }
+
+    @Override
+    public State onRejectedDatasetAccessRequest(RejectedDatasetAccessRequest rejected) {
+        DatasetACL acl = this.details.getAcl().withGrant(rejected.getGrant());
+        this.details = this.details.withAcl(acl);
+        return this;
+    }
+
+    @Override
     public Effect<DatasetEvent, State> onRevokeDatasetAccess(RevokeDatasetAccess revoke) {
-        Optional<DatasetGrant> existing = details.getAcl().findGrant(revoke.getRevokeFrom(), revoke.getRevoke());
+        Optional<DatasetGrant> existing = details
+            .getAcl()
+            .findGrantByAuthorizationAndPrivilegeAndNotClosed(revoke.getRevokeFrom(), revoke.getRevoke())
+            .map(Optional::of)
+            .orElseGet(() -> details
+                .getAcl()
+                .findGrantByAuthorizationAndPrivilege(revoke.getRevokeFrom(), revoke.getRevoke()));
 
         if (existing.isPresent()) {
-            RevokedDatasetAccess revoked = RevokedDatasetAccess.apply(
-                details.getDataset(),
-                revoke.getRevoke(),
-                Instant.now(),
-                revoke.getExecutor().getUserId(),
-                existing.get().getAuthorization());
+            DatasetGrant grant$updated = existing
+                .get()
+                .revoke(revoke.getExecutor().getUserId(), Instant.now(), revoke.getJustification().orElse(null));
+
+            RevokedDatasetAccess revoked = RevokedDatasetAccess.apply(details.getDataset(), grant$updated);
 
             return effect
                 .persist(revoked)
                 .thenRun(() -> revoke.getReplyTo().tell(revoked));
         } else {
-            GrantedAuthorization grantedAuthorization = GrantedAuthorization.apply(
-                revoke.getExecutor().getUserId(),
-                Instant.now(),
-                revoke.getRevokeFrom());
+            DatasetGrant grant$revoked = DatasetGrant
+                .createApproved(
+                    UID.apply(8),
+                    revoke.getRevokeFrom(),
+                    revoke.getRevoke(),
+                    revoke.getExecutor().getUserId(),
+                    Instant.now(),
+                    null)
+                .revoke(revoke.getExecutor().getUserId(), Instant.now(), revoke.getJustification().orElse(null));
 
-            RevokedDatasetAccess revoked = RevokedDatasetAccess.apply(
-                details.getDataset(),
-                revoke.getRevoke(),
-                Instant.now(),
-                revoke.getExecutor().getUserId(),
-                grantedAuthorization);
-
+            RevokedDatasetAccess revoked = RevokedDatasetAccess.apply(details.getDataset(), grant$revoked);
             revoke.getReplyTo().tell(revoked);
-
-            return effect
-                .none();
-
+            return effect.none();
         }
     }
 
     @Override
     public State onRevokedDatasetAccess(RevokedDatasetAccess revoked) {
-        DatasetACL acl = details.getAcl().withoutGrant(revoked.getRevokedFrom().getAuthorization(), revoked.getRevoked());
+        DatasetACL acl = details.getAcl().withGrant(revoked.getGrant());
         details = details.withAcl(acl);
+        return this;
+    }
+
+    @Override
+    public Effect<DatasetEvent, State> onRevokeDatasetAccessRequest(RevokeDatasetAccessRequest revoke) {
+        Optional<DatasetGrant> existing = this.details.getAcl().findGrantById(revoke.getId());
+
+        Executed executed = Executed.apply(revoke.getExecutor().getUserId(), Instant.now());
+        RevokedDatasetAccessRequest revoked = RevokedDatasetAccessRequest.apply(
+            executed,
+            details.getDataset(),
+            revoke.getComment().orElse(null),
+            revoke.getId());
+
+        if (existing.isPresent()) {
+            return effect
+                .persist(revoked)
+                .thenRun(() -> revoke.getReplyTo().tell(revoked));
+        } else {
+            revoke.getReplyTo().tell(revoked);
+            return effect.none();
+        }
+    }
+
+    @Override
+    public State onRevokedDatasetAccessRequest(RevokedDatasetAccessRequest revoked) {
+        this
+            .details
+            .getAcl()
+            .findGrantById(revoked.getId())
+            .ifPresent(grant -> {
+                DatasetGrant grant$updated = grant.revoke(
+                    revoked.getExecuted().getBy(),
+                    revoked.getExecuted().getAt(),
+                    revoked.getJustification().orElse(null));
+
+                DatasetACL acl = this.details.getAcl().withGrant(grant$updated);
+                this.details = this.details.withAcl(acl);
+            });
+
         return this;
     }
 

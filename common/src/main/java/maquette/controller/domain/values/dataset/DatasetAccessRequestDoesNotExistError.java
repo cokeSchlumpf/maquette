@@ -9,13 +9,13 @@ import maquette.controller.domain.values.core.UID;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ApproveDatasetAccessRequestDoesNotExistError implements ErrorMessage {
+public class DatasetAccessRequestDoesNotExistError implements ErrorMessage {
 
     private final String message;
 
-    public static ApproveDatasetAccessRequestDoesNotExistError apply(ResourcePath dataset, UID request) {
+    public static DatasetAccessRequestDoesNotExistError apply(ResourcePath dataset, UID request) {
         String message = String.format("The access request '%s' does not exist in dataset '%s'.", request, dataset);
-        return new ApproveDatasetAccessRequestDoesNotExistError(message);
+        return new DatasetAccessRequestDoesNotExistError(message);
     }
 
 }

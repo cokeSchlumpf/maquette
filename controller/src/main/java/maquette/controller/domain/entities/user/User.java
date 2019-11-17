@@ -9,10 +9,12 @@ import akka.persistence.typed.javadsl.EventHandler;
 import maquette.controller.domain.entities.user.protocol.UserEvent;
 import maquette.controller.domain.entities.user.protocol.UserMessage;
 import maquette.controller.domain.entities.user.protocol.commands.ConfigureNamespace;
+import maquette.controller.domain.entities.user.protocol.commands.CreateDatasetAccessRequestLink;
 import maquette.controller.domain.entities.user.protocol.commands.RegisterAccessToken;
 import maquette.controller.domain.entities.user.protocol.commands.RemoveAccessToken;
 import maquette.controller.domain.entities.user.protocol.commands.RenewAccessTokenSecret;
 import maquette.controller.domain.entities.user.protocol.events.ConfiguredNamespace;
+import maquette.controller.domain.entities.user.protocol.events.CreatedDatasetAccessRequestLink;
 import maquette.controller.domain.entities.user.protocol.events.RegisteredAccessToken;
 import maquette.controller.domain.entities.user.protocol.events.RemovedAccessToken;
 import maquette.controller.domain.entities.user.protocol.queries.GetDetails;
@@ -57,6 +59,7 @@ public class User extends EventSourcedEntity<UserMessage, UserEvent, State> {
         return newCommandHandlerBuilder()
             .forAnyState()
             .onCommand(ConfigureNamespace.class, State::onConfigureNamespace)
+            .onCommand(CreateDatasetAccessRequestLink.class, State::onCreateDatasetAccessRequestLink)
             .onCommand(RegisterAccessToken.class, State::onRegisterAccessToken)
             .onCommand(RemoveAccessToken.class, State::onRemoveAccessToken)
             .onCommand(RenewAccessTokenSecret.class, State::onRenewAccessTokenSecret)
@@ -69,6 +72,7 @@ public class User extends EventSourcedEntity<UserMessage, UserEvent, State> {
         return newEventHandlerBuilder()
             .forAnyState()
             .onEvent(ConfiguredNamespace.class, State::onConfiguredNamespace)
+            .onEvent(CreatedDatasetAccessRequestLink.class, State::onCreatedDatasetAccessRequestLink)
             .onEvent(RegisteredAccessToken.class, State::onRegisteredAccessToken)
             .onEvent(RemovedAccessToken.class, State::onRemovedAccessToken)
             .build();

@@ -2,7 +2,6 @@ package maquette.controller.domain.entities.dataset.states;
 
 import java.time.Instant;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import akka.actor.typed.javadsl.ActorContext;
@@ -24,7 +23,9 @@ import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatase
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishCommittedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
+import maquette.controller.domain.entities.dataset.protocol.commands.RejectDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.ApprovedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetGovernance;
@@ -36,7 +37,9 @@ import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
+import maquette.controller.domain.entities.dataset.protocol.events.RejectedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetAllVersions;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
@@ -64,7 +67,7 @@ public final class UninitializedDataset implements State {
         EffectFactories<DatasetEvent, State> effect,
         DataStorageAdapter store) {
 
-        return apply(actor, effect, store,null);
+        return apply(actor, effect, store, null);
     }
 
     @Override
@@ -153,8 +156,7 @@ public final class UninitializedDataset implements State {
             Sets.newHashSet(),
             DatasetACL.apply(granted, Sets.newHashSet(), created.isPrivate()),
             created.getDescription(),
-            created.getGovernance(),
-            Maps.newHashMap());
+            created.getGovernance());
 
         return ActiveDataset.apply(actor, effect, store, details);
     }
@@ -172,7 +174,7 @@ public final class UninitializedDataset implements State {
 
     @Override
     public Effect<DatasetEvent, State> onCreateDatasetVersion(CreateDatasetVersion create) {
-        return null;
+        return effect.none();
     }
 
     @Override
@@ -241,7 +243,7 @@ public final class UninitializedDataset implements State {
 
     @Override
     public Effect<DatasetEvent, State> onPublishDatasetVersion(PublishDatasetVersion publish) {
-        return null;
+        return effect.none();
     }
 
     @Override
@@ -251,7 +253,18 @@ public final class UninitializedDataset implements State {
 
     @Override
     public Effect<DatasetEvent, State> onPushData(PushData push) {
-        return null;
+        return effect.none();
+    }
+
+    @Override
+    public Effect<DatasetEvent, State> onRejectDatasetAccessRequest(RejectDatasetAccessRequest reject) {
+        reject.getErrorTo().tell(DatasetDoesNotExistError.apply(reject.getDataset()));
+        return effect.none();
+    }
+
+    @Override
+    public State onRejectedDatasetAccessRequest(RejectedDatasetAccessRequest rejected) {
+        return this;
     }
 
     @Override
@@ -262,6 +275,17 @@ public final class UninitializedDataset implements State {
 
     @Override
     public State onRevokedDatasetAccess(RevokedDatasetAccess revoked) {
+        return this;
+    }
+
+    @Override
+    public Effect<DatasetEvent, State> onRevokeDatasetAccessRequest(RevokeDatasetAccessRequest revoke) {
+        revoke.getErrorTo().tell(DatasetDoesNotExistError.apply(revoke.getDataset()));
+        return effect.none();
+    }
+
+    @Override
+    public State onRevokedDatasetAccessRequest(RevokedDatasetAccessRequest revoked) {
         return this;
     }
 

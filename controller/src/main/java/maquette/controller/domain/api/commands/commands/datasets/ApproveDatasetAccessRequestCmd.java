@@ -14,6 +14,7 @@ import maquette.controller.domain.api.commands.OutputFormat;
 import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.api.commands.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
@@ -60,7 +61,7 @@ public class ApproveDatasetAccessRequestCmd implements Command {
         
         return app
             .datasets()
-            .approveAccessRequest(executor, ResourcePath.apply(project, dataset), id, com)
+            .approveAccessRequest(executor, ResourcePath.apply(project, dataset), id, Markdown.apply(com))
             .thenApply(info -> CommandResult.success());
     }
 

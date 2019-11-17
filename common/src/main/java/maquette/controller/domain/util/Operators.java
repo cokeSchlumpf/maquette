@@ -12,12 +12,24 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.Hashing;
 
+import akka.japi.function.Function2;
+
 public final class Operators {
 
     private static final Logger LOG = LoggerFactory.getLogger(Operators.class);
 
     private Operators() {
 
+    }
+
+    public static <T1, T2, R> CompletionStage<R> compose(
+        CompletionStage<T1> cs1, CompletionStage<T2> cs2, Function2<T1, T2, R> combineWith) {
+        CompletableFuture<T1> f1 = cs1.toCompletableFuture();
+        CompletableFuture<T2> f2 = cs2.toCompletableFuture();
+
+        return CompletableFuture
+            .allOf(f1, f2)
+            .thenApply(v -> Operators.suppressExceptions(() -> combineWith.apply(f1.join(), f2.join())));
     }
 
     public static <T, E extends Exception> CompletionStage<T> completeExceptionally(E with) {
@@ -66,9 +78,9 @@ public final class Operators {
             .ofNullable(ExceptionUtils.getRootCause(ex))
             .map(t -> String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()))
             .orElse(Optional
-                .ofNullable(ex.getMessage())
-                .map(str -> String.format("%s: %s", ex.getClass().getSimpleName(), ex.getMessage()))
-                .orElse(String.format("%s: No details provided.", ex.getClass().getSimpleName())));
+                        .ofNullable(ex.getMessage())
+                        .map(str -> String.format("%s: %s", ex.getClass().getSimpleName(), ex.getMessage()))
+                        .orElse(String.format("%s: No details provided.", ex.getClass().getSimpleName())));
     }
 
     public static void ignoreExceptions(ExceptionalRunnable runnable) {

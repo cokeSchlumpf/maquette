@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import maquette.controller.domain.services.CreateDefaultProject;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.iam.PersonalUserProfile;
 import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.TokenAuthenticatedUser;
 import maquette.controller.domain.values.iam.TokenDetails;
@@ -35,6 +36,11 @@ public final class UsersUserActivity implements Users {
     @Override
     public CompletionStage<Notification> markNotificationAsRead(User executor, UID notification) {
         return createDefaultProject(executor, u -> u.markNotificationAsRead(executor, notification));
+    }
+
+    @Override
+    public CompletionStage<PersonalUserProfile> getPersonalUserProfile(User executor) {
+        return createDefaultProject(executor, u -> u.getPersonalUserProfile(executor));
     }
 
     @Override

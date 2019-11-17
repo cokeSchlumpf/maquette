@@ -1,6 +1,7 @@
 package maquette.controller.domain.api.commands.views;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,12 +15,14 @@ import maquette.controller.domain.api.commands.OutputFormat;
 import maquette.controller.domain.api.commands.ViewModel;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.dataset.DatasetDetails;
-import maquette.controller.domain.values.dataset.DatasetGrant;
+import maquette.controller.domain.values.dataset.DatasetMember;
+import maquette.controller.domain.values.iam.User;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DatasetVM implements ViewModel {
 
+    private static final String ACCESS_REQUEST = "access-request";
     private static final String CLASSIFICATION = "classification";
     private static final String CREATED = "created";
     private static final String CREATED_BY = "created-by";
@@ -69,6 +72,9 @@ public final class DatasetVM implements ViewModel {
     @JsonProperty(MEMBERS)
     private final List<MembersEntryVM> members;
 
+    @JsonProperty(ACCESS_REQUEST)
+    private final DatasetAccessRequestVM accessRequest;
+
     @JsonCreator
     public static DatasetVM apply(
         @JsonProperty(PROJECT) String project,
@@ -82,16 +88,17 @@ public final class DatasetVM implements ViewModel {
         @JsonProperty(CREATED) String created,
         @JsonProperty(MODIFIED_BY) String modifiedBy,
         @JsonProperty(MODIFIED) String modified,
-        @JsonProperty(MEMBERS) List<MembersEntryVM> members) {
+        @JsonProperty(MEMBERS) List<MembersEntryVM> members,
+        @JsonProperty(ACCESS_REQUEST) DatasetAccessRequestVM accessRequest) {
 
         return new DatasetVM(
             project, dataset, description, owner, isPrivate, requiresApproval, classification,
-            createdBy, created, modifiedBy, modified, ImmutableList.copyOf(members));
+            createdBy, created, modifiedBy, modified, ImmutableList.copyOf(members), accessRequest);
     }
 
-    public static DatasetVM apply(DatasetDetails details, OutputFormat of) {
+    public static DatasetVM apply(DatasetDetails details, User executor, OutputFormat of) {
         List<MembersEntryVM> members = Lists.newArrayList();
-        for (DatasetGrant grant : details.getAcl().getGrants()) {
+        for (DatasetMember grant : details.getAcl().getMembers()) {
             members.add(MembersEntryVM.apply(grant, of));
         }
 
@@ -107,7 +114,12 @@ public final class DatasetVM implements ViewModel {
             of.format(details.getCreated()),
             of.format(details.getModifiedBy()),
             of.format(details.getModified()),
-            members);
+            members,
+            null);
+    }
+
+    public Optional<DatasetAccessRequestVM> getAccessRequest() {
+        return Optional.ofNullable(accessRequest);
     }
 
 }

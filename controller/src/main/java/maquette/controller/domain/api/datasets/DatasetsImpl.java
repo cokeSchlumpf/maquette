@@ -78,9 +78,9 @@ import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
-import maquette.controller.domain.values.dataset.DatasetAccessRequest;
 import maquette.controller.domain.values.dataset.DatasetAccessRequestLink;
 import maquette.controller.domain.values.dataset.DatasetDetails;
+import maquette.controller.domain.values.dataset.DatasetGrant;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.dataset.VersionTag;
@@ -131,7 +131,7 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
-    public CompletionStage<DatasetAccessRequest> approveAccessRequest(User executor, ResourcePath dataset, UID id, String comment) {
+    public CompletionStage<DatasetGrant> approveAccessRequest(User executor, ResourcePath dataset, UID id, Markdown comment) {
         return patterns
             .ask(
                 datasets,
@@ -147,13 +147,13 @@ public final class DatasetsImpl implements Datasets {
                     .ask(
                         notifications,
                         (replyTo, errorTo) -> CreateNotification.apply(
-                            approved.getRequest().getGrantFor(),
+                            approved.getGrant().getGrantFor(),
                             Markdown.fromResource("approved-dataset-access-request.md", notificationVars),
                             Lists.newArrayList(ShowDataset.apply(dataset)),
                             replyTo,
                             errorTo),
                         CreatedNotification.class)
-                    .thenApply(createdNotification -> approved.getRequest());
+                    .thenApply(createdNotification -> approved.getGrant());
             });
     }
 
@@ -433,8 +433,9 @@ public final class DatasetsImpl implements Datasets {
     }
 
     @Override
-    public CompletionStage<DatasetAccessRequest> requestDatasetAccess(User executor, ResourcePath dataset, String justification,
-                                                                      DatasetPrivilege grant, Authorization grantFor) {
+    public CompletionStage<DatasetGrant> requestDatasetAccess(
+        User executor, ResourcePath dataset, Markdown justification, DatasetPrivilege grant, Authorization grantFor) {
+
         return getDetails(dataset)
             .thenCompose(details -> patterns
                 .ask(
@@ -444,7 +445,7 @@ public final class DatasetsImpl implements Datasets {
                         CreateDatasetAccessRequest.apply(dataset, executor, justification, grant, grantFor, replyTo, errorTo)),
                     CreatedDatasetAccessRequest.class)
                 .thenCompose(created -> {
-                    DatasetAccessRequestLink link = DatasetAccessRequestLink.apply(created.getDataset(), created.getRequest().getId());
+                    DatasetAccessRequestLink link = DatasetAccessRequestLink.apply(created.getDataset(), created.getGrant().getId());
 
                     return patterns
                         .ask(
@@ -460,44 +461,30 @@ public final class DatasetsImpl implements Datasets {
                     notificationVars.put("user", executor.getUserId());
                     notificationVars.put("dataset", dataset);
 
-                    if (details.getGovernance().isApprovalRequired()) {
+                    if (created.getGrant().isOpen()) {
                         return patterns
                             .ask(
                                 notifications,
                                 (replyTo, errorTo) -> CreateNotification.apply(
                                     details.getAcl().getOwner().getAuthorization(),
                                     Markdown.fromResource("new-dataset-access-request.md", notificationVars),
-                                    Lists.newArrayList(ShowDatasetAccessRequest.apply(dataset, created.getRequest().getId())),
+                                    Lists.newArrayList(ShowDatasetAccessRequest.apply(dataset, created.getGrant().getId())),
                                     replyTo,
                                     errorTo),
                                 CreatedNotification.class)
-                            .thenApply(createdNotification -> created.getRequest());
+                            .thenApply(createdNotification -> created.getGrant());
                     } else {
                         return patterns
                             .ask(
-                                datasets,
-                                (replyTo, errorTo) -> ShardingEnvelope.apply(
-                                    Dataset.createEntityId(dataset),
-                                    ApproveDatasetAccessRequest.apply(
-                                        executor,
-                                        dataset,
-                                        created.getRequest().getId(),
-                                        "Automatically approved.",
-                                        replyTo,
-                                        errorTo)),
-                                ApprovedDatasetAccessRequest.class)
-
-                            .thenCompose(approved -> patterns
-                                .ask(
-                                    notifications,
-                                    (replyTo, errorTo) -> CreateNotification.apply(
-                                        details.getAcl().getOwner().getAuthorization(),
-                                        Markdown.fromResource("dataset-access-auto-approved.md", notificationVars),
-                                        Lists.newArrayList(ShowDatasetAccessRequest.apply(dataset, created.getRequest().getId())),
-                                        replyTo,
-                                        errorTo),
-                                    CreatedNotification.class)
-                                .thenApply(createdNotification -> approved.getRequest()));
+                                notifications,
+                                (replyTo, errorTo) -> CreateNotification.apply(
+                                    details.getAcl().getOwner().getAuthorization(),
+                                    Markdown.fromResource("dataset-access-auto-approved.md", notificationVars),
+                                    Lists.newArrayList(ShowDatasetAccessRequest.apply(dataset, created.getGrant().getId())),
+                                    replyTo,
+                                    errorTo),
+                                CreatedNotification.class)
+                            .thenApply(createdNotification -> created.getGrant());
                     }
                 }));
     }

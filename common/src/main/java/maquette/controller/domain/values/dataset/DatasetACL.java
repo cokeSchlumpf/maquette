@@ -2,6 +2,7 @@ package maquette.controller.domain.values.dataset;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,6 +12,7 @@ import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.User;
@@ -41,11 +43,6 @@ public class DatasetACL {
         return new DatasetACL(owner, ImmutableSet.copyOf(grants), isPrivate);
     }
 
-    @Deprecated
-    public static DatasetACL apply(GrantedAuthorization owner, Set<DatasetGrant> grants) {
-        return apply(owner, grants, false);
-    }
-
     public boolean canConsume(User user) {
         return isConsumer(user) || isOwner(user) || isAdmin(user);
     }
@@ -67,37 +64,63 @@ public class DatasetACL {
     }
 
     public boolean canProduce(User user) {
-        return isProducer(user) || isOwner(user) ||isAdmin(user);
+        return isProducer(user) || isOwner(user) || isAdmin(user);
     }
 
     public boolean canRevokeDatasetAccess(User user) {
         return isAdmin(user) || isOwner(user);
     }
 
-    public Optional<DatasetGrant> findGrant(User user, DatasetPrivilege privilege) {
+    public Optional<DatasetGrant> findGrantById(UID id) {
         return this.grants
             .stream()
-            .filter(grant -> grant.getAuthorization().getAuthorization().hasAuthorization(user) &&
-                             grant.getPrivilege().equals(privilege))
+            .filter(g -> g.getId().equals(id))
             .findFirst();
     }
 
-    public Optional<DatasetGrant> findGrant(Authorization authorization, DatasetPrivilege privilege) {
-        return this.grants
+    public Optional<DatasetGrant> findGrantByAuthorizationAndPrivilege(Authorization authorization, DatasetPrivilege privilege) {
+        return this
+            .grants
             .stream()
-            .filter(
-                grant ->
-                    grant.getAuthorization().getAuthorization().equals(authorization) &&
-                    grant.getPrivilege().equals(privilege))
-            .findAny();
+            .filter(grant -> grant.getGrantFor().equals(authorization) &&
+                             grant.getGrant().equals(privilege))
+            .findFirst();
+    }
+
+    public Optional<DatasetGrant> findGrantByAuthorizationAndPrivilegeAndNotClosed(Authorization authorization, DatasetPrivilege privilege) {
+        return this
+            .grants
+            .stream()
+            .filter(grant -> grant.getGrantFor().equals(authorization) &&
+                             grant.getGrant().equals(privilege))
+            .filter(grant -> !grant.isClosed())
+            .findFirst();
+    }
+
+    public Optional<DatasetMember> findMemberByUserAndPrivilege(User user, DatasetPrivilege privilege) {
+        return this.getMembers()
+                   .stream()
+                   .filter(grant -> grant.getAuthorization().getAuthorization().hasAuthorization(user) &&
+                                    grant.getPrivilege().equals(privilege))
+                   .findFirst();
+    }
+
+    public Optional<DatasetMember> findMemberByAuthorizationAndPrivilege(Authorization authorization, DatasetPrivilege privilege) {
+        return this.getMembers()
+                   .stream()
+                   .filter(
+                       grant ->
+                           grant.getAuthorization().getAuthorization().equals(authorization) &&
+                           grant.getPrivilege().equals(privilege))
+                   .findAny();
     }
 
     private boolean isAdmin(User user) {
-        return user.isAdministrator() || findGrant(user, DatasetPrivilege.ADMIN).isPresent();
+        return user.isAdministrator() || findMemberByUserAndPrivilege(user, DatasetPrivilege.ADMIN).isPresent();
     }
 
     private boolean isConsumer(User user) {
-        return findGrant(user, DatasetPrivilege.CONSUMER).isPresent();
+        return findMemberByUserAndPrivilege(user, DatasetPrivilege.CONSUMER).isPresent();
     }
 
     private boolean isOwner(User user) {
@@ -105,15 +128,26 @@ public class DatasetACL {
     }
 
     private boolean isProducer(User user) {
-        return findGrant(user, DatasetPrivilege.PRODUCER).isPresent();
+        return findMemberByUserAndPrivilege(user, DatasetPrivilege.PRODUCER).isPresent();
     }
 
-    public DatasetACL withGrant(GrantedAuthorization authorization, DatasetPrivilege privilege) {
-        return withGrant(DatasetGrant.apply(authorization, privilege));
+    public Set<DatasetMember> getMembers() {
+        return ImmutableSet.copyOf(
+            this.grants
+                .stream()
+                .map(DatasetGrant::asDatasetMember)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet()));
     }
 
     public DatasetACL withGrant(DatasetGrant grant) {
-        Set<DatasetGrant> grants = Sets.newHashSet(this.grants);
+        Set<DatasetGrant> grants = Sets
+            .newHashSet(this.grants)
+            .stream()
+            .filter(e -> !e.getId().equals(grant.getId()))
+            .collect(Collectors.toSet());
+
         grants.add(grant);
         return apply(owner, grants, isPrivate);
     }
@@ -123,24 +157,6 @@ public class DatasetACL {
     }
 
     public DatasetACL withOwner(GrantedAuthorization owner) {
-        return apply(owner, grants);
-    }
-
-    public DatasetACL withoutGrant(Authorization authorization, DatasetPrivilege privilege) {
-        return this.grants
-            .stream()
-            .filter(
-                grant ->
-                    grant.getAuthorization().getAuthorization().equals(authorization) &&
-                    grant.getPrivilege().equals(privilege))
-            .findFirst()
-            .map(this::withoutGrant)
-            .orElse(this);
-    }
-
-    public DatasetACL withoutGrant(DatasetGrant grant) {
-        Set<DatasetGrant> grants = Sets.newHashSet(this.grants);
-        grants.remove(grant);
         return apply(owner, grants, isPrivate);
     }
 

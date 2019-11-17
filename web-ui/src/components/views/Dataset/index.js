@@ -6,12 +6,16 @@ import { connect } from 'react-redux';
 
 const mapStateToProps = (state) => {
     const s = state.toJS();
-    return _.assign({}, s.services.dataset, s.services.project);
+    return _.assign(
+        {},
+        _.get(s, 'services.dataset'),
+        _.get(s, 'services.project'),
+        { user: _.get(s, 'services.user') });
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        onInit: (project) => dispatch(actions.init(project))
+        onSubmitAccessRequest: (request) => dispatch(actions.createAccessRequest(request))
     };
 };
 

@@ -15,7 +15,9 @@ import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatase
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishCommittedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
+import maquette.controller.domain.entities.dataset.protocol.commands.RejectDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.ApprovedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetGovernance;
@@ -27,7 +29,9 @@ import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
+import maquette.controller.domain.entities.dataset.protocol.events.RejectedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetAllVersions;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
@@ -91,8 +95,16 @@ public interface State {
 
     Effect<DatasetEvent, State> onPushData(PushData push);
 
+    Effect<DatasetEvent, State> onRejectDatasetAccessRequest(RejectDatasetAccessRequest reject);
+
+    State onRejectedDatasetAccessRequest(RejectedDatasetAccessRequest rejected);
+
     Effect<DatasetEvent, State> onRevokeDatasetAccess(RevokeDatasetAccess revoke);
 
     State onRevokedDatasetAccess(RevokedDatasetAccess revoked);
+
+    Effect<DatasetEvent, State> onRevokeDatasetAccessRequest(RevokeDatasetAccessRequest revoke);
+
+    State onRevokedDatasetAccessRequest(RevokedDatasetAccessRequest revoked);
 
 }

@@ -23,7 +23,9 @@ import {
     TextInput
 } from 'carbon-components-react';
 
-export default ({ dataset, project, versions, ...props }) => {
+const onSubmitAccessRequestDefault = (request) => { console.log(request) }
+
+export default ({ dataset, project, user, versions, onSubmitAccessRequest = onSubmitAccessRequestDefault, ...props }) => {
     const projectName = _.get(dataset, 'project', _.get(props, 'match.params.project', 'no project'));
     const datasetName = _.get(dataset, 'dataset', _.get(props, 'match.params.dataset', 'no dataset'));
 
@@ -40,6 +42,14 @@ export default ({ dataset, project, versions, ...props }) => {
     const activity = {
         'Modified': { 'value': _.get(dataset, 'modified', 'n/a') },
         'Modified by': { 'value': _.get(dataset, 'modified-by', 'n/a') }
+    };
+
+    const onSubmitAccessRequestHandler = (request) => {
+        onSubmitAccessRequest(_.assign({}, request, {
+            project: projectName,
+            dataset: datasetName,
+            authorization: 'user',
+            to: user.name }))
     };
 
     return (
@@ -108,7 +118,7 @@ export default ({ dataset, project, versions, ...props }) => {
                     </Tab>
 
                     <Tab label="Request Access">
-                        <AccessRequestForm />
+                        <AccessRequestForm onSubmit={ onSubmitAccessRequestHandler }/>
                     </Tab>
                 </Tabs>
             </ContentContainer>

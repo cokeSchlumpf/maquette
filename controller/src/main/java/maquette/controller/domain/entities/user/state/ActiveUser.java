@@ -57,7 +57,7 @@ public final class ActiveUser implements State {
     }
 
     @Override
-    public Effect<UserEvent, State> onCreateDatasetAccessRequest(CreateDatasetAccessRequestLink create) {
+    public Effect<UserEvent, State> onCreateDatasetAccessRequestLink(CreateDatasetAccessRequestLink create) {
         Optional<DatasetAccessRequestLink> existing = details.getDatasetAccessRequest(create.getRequest().getId());
         CreatedDatasetAccessRequestLink created = CreatedDatasetAccessRequestLink.apply(create.getRequest());
 
@@ -72,7 +72,7 @@ public final class ActiveUser implements State {
     }
 
     @Override
-    public State onCreatedDatasetAccessRequest(CreatedDatasetAccessRequestLink created) {
+    public State onCreatedDatasetAccessRequestLink(CreatedDatasetAccessRequestLink created) {
         this.details = this.details.withDatasetAccessRequest(created.getRequest());
         return this;
     }

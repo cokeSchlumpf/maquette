@@ -19,9 +19,9 @@ public interface State {
 
     State onConfiguredNamespace(ConfiguredNamespace configured);
 
-    Effect<UserEvent, State> onCreateDatasetAccessRequest(CreateDatasetAccessRequestLink create);
+    Effect<UserEvent, State> onCreateDatasetAccessRequestLink(CreateDatasetAccessRequestLink create);
 
-    State onCreatedDatasetAccessRequest(CreatedDatasetAccessRequestLink created);
+    State onCreatedDatasetAccessRequestLink(CreatedDatasetAccessRequestLink created);
 
     Effect<UserEvent, State> onGetDetails(GetDetails get);
 

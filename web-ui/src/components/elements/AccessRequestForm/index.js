@@ -5,13 +5,11 @@ import './styles.scss';
 import ContentSection from '../ContentSection';
 import { Button, Form, FormGroup, RadioButtonGroup, RadioButton, TextArea } from 'carbon-components-react';
 
-const onSubmitDefault = (value) => {
-    console.log(value);
-};
+const onSubmitDefault = console.log;
 
 export default ({ onSubmit = onSubmitDefault }) => {
 
-    const defaultValue = { authorization: "consumer", justification: "" };
+    const defaultValue = { privilege: "consumer", justification: "" };
     const [value, setValue] = useState(defaultValue);
     const [justificationInvalid, setJustificationInvalid] = useState(false);
 
@@ -44,9 +42,9 @@ export default ({ onSubmit = onSubmitDefault }) => {
                 <ContentSection>
                     <FormGroup legendText="Select the required access">
                         <RadioButtonGroup
-                            name="authorization"
-                            id="authorization"
-                            defaultSelected={ defaultValue.authorization }
+                            name="privilege"
+                            id="privilege"
+                            defaultSelected={ defaultValue.privilege }
                             onChange={ onChangeRadioGroup }>
 
                             <RadioButton value="consumer" id="consumer" labelText="consumer" />

@@ -13,6 +13,8 @@ import maquette.controller.domain.api.commands.OutputFormat;
 import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.api.commands.views.UserVM;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.util.Operators;
+import maquette.controller.domain.values.dataset.DatasetAccessRequestLink;
 import maquette.controller.domain.values.iam.User;
 
 @Value
@@ -27,21 +29,32 @@ public class ShowUserCmd implements Command {
     @Override
     public CompletionStage<CommandResult> run(User executor, CoreApplication app,
                                               OutputFormat outputFormat) {
-        return app
-            .users()
-            .getNotifications(executor)
-            .thenApply(notifications -> {
-                DataTable dt = DataTable
-                    .apply("KEY", "VALUE")
-                    .withRow("name", executor.getDisplayName())
-                    .withRow("roles", String.join(", ", executor.getRoles()))
-                    .withRow("notifications", notifications.size());
 
-                UserVM view = UserVM.apply(executor.getDisplayName(), executor.getRoles(), notifications.size());
+        return Operators
+            .compose(
+                app.users().getNotifications(executor),
+                app.users().getPersonalUserProfile(executor),
+                (notifications, profile) -> {
+                    DataTable dt = DataTable
+                        .apply("KEY", "VALUE")
+                        .withRow("name", executor.getDisplayName())
+                        .withRow("roles", String.join(", ", executor.getRoles()))
+                        .withRow("notifications", notifications.size());
 
-                return CommandResult
-                    .success(dt.toAscii(false, true), dt)
-                    .withView(view);
-            });
+                    DataTable accessRequests = DataTable.apply("ID", "DATASET");
+                    for (DatasetAccessRequestLink link : profile.getDatasetAccessRequests()) {
+                        accessRequests.withRow(link.getId(), link.getDataset());
+                    }
+
+                    String sb = dt.toAscii(false, true)
+                                + "\n\n"
+                                + "DATASET ACCESS REQUESTS"
+                                + "-----------------------"
+                                + accessRequests.toAscii();
+
+                    return CommandResult
+                        .success(sb, dt, accessRequests)
+                        .withView(UserVM.apply(executor, notifications, profile));
+                });
     }
 }

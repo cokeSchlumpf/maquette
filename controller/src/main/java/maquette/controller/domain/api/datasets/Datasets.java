@@ -13,8 +13,8 @@ import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
-import maquette.controller.domain.values.dataset.DatasetAccessRequest;
 import maquette.controller.domain.values.dataset.DatasetDetails;
+import maquette.controller.domain.values.dataset.DatasetGrant;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.dataset.VersionTag;
@@ -36,7 +36,7 @@ public interface Datasets {
      *     The comment for the approval
      * @return The updated request
      */
-    CompletionStage<DatasetAccessRequest> approveAccessRequest(User executor, ResourcePath dataset, UID id, String comment);
+    CompletionStage<DatasetGrant> approveAccessRequest(User executor, ResourcePath dataset, UID id, Markdown comment);
 
     /**
      * Change the description of an existing dataset.
@@ -288,13 +288,13 @@ public interface Datasets {
      * @param justification
      *     The reason why access is required
      * @param grant
-     *     The access right which is requested
+     *     The access failure which is requested
      * @param grantFor
      *     The authorization for which access is requested
      * @return The initiated request
      */
-    CompletionStage<DatasetAccessRequest> requestDatasetAccess(
-        User executor, ResourcePath dataset, String justification, DatasetPrivilege grant, Authorization grantFor);
+    CompletionStage<DatasetGrant> requestDatasetAccess(
+        User executor, ResourcePath dataset, Markdown justification, DatasetPrivilege grant, Authorization grantFor);
 
     /**
      * Revoke the access for an authorization from an existing dataset.

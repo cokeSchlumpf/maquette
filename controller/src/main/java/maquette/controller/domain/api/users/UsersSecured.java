@@ -18,6 +18,7 @@ import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.exceptions.NotAuthorizedException;
+import maquette.controller.domain.values.iam.PersonalUserProfile;
 import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.TokenAuthenticatedUser;
 import maquette.controller.domain.values.iam.TokenDetails;
@@ -69,6 +70,11 @@ final class UsersSecured implements Users {
                   throw NotAuthorizedException.apply(executor);
               }
             });
+    }
+
+    @Override
+    public CompletionStage<PersonalUserProfile> getPersonalUserProfile(User executor) {
+        return delegate.getPersonalUserProfile(executor);
     }
 
     @Override

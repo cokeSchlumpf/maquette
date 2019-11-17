@@ -31,7 +31,6 @@ import maquette.controller.domain.values.iam.UserId;
 public class DatasetDetails {
 
     private static final String ACL = "acl";
-    private static final String ACCESS_REQUESTS = "access-requests";
     private static final String CREATED = "created";
     private static final String CREATED_BY = "created-by";
     private static final String DATASET = "dataset";
@@ -68,9 +67,6 @@ public class DatasetDetails {
     @JsonProperty(GOVERNANCE)
     private final GovernanceProperties governance;
 
-    @JsonProperty(ACCESS_REQUESTS)
-    private final Map<UID, DatasetAccessRequest> accessRequests;
-
     @JsonCreator
     public static DatasetDetails apply(
         @JsonProperty(DATASET) ResourcePath dataset,
@@ -81,12 +77,11 @@ public class DatasetDetails {
         @JsonProperty(VERSIONS) Set<VersionTagInfo> versions,
         @JsonProperty(ACL) DatasetACL acl,
         @JsonProperty(DESCRIPTION) Markdown description,
-        @JsonProperty(GOVERNANCE) GovernanceProperties governance,
-        @JsonProperty(ACCESS_REQUESTS) Map<UID, DatasetAccessRequest> accessRequests) {
+        @JsonProperty(GOVERNANCE) GovernanceProperties governance) {
 
         return new DatasetDetails(
             dataset, created, createdBy, modified, modifiedBy,
-            ImmutableSet.copyOf(versions), acl, description, governance, ImmutableMap.copyOf(accessRequests));
+            ImmutableSet.copyOf(versions), acl, description, governance);
     }
 
     @Deprecated
@@ -103,8 +98,7 @@ public class DatasetDetails {
             versions,
             acl,
             Markdown.apply(),
-            GovernanceProperties.apply(),
-            Maps.newHashMap());
+            GovernanceProperties.apply());
     }
 
     public UID findVersionId(VersionTag tag) {
@@ -130,12 +124,6 @@ public class DatasetDetails {
         } else {
             return Optional.of(description);
         }
-    }
-
-    public DatasetDetails withAccessRequest(DatasetAccessRequest request) {
-        Map<UID, DatasetAccessRequest> requests = Maps.newHashMap(accessRequests);
-        requests.put(request.getId(), request);
-        return withAccessRequests(ImmutableMap.copyOf(requests));
     }
 
     public DatasetDetails withVersion(VersionTagInfo withVersion) {

@@ -10,6 +10,7 @@ import lombok.Value;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatasetAccessRequest;
 import maquette.controller.domain.values.core.ErrorMessage;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.iam.Authorization;
@@ -34,7 +35,7 @@ public class CreateDatasetAccessRequest implements DatasetMessage {
     private final User executor;
 
     @JsonProperty(JUSTIFICATION)
-    private final String justification;
+    private final Markdown justification;
 
     @JsonProperty(GRANT)
     private final DatasetPrivilege grant;
@@ -52,7 +53,7 @@ public class CreateDatasetAccessRequest implements DatasetMessage {
     public static CreateDatasetAccessRequest apply(
         @JsonProperty(DATASET) ResourcePath dataset,
         @JsonProperty(EXECUTOR) User executor,
-        @JsonProperty(JUSTIFICATION) String justification,
+        @JsonProperty(JUSTIFICATION) Markdown justification,
         @JsonProperty(GRANT) DatasetPrivilege grant,
         @JsonProperty(GRANT_FOR) Authorization grantFor,
         @JsonProperty(REPLY_TO) ActorRef<CreatedDatasetAccessRequest> replyTo,

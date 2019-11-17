@@ -7,8 +7,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.api.commands.OutputFormat;
-import maquette.controller.domain.values.dataset.DatasetGrant;
-import maquette.controller.domain.values.iam.GrantedAuthorization;
+import maquette.controller.domain.values.dataset.DatasetMember;
 import maquette.controller.domain.values.project.ProjectGrant;
 
 @Value
@@ -50,7 +49,7 @@ public class MembersEntryVM {
             outputFormat.format(grant.getAuthorization().getAt()));
     }
 
-    public static MembersEntryVM apply(DatasetGrant grant, OutputFormat outputFormat) {
+    public static MembersEntryVM apply(DatasetMember grant, OutputFormat outputFormat) {
         return MembersEntryVM.apply(
             outputFormat.format(grant.getAuthorization().getAuthorization()),
             outputFormat.format(grant.getPrivilege().name),

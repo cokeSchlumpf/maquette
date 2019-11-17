@@ -20,6 +20,7 @@ import maquette.controller.domain.entities.dataset.protocol.commands.PublishComm
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.ApprovedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetGovernance;
@@ -33,7 +34,9 @@ import maquette.controller.domain.entities.dataset.protocol.events.DeletedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.events.PushedData;
+import maquette.controller.domain.entities.dataset.protocol.events.RejectedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetAllVersions;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
@@ -68,7 +71,9 @@ public final class MessageSerializer extends AbstractMessageSerializer {
         m.put("dataset/commands/publish-committed-dataset-version/v1", PublishCommittedDatasetVersion.class);
         m.put("dataset/commands/publish-dataset-version/v1", PublishDatasetVersion.class);
         m.put("dataset/commands/push-data/v1", PushData.class);
+        m.put("dataset/commands/reject-dataset-access-request/v1", RejectedDatasetAccessRequest.class);
         m.put("dataset/commands/revoke-dataset-access/v1", RevokeDatasetAccess.class);
+        m.put("dataset/commands/revoke-dataset-access-request/v1", RevokeDatasetAccessRequest.class);
 
         m.put("dataset/events/approved-dataset-access-request/v1", ApprovedDatasetAccessRequest.class);
         m.put("dataset/events/changed-dataset-description/v1", ChangedDatasetDescription.class);
@@ -83,7 +88,9 @@ public final class MessageSerializer extends AbstractMessageSerializer {
         m.put("dataset/events/granted-dataset-access/v1", GrantedDatasetAccess.class);
         m.put("dataset/events/published-dataset-version/v1", PublishedDatasetVersion.class);
         m.put("dataset/events/pushed-data/v1", PushedData.class);
+        m.put("dataset/events/rejected-dataset-access-request/v1", RejectedDatasetAccessRequest.class);
         m.put("dataset/events/revoked-dataset-access/v1", RevokedDatasetAccess.class);
+        m.put("dataset/events/revoked-dataset-access-request/v1", RevokedDatasetAccessRequest.class);
 
         m.put("dataset/queries/get-all-versions/v1", GetAllVersions.class);
         m.put("dataset/queries/get-data/v1", GetData.class);

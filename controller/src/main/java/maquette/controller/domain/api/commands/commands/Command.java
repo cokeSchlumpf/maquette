@@ -59,7 +59,7 @@ import maquette.controller.domain.values.iam.User;
         @JsonSubTypes.Type(value = ListDatasetVersionsCmd.class, name = "dataset versions"),
         @JsonSubTypes.Type(value = PrintDatasetDetailsCmd.class, name = "dataset show"),
         @JsonSubTypes.Type(value = PrintDatasetVersionDetailsCmd.class, name = "dataset version show"),
-        @JsonSubTypes.Type(value = RequestDatasetAccessCmd.class, name = "datasets request access"),
+        @JsonSubTypes.Type(value = RequestDatasetAccessCmd.class, name = "dataset request access"),
         @JsonSubTypes.Type(value = RevokeDatasetAccessCmd.class, name = "dataset revoke"),
 
         @JsonSubTypes.Type(value = ChangeProjectDescriptionCmd.class, name = "project change description"),

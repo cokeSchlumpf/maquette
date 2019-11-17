@@ -16,8 +16,8 @@ import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
-import maquette.controller.domain.values.dataset.DatasetAccessRequest;
 import maquette.controller.domain.values.dataset.DatasetDetails;
+import maquette.controller.domain.values.dataset.DatasetGrant;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.dataset.VersionDetails;
 import maquette.controller.domain.values.dataset.VersionTag;
@@ -38,7 +38,7 @@ public final class DatasetsUserActivity implements Datasets {
     }
 
     @Override
-    public CompletionStage<DatasetAccessRequest> approveAccessRequest(User executor, ResourcePath dataset, UID id, String comment) {
+    public CompletionStage<DatasetGrant> approveAccessRequest(User executor, ResourcePath dataset, UID id, Markdown comment) {
         return createDefaultProject(executor, d -> d.approveAccessRequest(executor, dataset, id, comment));
     }
 
@@ -137,8 +137,8 @@ public final class DatasetsUserActivity implements Datasets {
     }
 
     @Override
-    public CompletionStage<DatasetAccessRequest> requestDatasetAccess(User executor, ResourcePath dataset, String justification,
-                                                                      DatasetPrivilege grant, Authorization grantFor) {
+    public CompletionStage<DatasetGrant> requestDatasetAccess(User executor, ResourcePath dataset, Markdown justification,
+                                                              DatasetPrivilege grant, Authorization grantFor) {
         return createDefaultProject(executor, d -> d.requestDatasetAccess(executor, dataset, justification, grant, grantFor));
     }
 

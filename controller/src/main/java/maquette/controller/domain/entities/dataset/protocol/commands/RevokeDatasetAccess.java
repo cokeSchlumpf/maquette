@@ -1,5 +1,7 @@
 package maquette.controller.domain.entities.dataset.protocol.commands;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -9,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
 import maquette.controller.domain.values.iam.Authorization;
@@ -21,6 +24,7 @@ public class RevokeDatasetAccess implements DatasetMessage {
 
     private static final String DATASET = "dataset";
     private static final String EXECUTOR = "executor";
+    private static final String JUSTIFICATION = "justification";
     private static final String REVOKE = "revoke";
     private static final String REVOKE_FROM = "revoke-from";
     private static final String REPLY_TO = "reply-to";
@@ -38,6 +42,9 @@ public class RevokeDatasetAccess implements DatasetMessage {
     @JsonProperty(REVOKE_FROM)
     private final Authorization revokeFrom;
 
+    @JsonProperty(JUSTIFICATION)
+    private final Markdown justification;
+
     @JsonProperty(REPLY_TO)
     private final ActorRef<RevokedDatasetAccess> replyTo;
 
@@ -50,10 +57,22 @@ public class RevokeDatasetAccess implements DatasetMessage {
         @JsonProperty(EXECUTOR) User executor,
         @JsonProperty(REVOKE) DatasetPrivilege revoke,
         @JsonProperty(REVOKE_FROM) Authorization revokeFrom,
+        @JsonProperty(JUSTIFICATION) Markdown justification,
         @JsonProperty(REPLY_TO) ActorRef<RevokedDatasetAccess> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 
-        return new RevokeDatasetAccess(dataset, executor, revoke, revokeFrom, replyTo, errorTo);
+        return new RevokeDatasetAccess(dataset, executor, revoke, revokeFrom, justification, replyTo, errorTo);
+    }
+
+    public static RevokeDatasetAccess apply(
+        ResourcePath dataset, User executor, DatasetPrivilege revoke, Authorization revokeFrom,
+        ActorRef<RevokedDatasetAccess> replyTo, ActorRef<ErrorMessage> errorTo) {
+
+        return apply(dataset, executor, revoke, revokeFrom, null, replyTo, errorTo);
+    }
+
+    public Optional<Markdown> getJustification() {
+        return Optional.ofNullable(justification);
     }
 
 }

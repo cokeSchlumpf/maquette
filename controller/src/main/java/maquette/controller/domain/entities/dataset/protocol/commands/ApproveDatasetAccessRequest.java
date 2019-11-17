@@ -12,6 +12,7 @@ import lombok.Value;
 import maquette.controller.domain.entities.dataset.protocol.DatasetMessage;
 import maquette.controller.domain.entities.dataset.protocol.events.ApprovedDatasetAccessRequest;
 import maquette.controller.domain.values.core.ErrorMessage;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
@@ -39,7 +40,7 @@ public class ApproveDatasetAccessRequest implements DatasetMessage {
     private final UID id;
 
     @JsonProperty(COMMENT)
-    private final String comment;
+    private final Markdown comment;
 
     @JsonProperty(REPLY_TO)
     private final ActorRef<ApprovedDatasetAccessRequest> replyTo;
@@ -52,7 +53,7 @@ public class ApproveDatasetAccessRequest implements DatasetMessage {
         @JsonProperty(EXECUTOR) User executor,
         @JsonProperty(DATASET) ResourcePath dataset,
         @JsonProperty(ID) UID id,
-        @JsonProperty(COMMENT) String comment,
+        @JsonProperty(COMMENT) Markdown comment,
         @JsonProperty(REPLY_TO) ActorRef<ApprovedDatasetAccessRequest> replyTo,
         @JsonProperty(ERROR_TO) ActorRef<ErrorMessage> errorTo) {
 

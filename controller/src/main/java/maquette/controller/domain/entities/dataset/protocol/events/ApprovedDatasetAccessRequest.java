@@ -9,26 +9,22 @@ import lombok.Value;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
 import maquette.controller.domain.values.core.governance.Approved;
 import maquette.controller.domain.values.dataset.DatasetAccessRequest;
+import maquette.controller.domain.values.dataset.DatasetGrant;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApprovedDatasetAccessRequest implements DatasetEvent {
 
-    private static final String REQUEST = "request";
-    private static final String APPROVAL = "approval";
+    private static final String GRANT = "grant";
 
-    @JsonProperty(REQUEST)
-    private final DatasetAccessRequest request;
-
-    @JsonProperty(APPROVAL)
-    private final Approved approval;
+    @JsonProperty(GRANT)
+    private final DatasetGrant grant;
 
     @JsonCreator
     public static ApprovedDatasetAccessRequest apply(
-        @JsonProperty(REQUEST) DatasetAccessRequest request,
-        @JsonProperty(APPROVAL) Approved approval) {
+        @JsonProperty(GRANT) DatasetGrant grant) {
 
-        return new ApprovedDatasetAccessRequest(request, approval);
+        return new ApprovedDatasetAccessRequest(grant);
     }
 
 }

@@ -20,7 +20,9 @@ import maquette.controller.domain.entities.dataset.protocol.commands.GrantDatase
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishCommittedDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PublishDatasetVersion;
 import maquette.controller.domain.entities.dataset.protocol.commands.PushData;
+import maquette.controller.domain.entities.dataset.protocol.commands.RejectDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.commands.RevokeDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.ApprovedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetDescription;
 import maquette.controller.domain.entities.dataset.protocol.events.ChangedDatasetGovernance;
@@ -32,7 +34,9 @@ import maquette.controller.domain.entities.dataset.protocol.events.CreatedDatase
 import maquette.controller.domain.entities.dataset.protocol.events.DeletedDataset;
 import maquette.controller.domain.entities.dataset.protocol.events.GrantedDatasetAccess;
 import maquette.controller.domain.entities.dataset.protocol.events.PublishedDatasetVersion;
+import maquette.controller.domain.entities.dataset.protocol.events.RejectedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccess;
+import maquette.controller.domain.entities.dataset.protocol.events.RevokedDatasetAccessRequest;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetData;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetDetails;
 import maquette.controller.domain.entities.dataset.protocol.queries.GetVersionDetails;
@@ -97,7 +101,9 @@ public class Dataset extends EventSourcedEntity<DatasetMessage, DatasetEvent, St
             .onCommand(PublishCommittedDatasetVersion.class, State::onPublishCommittedDatasetVersion)
             .onCommand(PublishDatasetVersion.class, State::onPublishDatasetVersion)
             .onCommand(PushData.class, State::onPushData)
+            .onCommand(RejectDatasetAccessRequest.class, State::onRejectDatasetAccessRequest)
             .onCommand(RevokeDatasetAccess.class, State::onRevokeDatasetAccess)
+            .onCommand(RevokeDatasetAccessRequest.class, State::onRevokeDatasetAccessRequest)
             .build();
     }
 
@@ -116,7 +122,9 @@ public class Dataset extends EventSourcedEntity<DatasetMessage, DatasetEvent, St
             .onEvent(DeletedDataset.class, State::onDeletedDataset)
             .onEvent(GrantedDatasetAccess.class, State::onGrantedDatasetAccess)
             .onEvent(PublishedDatasetVersion.class, State::onPublishedDatasetVersion)
+            .onEvent(RejectedDatasetAccessRequest.class, State::onRejectedDatasetAccessRequest)
             .onEvent(RevokedDatasetAccess.class, State::onRevokedDatasetAccess)
+            .onEvent(RevokedDatasetAccessRequest.class, State::onRevokedDatasetAccessRequest)
             .build();
     }
 

@@ -10,6 +10,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.api.commands.ViewModel;
+import maquette.controller.domain.values.iam.PersonalUserProfile;
+import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.notification.Notification;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -35,6 +38,10 @@ public class UserVM implements ViewModel {
         @JsonProperty(NOTIFICATIONS) int notifications) {
 
         return new UserVM(name, ImmutableSet.copyOf(roles), notifications);
+    }
+
+    public static UserVM apply(User executor, Set<Notification> notifications, PersonalUserProfile profile) {
+        return apply(executor.getUserId().getId(), executor.getRoles(), notifications.size());
     }
 
 }

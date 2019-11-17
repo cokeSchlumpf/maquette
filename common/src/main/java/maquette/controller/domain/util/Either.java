@@ -15,8 +15,8 @@ import lombok.Value;
     include = JsonTypeInfo.As.PROPERTY,
     property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = Either.Left.class, name = "left"),
-    @JsonSubTypes.Type(value = Either.Right.class, name = "right")
+    @JsonSubTypes.Type(value = Either.Left.class, name = "success"),
+    @JsonSubTypes.Type(value = Either.Right.class, name = "failure")
 })
 public abstract class Either<L, R> {
 

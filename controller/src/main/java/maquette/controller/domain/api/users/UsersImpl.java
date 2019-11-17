@@ -26,6 +26,7 @@ import maquette.controller.domain.entities.user.protocol.results.GetDetailsResul
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.UID;
+import maquette.controller.domain.values.iam.PersonalUserProfile;
 import maquette.controller.domain.values.iam.Token;
 import maquette.controller.domain.values.iam.TokenAuthenticatedUser;
 import maquette.controller.domain.values.iam.TokenDetails;
@@ -71,6 +72,15 @@ final class UsersImpl implements Users {
                 (replyTo, errorTo) -> GetNotification.apply(executor, marked.getNotification(), replyTo, errorTo),
                 GetNotificationResult.class))
             .thenApply(GetNotificationResult::getNotification);
+    }
+
+    @Override
+    public CompletionStage<PersonalUserProfile> getPersonalUserProfile(User executor) {
+        return getDetails(executor.getUserId())
+            .thenApply(details -> PersonalUserProfile.apply(
+                details.getId(),
+                details.getDatasetAccessRequests(),
+                details.getNamespace().orElse(null)));
     }
 
     @Override

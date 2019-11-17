@@ -9,26 +9,27 @@ import lombok.Value;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.dataset.DatasetAccessRequest;
+import maquette.controller.domain.values.dataset.DatasetGrant;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreatedDatasetAccessRequest implements DatasetEvent {
 
     private static final String DATASET = "dataset";
-    private static final String REQUEST = "request";
+    private static final String GRANT = "grant";
 
     @JsonProperty(DATASET)
     private final ResourcePath dataset;
 
-    @JsonProperty(REQUEST)
-    private final DatasetAccessRequest request;
+    @JsonProperty(GRANT)
+    private final DatasetGrant grant;
 
     @JsonCreator
     public static CreatedDatasetAccessRequest apply(
         @JsonProperty(DATASET) ResourcePath dataset,
-        @JsonProperty(REQUEST) DatasetAccessRequest request) {
+        @JsonProperty(GRANT) DatasetGrant grant) {
 
-        return new CreatedDatasetAccessRequest(dataset, request);
+        return new CreatedDatasetAccessRequest(dataset, grant);
     }
 
 }

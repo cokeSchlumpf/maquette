@@ -14,7 +14,7 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.japi.Function;
 import akka.japi.function.Function2;
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.values.exceptions.AskCompletionException;
+import maquette.controller.domain.values.exceptions.OperationCompletionException;
 import maquette.controller.domain.values.exceptions.AskTimeoutException;
 import maquette.controller.domain.values.core.ErrorMessage;
 
@@ -88,7 +88,7 @@ public final class ActorPatterns {
         error
             .thenAccept(e -> {
                 if (!result.isDone() && !result.isCancelled()) {
-                    result.completeExceptionally(AskCompletionException.apply(e));
+                    result.completeExceptionally(OperationCompletionException.apply(e));
                 }
             });
 

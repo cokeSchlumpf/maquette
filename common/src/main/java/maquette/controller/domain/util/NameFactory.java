@@ -76,7 +76,7 @@ public final class NameFactory {
      * Unfortunately we don't have an Either type, thus we miss-use the Pair type.
      *
      * @param s The string to check.
-     * @return A pair, if the value is not valid, right size will contain a {@link InvalidNameException}, otherwise the left side
+     * @return A pair, if the value is not valid, failure size will contain a {@link InvalidNameException}, otherwise the success side
      * will contain the transformed value.
      */
     private Pair<String, InvalidNameException> create$internal(String s) {
