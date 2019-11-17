@@ -21,9 +21,11 @@ import com.google.common.collect.Maps;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Value
+@EqualsAndHashCode(exclude = { "outputFormat" })
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @JsonSerialize(using = DataTable.Serializer.class)
 @JsonDeserialize(using = DataTable.Deserializer.class)
