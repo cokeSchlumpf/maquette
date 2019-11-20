@@ -16,8 +16,12 @@ import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.api.commands.validations.ObjectValidation;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.api.commands.views.DatasetVM;
+import maquette.controller.domain.values.core.Executed;
+import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.core.governance.AccessRequest;
+import maquette.controller.domain.values.dataset.DatasetGrant;
 import maquette.controller.domain.values.dataset.DatasetMember;
 import maquette.controller.domain.values.iam.User;
 
@@ -83,16 +87,30 @@ public final class PrintDatasetDetailsCmd implements Command {
                     out.println();
                 });
 
+                DataTable grants = DataTable.apply("request for", "privilege", "requested", "id");
+
+                for (DatasetGrant grant : details.getAcl().getOpenGrants()) {
+                    grants = grants.withRow(
+                        grant.getGrantFor(),
+                        grant.getGrant(),
+                        grant.getRequest().map(AccessRequest::getExecuted).map(Executed::getAt),
+                        grant.getId());
+                }
+
                 out.println("PROPERTIES");
                 out.println("----------");
                 out.println(properties.toAscii(false, true));
                 out.println();
-                out.println("ACCESS CONTROL");
-                out.println("--------------");
+                out.println("MEMBERS");
+                out.println("-------");
                 out.println(acl.toAscii());
+                out.println();
+                out.println("OPEN ACCESS REQUESTS");
+                out.println("--------------------");
+                out.println(grants.toAscii());
 
                 return CommandResult
-                    .success(sw.toString(), properties, acl)
+                    .success(sw.toString(), properties, acl, grants)
                     .withView(DatasetVM.apply(details, executor, outputFormat));
             });
     }

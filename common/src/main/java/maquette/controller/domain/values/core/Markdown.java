@@ -67,6 +67,20 @@ public class Markdown {
         }
     }
 
+    public String asPreviewSingleLine() {
+        final int maxWords = 7;
+        final int maxRange = 10;
+        final String[] words = asPlainText().split("\\s+");
+        final int wordCount = asPlainText().split("\\s+").length;
+
+        if (wordCount <= maxWords + maxRange) {
+            return asPlainText();
+        } else {
+            final String[] firstWords =  ArrayUtils.subarray(words, 0, maxWords);
+            return String.join(" ", firstWords) + " ...";
+        }
+    }
+
     public static class Serializer extends StdSerializer<Markdown> {
 
         private Serializer() {

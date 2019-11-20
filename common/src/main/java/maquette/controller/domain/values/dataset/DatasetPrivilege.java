@@ -8,7 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum DatasetPrivilege {
+import maquette.controller.domain.values.core.HasValue;
+
+public enum DatasetPrivilege implements HasValue {
 
     PRODUCER("producer"),
     CONSUMER("consumer"),
@@ -34,7 +36,7 @@ public enum DatasetPrivilege {
     }
 
     @JsonValue
-    private String toValue() {
+    public String toValue() {
         return name;
     }
 

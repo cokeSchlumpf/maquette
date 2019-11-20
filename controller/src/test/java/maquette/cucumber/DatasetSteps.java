@@ -24,6 +24,7 @@ import maquette.controller.domain.api.commands.commands.datasets.CreateDatasetCm
 import maquette.controller.domain.api.commands.commands.datasets.GrantDatasetAccessCmd;
 import maquette.controller.domain.api.commands.commands.datasets.ListDatasetVersionsCmd;
 import maquette.controller.domain.api.commands.commands.datasets.PrintDatasetDetailsCmd;
+import maquette.controller.domain.api.commands.commands.datasets.RequestDatasetAccessCmd;
 import maquette.controller.domain.api.commands.commands.datasets.RevokeDatasetAccessCmd;
 import maquette.controller.domain.api.commands.commands.shop.ListDatasetsCmd;
 import maquette.controller.domain.values.core.Markdown;
@@ -75,6 +76,24 @@ public final class DatasetSteps {
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get()).hasMessageContaining("not authorized");
+    }
+
+    @Then("{string} can see the request when viewing the dataset details")
+    public void can_see_the_request_when_viewing_the_dataset_details(String username)
+        throws ExecutionException, InterruptedException {
+        String datasetName = ctx.getVariable("dataset");
+        User user = ctx.getUser(username);
+        String requestId = ctx.getVariable("datasetAccessRequestId");
+
+        ResourcePath dataset = ctx.getKnownDataset(datasetName);
+
+        CommandResult result = PrintDatasetDetailsCmd
+            .apply(dataset.getProject(), dataset.getName())
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
+            .toCompletableFuture()
+            .get();
+
+        LOG.debug(String.format("$ dataset details\n%s", result.getOutput()));
     }
 
     @Given("{string} creates a dataset called {string} in project {string}")
@@ -137,6 +156,29 @@ public final class DatasetSteps {
             Lists.newArrayList(result.getOutput().split("\n"))
                  .stream()
                  .anyMatch(line -> line.contains("OWNER") && line.contains(role))).isTrue();
+    }
+
+    @Given("{string} requests consumer access to the dataset")
+    public void requests_consumer_access_to_the_dataset(String username) throws ExecutionException, InterruptedException {
+        User user = ctx.getUser(username);
+        ResourcePath dataset = ctx.getKnownDataset(ctx.getVariable("dataset"));
+
+        CommandResult result = RequestDatasetAccessCmd
+            .apply(
+                dataset.getProject(),
+                dataset.getName(),
+                "I need access to the data",
+                EAuthorizationType.USER,
+                DatasetPrivilege.CONSUMER,
+                username)
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
+            .toCompletableFuture()
+            .get();
+
+        LOG.debug(String.format("$ dataset request access\n%s\n\n", result.getOutput()));
+
+        String id = result.getOutput().split(" ")[1];
+        ctx.setVariable("datasetAccessRequestId", id);
     }
 
     @Then("{string} should be able to see details of dataset {string}")

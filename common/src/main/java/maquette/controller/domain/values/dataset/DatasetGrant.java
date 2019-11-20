@@ -19,7 +19,6 @@ import maquette.controller.domain.values.core.governance.AccessRequestAlreadyDec
 import maquette.controller.domain.values.core.governance.AccessRequestAlreadyRevokedError;
 import maquette.controller.domain.values.core.governance.AccessRequestResponse;
 import maquette.controller.domain.values.core.governance.AccessRevoke;
-import maquette.controller.domain.values.exceptions.OperationCompletionException;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.UserId;

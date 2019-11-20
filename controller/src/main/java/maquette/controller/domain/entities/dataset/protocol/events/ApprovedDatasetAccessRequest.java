@@ -7,8 +7,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.entities.dataset.protocol.DatasetEvent;
-import maquette.controller.domain.values.core.governance.Approved;
-import maquette.controller.domain.values.dataset.DatasetAccessRequest;
 import maquette.controller.domain.values.dataset.DatasetGrant;
 
 @Value

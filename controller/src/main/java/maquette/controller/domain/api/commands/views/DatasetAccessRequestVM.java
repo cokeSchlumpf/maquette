@@ -3,7 +3,6 @@ package maquette.controller.domain.api.commands.views;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.api.commands.OutputFormat;
-import maquette.controller.domain.values.dataset.DatasetAccessRequest;
 import maquette.controller.domain.values.dataset.DatasetGrant;
 import maquette.controller.domain.values.iam.User;
 

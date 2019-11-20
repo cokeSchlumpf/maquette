@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.UID;
-import maquette.controller.domain.values.dataset.DatasetAccessRequest;
 import maquette.controller.domain.values.dataset.DatasetAccessRequestLink;
 import maquette.controller.domain.values.exceptions.InvalidTokenException;
 

@@ -54,14 +54,17 @@ public final class TestContext {
     }
 
     public <T> T getVariable(String key, Class<T> type) {
+        return getVariable(key);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getVariable(String key) {
         Object value = variables.get(key);
 
         if (value == null) {
             throw new RuntimeException(String.format("No variable '%s' stored in previous steps", key));
-        } else if (type.isInstance(value)) {
-            return type.cast(value);
         } else {
-            throw new RuntimeException(String.format("Variable '%s' does not conform to type '%s'.", key, type.getSimpleName()));
+            return (T) value;
         }
     }
 

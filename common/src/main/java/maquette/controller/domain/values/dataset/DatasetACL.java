@@ -87,7 +87,8 @@ public class DatasetACL {
             .findFirst();
     }
 
-    public Optional<DatasetGrant> findGrantByAuthorizationAndPrivilegeAndNotClosed(Authorization authorization, DatasetPrivilege privilege) {
+    public Optional<DatasetGrant> findGrantByAuthorizationAndPrivilegeAndNotClosed(Authorization authorization,
+                                                                                   DatasetPrivilege privilege) {
         return this
             .grants
             .stream()
@@ -138,6 +139,15 @@ public class DatasetACL {
                 .map(DatasetGrant::asDatasetMember)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .collect(Collectors.toSet()));
+    }
+
+    public Set<DatasetGrant> getOpenGrants() {
+        return ImmutableSet.copyOf(
+            this
+                .grants
+                .stream()
+                .filter(DatasetGrant::isOpen)
                 .collect(Collectors.toSet()));
     }
 

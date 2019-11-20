@@ -10,6 +10,7 @@ import org.ocpsoft.prettytime.PrettyTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.domain.values.core.HasValue;
 import maquette.controller.domain.values.core.governance.DataClassification;
 
 @Value
@@ -43,6 +44,8 @@ public final class OutputFormat {
             return b ? "yes" : "no";
         } else if (value instanceof DataClassification) {
             return ((DataClassification) value).name();
+        } else if (value instanceof HasValue) {
+            return ((HasValue) value).toValue();
         } else {
             return String.valueOf(value);
         }

@@ -1,6 +1,6 @@
 # Datasets
 
-**Datasets** allow providers to share immutable sets of data. A dataset may contain multiple versions of the set. Datasets may be owned by an individual user or by a project.
+**Datasets** allow providers to share immutable sets of data. A dataset may contain multiple versions of the set. Datasets must be created as resources of a project.
 
 ```gherkin
 Feature: Datasets
@@ -17,8 +17,6 @@ Feature: Datasets
       | some-project          | a-team              | no      |
       | some-private-project  | b-team              | yes     |
 ```
-
-Thus datasets can be created in two ways either directly or via an existing project.
 
 ```gherkin
   Scenario: Create a project dataset
@@ -69,11 +67,7 @@ To identify the version of a dataset, version numbers are calculated based on th
     Then we expect 2 existing version(s) in the dataset
     And we expect that version "1.1.0" exists in the dataset
     And we expect that version "1.1.0" contains 6 tuples
-```
 
-Now when adding data with a different schema, we expect that the major version increases.
-
-```gherkin
     Given we have a dataset of the following schema:
       """
       {
@@ -194,7 +188,7 @@ to become a consumer of a dataset only, like in the following example.
     When "clair" produces data to dataset "some-data" we still expect an exception
 ```
 
-A use can also only be a producer which allows upload of data, but no download.
+A user can also only be a producer which allows upload of data, but no download.
 
 ```gherkin
     When consumer access for dataset "some-data" is revoked from "clair"
@@ -227,4 +221,27 @@ A use can also only be a producer which allows upload of data, but no download.
       | 3     | France         | Paris            |
     When "clair" pushes this data to dataset "some-data"
     Then we expect 3 existing version(s) in the dataset
+```
+
+### Requesting access to datasets
+
+When a dataset is not private a user can find and access the metadata of a dataset. A user might also request access to the dataset.
+
+The data owner might accept or deny the request.
+
+```gherkin
+  Scenario: Dataset Access Request 
+    Given we have the following role-owned projects
+      | Project               | Owned by            | Private |
+      | some-project          | b-team              | no      |
+    And we have the following datasets in project "some-project"
+      | Dataset               | Private |
+      | some-data             | no      |
+    And dataset "some-data" contains 2 versions
+      
+    Then "clair" should be able to see dataset "some-data" when browsing available datasets
+
+    Given "clair" requests consumer access to the dataset
+    Then "bob" can see the request when viewing the dataset details
+    And "bob" has received a notification to review the request
 ```

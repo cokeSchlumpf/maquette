@@ -39,6 +39,8 @@ public final class ShopSteps {
         LOG.debug(String.format("$ shop datasets list\n\n%s", result.getOutput()));
 
         assertThat(result.getOutput()).contains(datasetName);
+
+        ctx.setVariable("dataset", datasetName);
     }
 
     @Then("{string} should find the project when searching for projects")
