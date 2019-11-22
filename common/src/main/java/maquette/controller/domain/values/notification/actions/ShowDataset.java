@@ -1,5 +1,7 @@
 package maquette.controller.domain.values.notification.actions;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -23,4 +25,13 @@ public class ShowDataset implements NotificationAction {
         return new ShowDataset(dataset);
     }
 
+    @Override
+    public Optional<String> toCommand() {
+        return Optional.of(String.format("dataset details -d %s", dataset));
+    }
+
+    @Override
+    public String toMessage() {
+        return String.format("Show dataset '%s'", dataset);
+    }
 }

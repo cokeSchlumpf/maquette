@@ -1,5 +1,7 @@
 package maquette.controller.domain.values.notification.actions;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -30,4 +32,13 @@ public class ShowDatasetAccessRequest implements NotificationAction {
         return new ShowDatasetAccessRequest(dataset, id);
     }
 
+    @Override
+    public Optional<String> toCommand() {
+        return Optional.of(String.format("dataset access-requests -d %s -r %s", dataset, id));
+    }
+
+    @Override
+    public String toMessage() {
+        return String.format("Show access request '%s' in dataset '%s'", id, dataset);
+    }
 }

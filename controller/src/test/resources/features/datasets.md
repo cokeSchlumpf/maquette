@@ -227,8 +227,6 @@ A user can also only be a producer which allows upload of data, but no download.
 
 When a dataset is not private a user can find and access the metadata of a dataset. A user might also request access to the dataset.
 
-The data owner might accept or deny the request.
-
 ```gherkin
   Scenario: Dataset Access Request 
     Given we have the following role-owned projects
@@ -244,4 +242,14 @@ The data owner might accept or deny the request.
     Given "clair" requests consumer access to the dataset
     Then "bob" can see the request when viewing the dataset details
     And "bob" has received a notification to review the request
+    And "clair" sees the request when viewing her personal profile info
+```
+
+The data owner receives a notification to review the request. He can decide whether he wants to approve or deny the request. When the request is approved, the requester receives a notification; the requester can now access the data. 
+
+```gherkin
+    When "bob" approves the request
+    Then "clair" receives a notification that her request was approved
+    When "clair" reads data from dataset "some-data"
+    Then we expect that we received at least 1 tuple(s)
 ```

@@ -2,6 +2,7 @@ package maquette.controller.domain.values.notification;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,6 +17,7 @@ import lombok.Value;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.iam.Authorization;
+import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserId;
 import maquette.controller.domain.values.notification.actions.NotificationAction;
 
@@ -69,11 +71,26 @@ public class Notification {
         return new Notification(id, sent, to, message, actions, Sets.newHashSet());
     }
 
-    public Notification withMarkedAsRead(UserId by, Instant at) {
-        Set<NotificationRead> read = Sets.newHashSet(this.read);
-        read.add(NotificationRead.apply(by, at));
+    public Optional<NotificationRead> getRead(User fromUser) {
+        return getRead(fromUser.getUserId());
+    }
 
-        return apply(id, sent, to, message, actions, read);
+    public Optional<NotificationRead> getRead(UserId fromUser) {
+        return getRead()
+            .stream()
+            .filter(r -> r.getBy().equals(fromUser))
+            .findAny();
+    }
+
+    public Notification withMarkedAsRead(UserId by, Instant at) {
+        if (getRead(by).isPresent()) {
+            return this;
+        } else {
+            Set<NotificationRead> read = Sets.newHashSet(this.read);
+            read.add(NotificationRead.apply(by, at));
+
+            return apply(id, sent, to, message, actions, read);
+        }
     }
 
 }

@@ -62,7 +62,7 @@ public class ApproveDatasetAccessRequestCmd implements Command {
         return app
             .datasets()
             .approveAccessRequest(executor, ResourcePath.apply(project, dataset), id, Markdown.apply(com))
-            .thenApply(info -> CommandResult.success());
+            .thenApply(info -> CommandResult.success(info.getId().getValue()));
     }
 
 }

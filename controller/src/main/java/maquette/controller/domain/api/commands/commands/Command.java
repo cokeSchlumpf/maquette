@@ -36,6 +36,7 @@ import maquette.controller.domain.api.commands.commands.users.GetNotificationsCm
 import maquette.controller.domain.api.commands.commands.users.ListTokensCmd;
 import maquette.controller.domain.api.commands.commands.users.RegisterTokenCmd;
 import maquette.controller.domain.api.commands.commands.users.RenewTokenCmd;
+import maquette.controller.domain.api.commands.commands.users.ShowNotificationsCmd;
 import maquette.controller.domain.api.commands.commands.users.ShowUserCmd;
 import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.entities.notifcation.protocol.commands.MarkNotificationAsRead;
@@ -78,7 +79,8 @@ import maquette.controller.domain.values.iam.User;
         @JsonSubTypes.Type(value = DeleteTokenCmd.class, name = "user token delete"),
         @JsonSubTypes.Type(value = GetNotificationsCmd.class, name = "user get notifications"),
         @JsonSubTypes.Type(value = ListTokensCmd.class, name = "user tokens"),
-        @JsonSubTypes.Type(value = MarkNotificationAsRead.class, name = "user mark notification read"),
+        @JsonSubTypes.Type(value = MarkNotificationAsRead.class, name = "user notifications mark read"),
+        @JsonSubTypes.Type(value = ShowNotificationsCmd.class, name = "user notifications show"),
         @JsonSubTypes.Type(value = RegisterTokenCmd.class, name = "user token register"),
         @JsonSubTypes.Type(value = RenewTokenCmd.class, name = "user token renew"),
         @JsonSubTypes.Type(value = ShowUserCmd.class, name = "user show")

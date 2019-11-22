@@ -43,13 +43,16 @@ public class ShowUserCmd implements Command {
 
                     DataTable accessRequests = DataTable.apply("ID", "DATASET");
                     for (DatasetAccessRequestLink link : profile.getDatasetAccessRequests()) {
-                        accessRequests.withRow(link.getId(), link.getDataset());
+                        accessRequests = accessRequests.withRow(link.getId(), link.getDataset());
                     }
 
-                    String sb = dt.toAscii(false, true)
+                    String sb = ""
+                                + "PROPERTIES\n"
+                                + "----------\n"
+                                + dt.toAscii(false, true)
                                 + "\n\n"
-                                + "DATASET ACCESS REQUESTS"
-                                + "-----------------------"
+                                + "DATASET ACCESS REQUESTS\n"
+                                + "-----------------------\n"
                                 + accessRequests.toAscii();
 
                     return CommandResult

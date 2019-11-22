@@ -1,6 +1,8 @@
 package maquette.cucumber;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 
@@ -56,7 +58,13 @@ public class GeneralSetupSteps {
         data.remove(0);
 
         for (List<String> user : data) {
-            ctx.withUser(AuthenticatedUser.apply(user.get(0), user.get(0), user.get(1).split(",")));
+            Set<String> split = Lists
+                .newArrayList(user.get(1).split(","))
+                .stream()
+                .map(String::trim)
+                .collect(Collectors.toSet());
+
+            ctx.withUser(AuthenticatedUser.apply(user.get(0), user.get(0), split));
         }
     }
 

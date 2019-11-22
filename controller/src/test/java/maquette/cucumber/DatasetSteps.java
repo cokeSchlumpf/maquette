@@ -13,11 +13,13 @@ import com.google.common.collect.Lists;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.api.commands.CommandResult;
 import maquette.controller.domain.api.commands.OutputFormat;
 import maquette.controller.domain.api.commands.commands.EAuthorizationType;
+import maquette.controller.domain.api.commands.commands.datasets.ApproveDatasetAccessRequestCmd;
 import maquette.controller.domain.api.commands.commands.datasets.ChangeDatasetDescriptionCmd;
 import maquette.controller.domain.api.commands.commands.datasets.ChangeDatasetPrivacyCmd;
 import maquette.controller.domain.api.commands.commands.datasets.CreateDatasetCmd;
@@ -30,6 +32,7 @@ import maquette.controller.domain.api.commands.commands.shop.ListDatasetsCmd;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
+import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.governance.GovernanceProperties;
 import maquette.controller.domain.values.core.records.Records;
 import maquette.controller.domain.values.dataset.DatasetPrivilege;
@@ -42,6 +45,21 @@ public final class DatasetSteps {
     private static final Logger LOG = LoggerFactory.getLogger(DatasetSteps.class);
 
     private final TestContext ctx;
+
+    @Given("{string} approves the request")
+    public void approves_the_request(String username) throws ExecutionException, InterruptedException {
+        User user = ctx.getUser(username);
+        ResourcePath dataset = ctx.getKnownDataset(ctx.getVariable("dataset"));
+        UID id = UID.apply(ctx.getVariable("requestId", String.class));
+
+        CommandResult result = ApproveDatasetAccessRequestCmd
+            .apply(dataset.getProject(), dataset.getName(), id, "Yes, it's totally fine!")
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
+            .toCompletableFuture()
+            .get();
+
+        LOG.debug(String.format("$ dataset requests approve\n\n%s\n\n", result.getOutput()));
+    }
 
     @Given("{string} becomes a consumer of dataset {string}")
     public void becomes_a_consumer_of_dataset(String username, String datasetName) throws ExecutionException, InterruptedException {
@@ -83,7 +101,7 @@ public final class DatasetSteps {
         throws ExecutionException, InterruptedException {
         String datasetName = ctx.getVariable("dataset");
         User user = ctx.getUser(username);
-        String requestId = ctx.getVariable("datasetAccessRequestId");
+        String requestId = ctx.getVariable("requestId");
 
         ResourcePath dataset = ctx.getKnownDataset(datasetName);
 
@@ -93,7 +111,9 @@ public final class DatasetSteps {
             .toCompletableFuture()
             .get();
 
-        LOG.debug(String.format("$ dataset details\n%s", result.getOutput()));
+        LOG.debug(String.format("$ dataset details\n\n%s", result.getOutput()));
+
+        assertThat(result.getOutput()).contains(requestId);
     }
 
     @Given("{string} creates a dataset called {string} in project {string}")
@@ -178,7 +198,7 @@ public final class DatasetSteps {
         LOG.debug(String.format("$ dataset request access\n%s\n\n", result.getOutput()));
 
         String id = result.getOutput().split(" ")[1];
-        ctx.setVariable("datasetAccessRequestId", id);
+        ctx.setVariable("requestId", id);
     }
 
     @Then("{string} should be able to see details of dataset {string}")
