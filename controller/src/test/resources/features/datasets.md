@@ -238,6 +238,7 @@ When a dataset is not private a user can find and access the metadata of a datas
     And dataset "some-data" contains 2 versions
       
     Then "clair" should be able to see dataset "some-data" when browsing available datasets
+    And "clair" is able to create a dataset access request
 
     Given "clair" requests consumer access to the dataset
     Then "bob" can see the request when viewing the dataset details

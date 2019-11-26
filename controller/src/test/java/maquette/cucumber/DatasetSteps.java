@@ -29,6 +29,7 @@ import maquette.controller.domain.api.commands.commands.datasets.PrintDatasetDet
 import maquette.controller.domain.api.commands.commands.datasets.RequestDatasetAccessCmd;
 import maquette.controller.domain.api.commands.commands.datasets.RevokeDatasetAccessCmd;
 import maquette.controller.domain.api.commands.commands.shop.ListDatasetsCmd;
+import maquette.controller.domain.api.commands.views.DatasetVM;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
@@ -114,6 +115,10 @@ public final class DatasetSteps {
         LOG.debug(String.format("$ dataset details\n\n%s", result.getOutput()));
 
         assertThat(result.getOutput()).contains(requestId);
+        assertThat(result.getView()).isInstanceOf(DatasetVM.class);
+
+        DatasetVM vm = (DatasetVM) result.getView();
+        assertThat(vm.isCanManageAccessRequests()).isTrue();
     }
 
     @Given("{string} creates a dataset called {string} in project {string}")
@@ -176,6 +181,26 @@ public final class DatasetSteps {
             Lists.newArrayList(result.getOutput().split("\n"))
                  .stream()
                  .anyMatch(line -> line.contains("OWNER") && line.contains(role))).isTrue();
+    }
+
+    @Then("{string} is able to create a dataset access request")
+    public void is_able_to_create_a_dataset_access_request(String username) throws ExecutionException, InterruptedException {
+        User user = ctx.getUser(username);
+        String datasetName = ctx.getVariable("dataset");
+        ResourcePath dataset = ctx.getKnownDataset(datasetName);
+
+        CommandResult result = PrintDatasetDetailsCmd
+            .apply(dataset.getProject(), dataset.getName())
+            .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
+            .toCompletableFuture()
+            .get();
+
+        LOG.debug(String.format("$ datasets details\n%s", result.getOutput()));
+
+        assertThat(result.getView()).isInstanceOf(DatasetVM.class);
+
+        DatasetVM vm = (DatasetVM) result.getView();
+        assertThat(vm.isCanCreateAccessRequest()).isTrue();
     }
 
     @Given("{string} requests consumer access to the dataset")

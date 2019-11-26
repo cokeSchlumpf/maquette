@@ -1,7 +1,6 @@
 package maquette.controller.domain.api.commands.views;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,7 +21,8 @@ import maquette.controller.domain.values.iam.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DatasetVM implements ViewModel {
 
-    private static final String ACCESS_REQUEST = "access-request";
+    private static final String CAN_CREATE_ACCESS_REQUEST = "can-create-access-request";
+    private static final String CAN_MANAGE_ACCESS_REQUESTS = "can-manage-access-requests";
     private static final String CLASSIFICATION = "classification";
     private static final String CREATED = "created";
     private static final String CREATED_BY = "created-by";
@@ -35,6 +35,7 @@ public final class DatasetVM implements ViewModel {
     private static final String PRIVATE = "private";
     private static final String PROJECT = "project";
     private static final String REQUIRES_APPROVAL = "requires-approval";
+    private static final String USER_ACCESS_REQUESTS = "user-access-request";
 
     @JsonProperty(PROJECT)
     private final String project;
@@ -72,8 +73,14 @@ public final class DatasetVM implements ViewModel {
     @JsonProperty(MEMBERS)
     private final List<MembersEntryVM> members;
 
-    @JsonProperty(ACCESS_REQUEST)
-    private final DatasetAccessRequestVM accessRequest;
+    @JsonProperty(USER_ACCESS_REQUESTS)
+    private final List<DatasetAccessRequestVM> accessRequest;
+
+    @JsonProperty(CAN_CREATE_ACCESS_REQUEST)
+    private final boolean canCreateAccessRequest;
+
+    @JsonProperty(CAN_MANAGE_ACCESS_REQUESTS)
+    private final boolean canManageAccessRequests;
 
     @JsonCreator
     public static DatasetVM apply(
@@ -89,18 +96,25 @@ public final class DatasetVM implements ViewModel {
         @JsonProperty(MODIFIED_BY) String modifiedBy,
         @JsonProperty(MODIFIED) String modified,
         @JsonProperty(MEMBERS) List<MembersEntryVM> members,
-        @JsonProperty(ACCESS_REQUEST) DatasetAccessRequestVM accessRequest) {
+        @JsonProperty(USER_ACCESS_REQUESTS) List<DatasetAccessRequestVM> accessRequest,
+        @JsonProperty(CAN_CREATE_ACCESS_REQUEST) boolean canCreateAccessRequest,
+        @JsonProperty(CAN_MANAGE_ACCESS_REQUESTS) boolean canManageAccessRequests) {
 
         return new DatasetVM(
             project, dataset, description, owner, isPrivate, requiresApproval, classification,
-            createdBy, created, modifiedBy, modified, ImmutableList.copyOf(members), accessRequest);
+            createdBy, created, modifiedBy, modified, ImmutableList.copyOf(members), accessRequest,
+            canCreateAccessRequest, canManageAccessRequests);
     }
 
     public static DatasetVM apply(DatasetDetails details, User executor, OutputFormat of) {
         List<MembersEntryVM> members = Lists.newArrayList();
+
         for (DatasetMember grant : details.getAcl().getMembers()) {
             members.add(MembersEntryVM.apply(grant, of));
         }
+
+        boolean canCreateAccessRequest = !(details.getAcl().canConsume(executor) || details.getAcl().canProduce(executor));
+        boolean canManageAccessRequests = details.getAcl().canManage(executor);
 
         return apply(
             of.format(details.getDataset().getProject()),
@@ -115,11 +129,9 @@ public final class DatasetVM implements ViewModel {
             of.format(details.getModifiedBy()),
             of.format(details.getModified()),
             members,
-            null);
-    }
-
-    public Optional<DatasetAccessRequestVM> getAccessRequest() {
-        return Optional.ofNullable(accessRequest);
+            null,
+            canCreateAccessRequest,
+            canManageAccessRequests);
     }
 
 }

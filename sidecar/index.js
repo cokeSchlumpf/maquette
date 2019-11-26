@@ -7,7 +7,8 @@ const PROXY_URL = process.env.SIDECAR_PROXY_URL || "http://localhost:8080";
 const PORT = process.env.SIDECAR_PORT || 3030;
 
 const KNOWN_USER_ROLES = {
-    "hippo": [ "team-a", "team-b" ]
+    "hippo": [ "team-a", "team-b" ],
+    "sackgesicht": [ "team-c" ]
 };
 
 /*

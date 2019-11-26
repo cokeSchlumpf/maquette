@@ -14,16 +14,11 @@ import Properties from "../../../elements/Properties";
 import DatasetVersionCard from '../../../elements/DatasetVersionCard';
 
 import {
-    Checkbox,
     Tabs,
-    Tab,
-    Select,
-    SelectItem,
-    TextArea,
-    TextInput
+    Tab
 } from 'carbon-components-react';
 
-const onSubmitAccessRequestDefault = (request) => { console.log(request) }
+const onSubmitAccessRequestDefault = (request) => { console.log(request) };
 
 export default ({ dataset, project, user, versions, onSubmitAccessRequest = onSubmitAccessRequestDefault, ...props }) => {
     const projectName = _.get(dataset, 'project', _.get(props, 'match.params.project', 'no project'));
@@ -51,6 +46,17 @@ export default ({ dataset, project, user, versions, onSubmitAccessRequest = onSu
             authorization: 'user',
             to: user.name }))
     };
+
+    const createAccessRequestTab = () => (
+        <Tab label="Access Requests">
+            <AccessRequestForm onSubmit={ onSubmitAccessRequestHandler }/>
+        </Tab>);
+
+    const manageAccessRequests = () => (
+        <Tab label="Access Requests">
+            Manage!
+            <AccessRequestForm onSubmit={ onSubmitAccessRequestHandler }/>
+        </Tab>);
 
     return (
         <>
@@ -117,9 +123,8 @@ export default ({ dataset, project, user, versions, onSubmitAccessRequest = onSu
                         </ContentSection>
                     </Tab>
 
-                    <Tab label="Request Access">
-                        <AccessRequestForm onSubmit={ onSubmitAccessRequestHandler }/>
-                    </Tab>
+                    { _.get(dataset, 'can-create-access-request', false) && createAccessRequestTab() }
+                    { _.get(dataset, 'can-manage-access-requests', false) && manageAccessRequests() }
                 </Tabs>
             </ContentContainer>
         </>);
