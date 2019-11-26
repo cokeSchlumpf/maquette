@@ -8,11 +8,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.controller.domain.api.commands.CommandResult;
+import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.api.commands.ViewModel;
 import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.api.commands.validations.ObjectValidation;
-import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.api.commands.views.SuccessVM;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.iam.User;
@@ -44,15 +45,15 @@ public class ChangeDatasetPrivacyCmd implements Command {
     }
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
-                                              OutputFormat outputFormat) {
+    public CompletionStage<ViewModel> run(User executor, CoreApplication app,
+                                          OutputFormat outputFormat) {
         ObjectValidation.notNull().validate(dataset, DATASET);
         ResourcePath rp = ResourcePath.apply(executor, project, dataset);
 
         return app
             .datasets()
             .changePrivacy(executor, rp, isPrivate)
-            .thenApply(details -> CommandResult.success());
+            .thenApply(details -> SuccessVM.apply());
     }
 
 }

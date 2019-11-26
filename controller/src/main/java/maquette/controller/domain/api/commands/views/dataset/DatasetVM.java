@@ -1,17 +1,25 @@
-package maquette.controller.domain.api.commands.views;
+package maquette.controller.domain.api.commands.views.dataset;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.domain.api.commands.CommandResult;
+import maquette.controller.domain.api.commands.DataTable;
 import maquette.controller.domain.api.commands.OutputFormat;
 import maquette.controller.domain.api.commands.ViewModel;
+import maquette.controller.domain.api.commands.views.AuthorizationVM;
+import maquette.controller.domain.api.commands.views.MembersEntryVM;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetMember;
@@ -36,6 +44,7 @@ public final class DatasetVM implements ViewModel {
     private static final String PROJECT = "project";
     private static final String REQUIRES_APPROVAL = "requires-approval";
     private static final String USER_ACCESS_REQUESTS = "user-access-request";
+    private static final String VERSIONS = "versions";
 
     @JsonProperty(PROJECT)
     private final String project;
@@ -70,11 +79,14 @@ public final class DatasetVM implements ViewModel {
     @JsonProperty(MODIFIED)
     private final String modified;
 
+    @JsonProperty(VERSIONS)
+    private final int versions;
+
     @JsonProperty(MEMBERS)
     private final List<MembersEntryVM> members;
 
     @JsonProperty(USER_ACCESS_REQUESTS)
-    private final List<DatasetAccessRequestVM> accessRequest;
+    private final List<DatasetAccessRequestVM> accessRequests;
 
     @JsonProperty(CAN_CREATE_ACCESS_REQUEST)
     private final boolean canCreateAccessRequest;
@@ -95,19 +107,32 @@ public final class DatasetVM implements ViewModel {
         @JsonProperty(CREATED) String created,
         @JsonProperty(MODIFIED_BY) String modifiedBy,
         @JsonProperty(MODIFIED) String modified,
+        @JsonProperty(VERSIONS) int versions,
         @JsonProperty(MEMBERS) List<MembersEntryVM> members,
-        @JsonProperty(USER_ACCESS_REQUESTS) List<DatasetAccessRequestVM> accessRequest,
+        @JsonProperty(USER_ACCESS_REQUESTS) List<DatasetAccessRequestVM> accessRequests,
         @JsonProperty(CAN_CREATE_ACCESS_REQUEST) boolean canCreateAccessRequest,
         @JsonProperty(CAN_MANAGE_ACCESS_REQUESTS) boolean canManageAccessRequests) {
 
         return new DatasetVM(
             project, dataset, description, owner, isPrivate, requiresApproval, classification,
-            createdBy, created, modifiedBy, modified, ImmutableList.copyOf(members), accessRequest,
+            createdBy, created, modifiedBy, modified, versions, ImmutableList.copyOf(members), accessRequests,
             canCreateAccessRequest, canManageAccessRequests);
     }
 
     public static DatasetVM apply(DatasetDetails details, User executor, OutputFormat of) {
-        List<MembersEntryVM> members = Lists.newArrayList();
+        List<MembersEntryVM> members = details
+            .getAcl()
+            .getMembers()
+            .stream()
+            .map(grant -> MembersEntryVM.apply(grant, of))
+            .collect(Collectors.toList());
+
+        List<DatasetAccessRequestVM> accessRequests = details
+            .getAcl()
+            .getOpenGrants()
+            .stream()
+            .map(grant -> DatasetAccessRequestVM.apply(grant, details, executor, of))
+            .collect(Collectors.toList());
 
         for (DatasetMember grant : details.getAcl().getMembers()) {
             members.add(MembersEntryVM.apply(grant, of));
@@ -128,10 +153,72 @@ public final class DatasetVM implements ViewModel {
             of.format(details.getCreated()),
             of.format(details.getModifiedBy()),
             of.format(details.getModified()),
+            details.getVersions().size(),
             members,
-            null,
+            accessRequests,
             canCreateAccessRequest,
             canManageAccessRequests);
     }
 
+    @Override
+    public CommandResult toCommandResult(ObjectMapper om) {
+        StringWriter sw = new StringWriter();
+        PrintWriter out = new PrintWriter(sw);
+
+        DataTable properties = DataTable
+            .apply("key", "value")
+            .withRow("owner", owner.getAuthorization())
+            .withRow("requires approval", requiresApproval)
+            .withRow("classification", classification)
+            .withRow("", "")
+            .withRow("created", created)
+            .withRow("created by", createdBy)
+            .withRow("", "")
+            .withRow("modified", modified)
+            .withRow("modified by", modifiedBy)
+            .withRow("", "")
+            .withRow("versions", versions);
+
+        DataTable acl = DataTable.apply("granted to", "privilege", "granted by", "granted at");
+
+        for (MembersEntryVM grant : members) {
+            acl = acl.withRow(
+                grant.getGrantedTo(),
+                grant.getPrivilege(),
+                grant.getGrantedBy(),
+                grant.getGrantedAt());
+        }
+
+        if (description != null) {
+            out.println(description);
+            out.println();
+        }
+
+        DataTable grants = DataTable.apply("request for", "privilege", "requested", "id");
+
+        for (DatasetAccessRequestVM request : accessRequests) {
+            grants = grants.withRow(
+                request.getGrantFor(),
+                request.getGrant(),
+                request.getInitiated(),
+                request.getId());
+        }
+
+        out.println("PROPERTIES");
+        out.println("----------");
+        out.println(properties.toAscii(false, true));
+        out.println();
+        out.println("MEMBERS");
+        out.println("-------");
+        out.println(acl.toAscii());
+
+        if (canManageAccessRequests) {
+            out.println();
+            out.println("OPEN ACCESS REQUESTS");
+            out.println("--------------------");
+            out.println(grants.toAscii());
+        }
+
+        return CommandResult.success(sw.toString(), acl, grants);
+    }
 }

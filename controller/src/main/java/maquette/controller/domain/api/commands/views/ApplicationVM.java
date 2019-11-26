@@ -1,10 +1,12 @@
 package maquette.controller.domain.api.commands.views;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.domain.api.commands.CommandResult;
 import maquette.controller.domain.api.commands.ViewModel;
 
 @Value
@@ -37,4 +39,9 @@ public class ApplicationVM implements ViewModel {
         return new ApplicationVM(brand, name, version, instance);
     }
 
+    @Override
+    public CommandResult toCommandResult(ObjectMapper om) {
+        String about = String.format("%s %s, %s, %s", brand, name, version, instance);
+        return CommandResult.success(about);
+    }
 }

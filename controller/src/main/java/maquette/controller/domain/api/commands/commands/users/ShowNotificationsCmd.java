@@ -10,13 +10,13 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.CoreApplication;
-import maquette.controller.domain.api.commands.CommandResult;
 import maquette.controller.domain.api.commands.DataTable;
 import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.api.commands.ViewModel;
 import maquette.controller.domain.api.commands.commands.Command;
+import maquette.controller.domain.api.commands.views.SimpleMessageVM;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.notification.NotificationRead;
-import maquette.controller.domain.values.notification.actions.NotificationAction;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -30,8 +30,8 @@ public class ShowNotificationsCmd implements Command {
 
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
-                                              OutputFormat outputFormat) {
+    public CompletionStage<ViewModel> run(User executor, CoreApplication app,
+                                          OutputFormat outputFormat) {
         return app
             .users()
             .getNotifications(executor)
@@ -74,7 +74,7 @@ public class ShowNotificationsCmd implements Command {
                     out = "No notifications available";
                 }
 
-                return CommandResult.success(out);
+                return SimpleMessageVM.apply(out);
             });
     }
 

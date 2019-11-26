@@ -6,6 +6,9 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 
+import maquette.controller.domain.api.commands.views.ProjectCardVM;
+import maquette.controller.domain.api.commands.views.dataset.DatasetCardVM;
+import maquette.controller.domain.api.commands.views.dataset.DatasetVM;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.project.ProjectDetails;
 
@@ -27,6 +30,21 @@ public final class DataTables {
         return dt;
     }
 
+    public static DataTable createDatasetsFromVM(Iterable<DatasetCardVM> datasets) {
+        DataTable dt = DataTable.apply("name", "owner", "can consume", "can produce", "modified");
+
+        for (DatasetCardVM details : datasets) {
+            dt = dt.withRow(
+                details.getName(),
+                details.getVersions(),
+                details.isCanConsume(),
+                details.isCanProduce(),
+                details.getLastUpdate());
+        }
+
+        return dt;
+    }
+
     public static DataTable createProjects(Iterable<ProjectDetails> projects) {
         DataTable dt = DataTable.apply("name", "owner", "private", "modified", "datasets");
 
@@ -42,6 +60,20 @@ public final class DataTables {
                 info.getAcl().isPrivate(),
                 info.getModified(),
                 info.getDatasets().size());
+        }
+
+        return dt;
+    }
+
+    public static DataTable createProjectsVM(Iterable<ProjectCardVM> projects) {
+        DataTable dt = DataTable.apply("name", "datasets", "updated", "description");
+
+        for (ProjectCardVM info : projects) {
+            dt = dt.withRow(
+                info.getName(),
+                info.getDatasets(),
+                info.getLastUpdate(),
+                info.getDescription());
         }
 
         return dt;

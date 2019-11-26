@@ -8,11 +8,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.controller.domain.api.commands.CommandResult;
+import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.api.commands.DataTable;
 import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.api.commands.ViewModel;
 import maquette.controller.domain.api.commands.commands.Command;
-import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.api.commands.views.SimpleMessageVM;
 import maquette.controller.domain.values.iam.TokenDetails;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserId;
@@ -35,8 +36,8 @@ public class ListTokensCmd implements Command {
 
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
-                                              OutputFormat outputFormat) {
+    public CompletionStage<ViewModel> run(User executor, CoreApplication app,
+                                          OutputFormat outputFormat) {
         return app
             .users()
             .getTokens(executor, UserId.apply(executor, forUser))
@@ -49,7 +50,7 @@ public class ListTokensCmd implements Command {
                         token.getCreatedBy(), token.getModified(), token.getModifiedBy());
                 }
 
-                return CommandResult.success(dt.toAscii(), dt);
+                return SimpleMessageVM.apply(dt.toAscii());
             });
     }
 

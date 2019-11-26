@@ -11,13 +11,12 @@ import com.google.common.collect.Lists;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.api.commands.CommandResult;
+import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.api.commands.DataTable;
 import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.api.commands.ViewModel;
 import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.api.commands.validations.ObjectValidation;
-import maquette.controller.domain.CoreApplication;
-import maquette.controller.domain.api.commands.views.AuthorizationVM;
 import maquette.controller.domain.api.commands.views.MembersEntryVM;
 import maquette.controller.domain.api.commands.views.ProjectVM;
 import maquette.controller.domain.values.core.ResourceName;
@@ -38,8 +37,8 @@ public final class PrintProjectDetailsCmd implements Command {
     }
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
-                                              OutputFormat outputFormat) {
+    public CompletionStage<ViewModel> run(User executor, CoreApplication app,
+                                          OutputFormat outputFormat) {
         ObjectValidation.notNull().validate(project, PROJECT);
 
         return app
@@ -86,8 +85,7 @@ public final class PrintProjectDetailsCmd implements Command {
                 out.println("--------------");
                 out.println(acl.toAscii());
 
-                ProjectVM vm = ProjectVM.apply(details, aclVM, outputFormat);
-                return CommandResult.success(sw.toString(), properties, acl).withView(vm);
+                return ProjectVM.apply(details, aclVM, outputFormat);
             });
     }
 

@@ -10,8 +10,10 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.api.commands.CommandResult;
 import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.api.commands.ViewModel;
 import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.api.commands.views.SuccessVM;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.iam.User;
 
@@ -31,12 +33,12 @@ public class MarkNotificationAsReadCmd implements Command {
 
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
-                                              OutputFormat outputFormat) {
+    public CompletionStage<ViewModel> run(User executor, CoreApplication app,
+                                          OutputFormat outputFormat) {
         return app
             .users()
             .markNotificationAsRead(executor, id)
-            .thenApply(n -> CommandResult.success());
+            .thenApply(n -> SuccessVM.apply());
     }
 
 }

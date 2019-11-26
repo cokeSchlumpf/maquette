@@ -315,6 +315,7 @@ public final class DatasetsSecured implements Datasets {
 
     @Override
     public CompletionStage<DatasetDetails> getDetails(User executor, ResourcePath dataset) {
+        // TODO mw: Filter ACL/ Request entries which should not be visible to non-managers of the dataset
         return getDatasetDetails(dataset)
             .thenCompose(dsDetails -> {
                 if (dsDetails.getAcl().canReadDetails(executor)) {

@@ -9,11 +9,12 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.CoreApplication;
-import maquette.controller.domain.api.commands.CommandResult;
 import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.api.commands.ViewModel;
 import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.api.commands.commands.EAuthorizationType;
 import maquette.controller.domain.api.commands.validations.ObjectValidation;
+import maquette.controller.domain.api.commands.views.SimpleMessageVM;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
@@ -62,8 +63,8 @@ public class RequestDatasetAccessCmd implements Command {
     }
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
-                                              OutputFormat outputFormat) {
+    public CompletionStage<ViewModel> run(User executor, CoreApplication app,
+                                          OutputFormat outputFormat) {
         ObjectValidation.notNull().validate(project, PROJECT);
         ObjectValidation.notNull().validate(project, DATASET);
         ObjectValidation.notNull().validate(to, TO);
@@ -78,9 +79,9 @@ public class RequestDatasetAccessCmd implements Command {
                                   Markdown.apply(justification), privilege, authorization.asAuthorization(to))
             .thenApply(grant -> {
                 if (grant.isActive()) {
-                    return CommandResult.success("APPROVED " + grant.getId().getValue());
+                    return SimpleMessageVM.apply("APPROVED " + grant.getId().getValue());
                 } else {
-                    return CommandResult.success("REQUESTED " + grant.getId().getValue());
+                    return SimpleMessageVM.apply("REQUESTED " + grant.getId().getValue());
                 }
             });
     }

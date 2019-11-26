@@ -7,11 +7,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.api.commands.CommandResult;
+import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.api.commands.ViewModel;
 import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.api.commands.validations.ObjectValidation;
-import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.api.commands.views.SimpleMessageVM;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.iam.User;
 import maquette.controller.domain.values.iam.UserId;
@@ -42,8 +43,8 @@ public final class CreateDatasetConsumerToken implements Command {
     }
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
-                                              OutputFormat outputFormat) {
+    public CompletionStage<ViewModel> run(User executor, CoreApplication app,
+                                          OutputFormat outputFormat) {
         ObjectValidation.notNull().validate(dataset, DATASET);
         ResourcePath datasetResource = ResourcePath.apply(executor, project, dataset);
 
@@ -64,7 +65,7 @@ public final class CreateDatasetConsumerToken implements Command {
                     token.getDetails().getName(),
                     token.getSecret());
 
-                return CommandResult.success(sb);
+                return SimpleMessageVM.apply(sb);
             });
     }
 

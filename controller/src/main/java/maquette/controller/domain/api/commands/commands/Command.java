@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import maquette.controller.domain.api.commands.CommandResult;
 import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.api.commands.ViewModel;
 import maquette.controller.domain.api.commands.commands.datasets.ApproveDatasetAccessRequestCmd;
 import maquette.controller.domain.api.commands.commands.datasets.ChangeDatasetDescriptionCmd;
 import maquette.controller.domain.api.commands.commands.datasets.ChangeDatasetPrivacyCmd;
@@ -87,7 +88,7 @@ import maquette.controller.domain.values.iam.User;
     })
 public interface Command {
 
-    CompletionStage<CommandResult> run(User executor, CoreApplication app, OutputFormat outputFormat);
+    CompletionStage<ViewModel> run(User executor, CoreApplication app, OutputFormat outputFormat);
 
 }
 

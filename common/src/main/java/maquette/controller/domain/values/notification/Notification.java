@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -51,7 +52,7 @@ public class Notification {
     @JsonProperty(READ)
     private final Set<NotificationRead> read;
 
-    @JsonProperty
+    @JsonCreator
     public static Notification apply(
         @JsonProperty(ID) UID id,
         @JsonProperty(SENT) Instant sent,

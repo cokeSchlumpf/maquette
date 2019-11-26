@@ -7,11 +7,15 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.domain.api.commands.CommandResult;
+import maquette.controller.domain.api.commands.DataTable;
+import maquette.controller.domain.api.commands.DataTables;
 import maquette.controller.domain.api.commands.OutputFormat;
 import maquette.controller.domain.api.commands.ViewModel;
 import maquette.controller.domain.values.iam.User;
@@ -52,4 +56,9 @@ public final class ProjectsVM implements ViewModel {
         return apply(cards.size(), cards);
     }
 
+    @Override
+    public CommandResult toCommandResult(ObjectMapper om) {
+        DataTable dt = DataTables.createProjectsVM(projects);
+        return CommandResult.success(dt.toAscii(), dt);
+    }
 }

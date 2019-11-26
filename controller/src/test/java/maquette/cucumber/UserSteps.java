@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import cucumber.api.java.en.Then;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.api.commands.CommandResult;
@@ -16,6 +18,7 @@ import maquette.controller.domain.api.commands.commands.shop.FindProjectsCmd;
 import maquette.controller.domain.api.commands.commands.shop.ListProjectsCmd;
 import maquette.controller.domain.api.commands.commands.users.ShowNotificationsCmd;
 import maquette.controller.domain.api.commands.commands.users.ShowUserCmd;
+import maquette.controller.domain.util.databind.ObjectMapperFactory;
 import maquette.controller.domain.values.iam.User;
 
 @AllArgsConstructor
@@ -23,6 +26,8 @@ public final class UserSteps {
 
     @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(DatasetSteps.class);
+
+    private static final ObjectMapper OM = ObjectMapperFactory.apply().create(true);
 
     private final TestContext ctx;
 
@@ -35,7 +40,8 @@ public final class UserSteps {
             .apply()
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ user notifications\n\n%s\n\n", result.getOutput()));
 
@@ -51,7 +57,8 @@ public final class UserSteps {
             .apply()
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ user notifications\n\n%s\n\n", result.getOutput()));
 
@@ -70,7 +77,8 @@ public final class UserSteps {
             .apply()
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ user show\n\n%s\n\n", result.getOutput()));
 

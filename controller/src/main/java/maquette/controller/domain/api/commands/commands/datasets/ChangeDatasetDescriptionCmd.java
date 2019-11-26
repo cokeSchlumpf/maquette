@@ -8,11 +8,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.controller.domain.api.commands.CommandResult;
+import maquette.controller.domain.CoreApplication;
 import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.api.commands.ViewModel;
 import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.api.commands.validations.ObjectValidation;
-import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.api.commands.views.SuccessVM;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
@@ -45,8 +46,8 @@ public class ChangeDatasetDescriptionCmd implements Command {
     }
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
-                                              OutputFormat outputFormat) {
+    public CompletionStage<ViewModel> run(User executor, CoreApplication app,
+                                          OutputFormat outputFormat) {
         ObjectValidation.notNull().validate(dataset, DATASET);
         ObjectValidation.notNull().validate(description, DESCRIPTION);
 
@@ -55,7 +56,7 @@ public class ChangeDatasetDescriptionCmd implements Command {
         return app
             .datasets()
             .changeDescription(executor,rp, description)
-            .thenApply(details -> CommandResult.success());
+            .thenApply(details -> SuccessVM.apply());
     }
 
 }

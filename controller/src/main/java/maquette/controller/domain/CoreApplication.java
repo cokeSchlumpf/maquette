@@ -3,6 +3,8 @@ package maquette.controller.domain;
 import java.io.PrintStream;
 import java.util.concurrent.ExecutionException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import akka.actor.ActorSystem;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.javadsl.Adapter;
@@ -38,6 +40,7 @@ import maquette.controller.domain.ports.DataStorageAdapter;
 import maquette.controller.domain.services.CreateDefaultProject;
 import maquette.controller.domain.util.ActorPatterns;
 import maquette.controller.domain.util.Operators;
+import maquette.controller.domain.util.databind.ObjectMapperFactory;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
@@ -141,6 +144,7 @@ public class CoreApplication {
 
     public void printStatus(PrintStream ps) {
         Operators.suppressExceptions(() -> {
+            ObjectMapper om = ObjectMapperFactory.apply().create(true);
             StringBuilder sb = new StringBuilder();
 
             sb.append("\n");
@@ -153,6 +157,7 @@ public class CoreApplication {
                     .run(AuthenticatedUser.admin(), this, OutputFormat.apply())
                     .toCompletableFuture()
                     .get()
+                    .toCommandResult(om)
                     .getOutput());
 
             sb.append("\n\n");
@@ -163,6 +168,7 @@ public class CoreApplication {
                     .run(AuthenticatedUser.admin(), this, OutputFormat.apply())
                     .toCompletableFuture()
                     .get()
+                    .toCommandResult(om)
                     .getOutput());
 
             sb.append("\n\n");

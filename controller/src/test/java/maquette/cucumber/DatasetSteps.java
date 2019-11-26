@@ -9,15 +9,16 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.api.commands.CommandResult;
 import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.api.commands.ViewModel;
 import maquette.controller.domain.api.commands.commands.EAuthorizationType;
 import maquette.controller.domain.api.commands.commands.datasets.ApproveDatasetAccessRequestCmd;
 import maquette.controller.domain.api.commands.commands.datasets.ChangeDatasetDescriptionCmd;
@@ -29,7 +30,8 @@ import maquette.controller.domain.api.commands.commands.datasets.PrintDatasetDet
 import maquette.controller.domain.api.commands.commands.datasets.RequestDatasetAccessCmd;
 import maquette.controller.domain.api.commands.commands.datasets.RevokeDatasetAccessCmd;
 import maquette.controller.domain.api.commands.commands.shop.ListDatasetsCmd;
-import maquette.controller.domain.api.commands.views.DatasetVM;
+import maquette.controller.domain.api.commands.views.dataset.DatasetVM;
+import maquette.controller.domain.util.databind.ObjectMapperFactory;
 import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
@@ -45,6 +47,8 @@ public final class DatasetSteps {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatasetSteps.class);
 
+    private static final ObjectMapper OM = ObjectMapperFactory.apply().create(true);
+
     private final TestContext ctx;
 
     @Given("{string} approves the request")
@@ -57,7 +61,8 @@ public final class DatasetSteps {
             .apply(dataset.getProject(), dataset.getName(), id, "Yes, it's totally fine!")
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ dataset requests approve\n\n%s\n\n", result.getOutput()));
     }
@@ -106,18 +111,20 @@ public final class DatasetSteps {
 
         ResourcePath dataset = ctx.getKnownDataset(datasetName);
 
-        CommandResult result = PrintDatasetDetailsCmd
+        ViewModel viewModel = PrintDatasetDetailsCmd
             .apply(dataset.getProject(), dataset.getName())
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
+        CommandResult result = viewModel
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ dataset details\n\n%s", result.getOutput()));
 
         assertThat(result.getOutput()).contains(requestId);
-        assertThat(result.getView()).isInstanceOf(DatasetVM.class);
+        assertThat(viewModel).isInstanceOf(DatasetVM.class);
 
-        DatasetVM vm = (DatasetVM) result.getView();
+        DatasetVM vm = (DatasetVM) viewModel;
         assertThat(vm.isCanManageAccessRequests()).isTrue();
     }
 
@@ -173,7 +180,8 @@ public final class DatasetSteps {
             .apply(project, dataset)
             .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ datasets details\n%s", result.getOutput()));
 
@@ -189,17 +197,19 @@ public final class DatasetSteps {
         String datasetName = ctx.getVariable("dataset");
         ResourcePath dataset = ctx.getKnownDataset(datasetName);
 
-        CommandResult result = PrintDatasetDetailsCmd
+        ViewModel viewModel = PrintDatasetDetailsCmd
             .apply(dataset.getProject(), dataset.getName())
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
             .get();
 
+        CommandResult result = viewModel
+            .toCommandResult(OM);
+
         LOG.debug(String.format("$ datasets details\n%s", result.getOutput()));
 
-        assertThat(result.getView()).isInstanceOf(DatasetVM.class);
-
-        DatasetVM vm = (DatasetVM) result.getView();
+        assertThat(viewModel).isInstanceOf(DatasetVM.class);
+        DatasetVM vm = (DatasetVM) viewModel;
         assertThat(vm.isCanCreateAccessRequest()).isTrue();
     }
 
@@ -218,7 +228,8 @@ public final class DatasetSteps {
                 username)
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ dataset request access\n%s\n\n", result.getOutput()));
 
@@ -236,7 +247,8 @@ public final class DatasetSteps {
             .apply(dataset.getProject(), dataset.getName())
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("& datasets details\n%s", result.getOutput()));
 
@@ -253,7 +265,8 @@ public final class DatasetSteps {
             .apply()
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ user datasets\n%s", result.getOutput()));
 
@@ -277,7 +290,8 @@ public final class DatasetSteps {
             .apply(dataset.getProject(), dataset.getName())
             .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ datasets details\n%s", result.getOutput()));
 
@@ -309,7 +323,8 @@ public final class DatasetSteps {
             .apply(dataset.getProject(), dataset.getName())
             .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ datasets details\n%s", result.getOutput()));
 
@@ -329,7 +344,8 @@ public final class DatasetSteps {
             .apply(dataset.getProject(), dataset.getName())
             .run(ctx.getSetup().getAdminUser(), ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ datasets details\n%s", result.getOutput()));
 

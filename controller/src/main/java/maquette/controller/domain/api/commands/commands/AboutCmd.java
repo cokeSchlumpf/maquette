@@ -8,10 +8,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import maquette.controller.domain.api.commands.CommandResult;
-import maquette.controller.domain.api.commands.OutputFormat;
-import maquette.controller.domain.api.commands.views.ApplicationVM;
 import maquette.controller.domain.CoreApplication;
+import maquette.controller.domain.api.commands.OutputFormat;
+import maquette.controller.domain.api.commands.ViewModel;
+import maquette.controller.domain.api.commands.views.ApplicationVM;
 import maquette.controller.domain.values.iam.User;
 
 @Value
@@ -24,14 +24,8 @@ public class AboutCmd implements Command {
     }
 
     @Override
-    public CompletionStage<CommandResult> run(User executor, CoreApplication app,
-                                              OutputFormat outputFormat) {
-        String about = "IBM Maquette Data Platform, v0.0.42, local";
-        ApplicationVM vm = ApplicationVM.apply("IBM Maquette", "Data Platform", "v0.0.42", "local");
-
-        return CompletableFuture.completedFuture(
-            CommandResult
-                .success(about)
-                .withView(vm));
+    public CompletionStage<ViewModel> run(User executor, CoreApplication app,
+                                          OutputFormat outputFormat) {
+        return CompletableFuture.completedFuture(ApplicationVM.apply("IBM Maquette", "Data Platform", "v0.0.42", "local"));
     }
 }

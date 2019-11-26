@@ -1,4 +1,4 @@
-package maquette.controller.domain.api.commands.views;
+package maquette.controller.domain.api.commands.views.dataset;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

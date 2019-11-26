@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import cucumber.api.java.en.Then;
 import lombok.AllArgsConstructor;
 import maquette.controller.domain.api.commands.CommandResult;
@@ -14,6 +16,7 @@ import maquette.controller.domain.api.commands.OutputFormat;
 import maquette.controller.domain.api.commands.commands.shop.FindDatasetsCmd;
 import maquette.controller.domain.api.commands.commands.shop.FindProjectsCmd;
 import maquette.controller.domain.api.commands.commands.shop.ListProjectsCmd;
+import maquette.controller.domain.util.databind.ObjectMapperFactory;
 import maquette.controller.domain.values.iam.User;
 
 @AllArgsConstructor
@@ -21,6 +24,8 @@ public final class ShopSteps {
 
     @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory.getLogger(DatasetSteps.class);
+
+    private static final ObjectMapper OM = ObjectMapperFactory.apply().create(true);
 
     private final TestContext ctx;
 
@@ -34,7 +39,8 @@ public final class ShopSteps {
             .apply()
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ shop datasets list\n\n%s", result.getOutput()));
 
@@ -53,7 +59,8 @@ public final class ShopSteps {
             .apply()
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ shop projects find\n\n%s", result.getOutput()));
 
@@ -70,7 +77,8 @@ public final class ShopSteps {
             .apply()
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ shop projects find\n\n%s", result.getOutput()));
 
@@ -86,7 +94,8 @@ public final class ShopSteps {
             .apply()
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ shop projects list\n\n%s", result.getOutput()));
 
@@ -103,7 +112,8 @@ public final class ShopSteps {
             .apply()
             .run(user, ctx.getSetup().getApp(), OutputFormat.apply())
             .toCompletableFuture()
-            .get();
+            .get()
+            .toCommandResult(OM);
 
         LOG.debug(String.format("$ shop datasets list\n\n%s", result.getOutput()));
 
