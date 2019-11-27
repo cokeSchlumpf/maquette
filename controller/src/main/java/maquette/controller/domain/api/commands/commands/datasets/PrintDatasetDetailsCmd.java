@@ -13,6 +13,7 @@ import maquette.controller.domain.api.commands.ViewModel;
 import maquette.controller.domain.api.commands.commands.Command;
 import maquette.controller.domain.api.commands.validations.ObjectValidation;
 import maquette.controller.domain.api.commands.views.dataset.DatasetVM;
+import maquette.controller.domain.util.Operators;
 import maquette.controller.domain.values.core.ResourceName;
 import maquette.controller.domain.values.core.ResourcePath;
 import maquette.controller.domain.values.iam.User;
@@ -42,11 +43,10 @@ public final class PrintDatasetDetailsCmd implements Command {
         ObjectValidation.notNull().validate(dataset, DATASET);
         ResourcePath datasetResource = ResourcePath.apply(executor, project, dataset);
 
-
-        return app
-            .datasets()
-            .getDetails(executor, datasetResource)
-            .thenApply(details -> DatasetVM.apply(details, executor, outputFormat));
+        return Operators.compose(
+            app.datasets().getDetails(executor, datasetResource),
+            app.projects().getDetails(executor, datasetResource.getProject()),
+            (details, project) -> DatasetVM.apply(details, project, executor, outputFormat));
     }
 
 }

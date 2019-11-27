@@ -173,9 +173,7 @@ export default class FetchClient {
             }, headers)
         };
 
-        return this
-            ._callMethod('POST', req)
-            .then(result => __.get(result, 'view', {}));
+        return this._callMethod('POST', req);
     }
 
     /**

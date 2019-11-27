@@ -25,18 +25,18 @@ export default ({ dataset, project, user, versions, onSubmitAccessRequest = onSu
     const datasetName = _.get(dataset, 'dataset', _.get(props, 'match.params.dataset', 'no dataset'));
 
     const properties = {
-        'Owner': { 'value': _.get(dataset, 'owner.authorization', 'n/a') },
-        'Private': { 'value': _.get(dataset, 'private', 'n/a') },
+        'Owner': { 'value': _.get(dataset, 'details.owner.authorization', 'n/a') },
+        'Private': { 'value': _.get(dataset, 'details.private', 'n/a') },
         'Requires Approval': { 'value': _.get(dataset, 'requires-approval') },
-        'Data Classification': { 'value': _.get(dataset, 'classification', 'n/a') },
+        'Data Classification': { 'value': _.get(dataset, 'details.classification', 'n/a') },
 
-        'Created': { 'value': _.get(dataset, 'created', 'n/a') },
-        'Created By': { 'value': _.get(dataset, 'created-by', 'n/a') }
+        'Created': { 'value': _.get(dataset, 'details.created', 'n/a') },
+        'Created By': { 'value': _.get(dataset, 'details.created-by', 'n/a') }
     };
 
     const activity = {
-        'Modified': { 'value': _.get(dataset, 'modified', 'n/a') },
-        'Modified by': { 'value': _.get(dataset, 'modified-by', 'n/a') }
+        'Modified': { 'value': _.get(dataset, 'details.modified', 'n/a') },
+        'Modified by': { 'value': _.get(dataset, 'details.modified-by', 'n/a') }
     };
 
     const onSubmitAccessRequestHandler = (request) => {
@@ -64,7 +64,7 @@ export default ({ dataset, project, user, versions, onSubmitAccessRequest = onSu
                 title={ projectName + "/" + datasetName }
                 centered={ true }
                 showDescription={ true }
-                description={ _.get(dataset, 'description') }
+                description={ _.get(dataset, 'details.description') }
                 tabSpace={ true }
                 breadcrumbsItems={
                     [
@@ -119,7 +119,7 @@ export default ({ dataset, project, user, versions, onSubmitAccessRequest = onSu
                         </ContentSection>
 
                         <ContentSection title="Members inherited from project">
-                            <MembersTable members={ _.get(project, 'members', []) } />
+                            <MembersTable members={ _.get(dataset, 'inherited-members', []) } />
                         </ContentSection>
                     </Tab>
 

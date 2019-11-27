@@ -1,5 +1,6 @@
 package maquette.controller.domain.values.dataset;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AccessLevel;
@@ -21,6 +22,7 @@ public class DatasetAccessRequestLink {
     @JsonProperty(ID)
     private final UID id;
 
+    @JsonCreator
     public static DatasetAccessRequestLink apply(
         @JsonProperty(DATASET) ResourcePath dataset,
         @JsonProperty(ID) UID id) {

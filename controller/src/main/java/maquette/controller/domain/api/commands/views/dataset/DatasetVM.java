@@ -24,26 +24,18 @@ import maquette.controller.domain.values.core.Markdown;
 import maquette.controller.domain.values.dataset.DatasetDetails;
 import maquette.controller.domain.values.dataset.DatasetMember;
 import maquette.controller.domain.values.iam.User;
+import maquette.controller.domain.values.project.ProjectDetails;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DatasetVM implements ViewModel {
 
-    private static final String CAN_CREATE_ACCESS_REQUEST = "can-create-access-request";
-    private static final String CAN_MANAGE_ACCESS_REQUESTS = "can-manage-access-requests";
-    private static final String CLASSIFICATION = "classification";
-    private static final String CREATED = "created";
-    private static final String CREATED_BY = "created-by";
+    private static final String ACCESS_REQUESTS = "access-requests";
     private static final String DATASET = "dataset";
-    private static final String DESCRIPTION = "description";
+    private static final String DETAILS = "details";
+    private static final String INHERITED_MEMBERS = "inherited-members";
     private static final String MEMBERS = "members";
-    private static final String MODIFIED = "modified";
-    private static final String MODIFIED_BY = "modified-by";
-    private static final String OWNER = "owner";
-    private static final String PRIVATE = "private";
     private static final String PROJECT = "project";
-    private static final String REQUIRES_APPROVAL = "requires-approval";
-    private static final String USER_ACCESS_REQUESTS = "user-access-request";
     private static final String VERSIONS = "versions";
 
     @JsonProperty(PROJECT)
@@ -52,32 +44,8 @@ public final class DatasetVM implements ViewModel {
     @JsonProperty(DATASET)
     private final String dataset;
 
-    @JsonProperty(DESCRIPTION)
-    private final String description;
-
-    @JsonProperty(OWNER)
-    private final AuthorizationVM owner;
-
-    @JsonProperty(PRIVATE)
-    private final String isPrivate;
-
-    @JsonProperty(REQUIRES_APPROVAL)
-    private final String requiresApproval;
-
-    @JsonProperty(CLASSIFICATION)
-    private final String classification;
-
-    @JsonProperty(CREATED_BY)
-    private final String createdBy;
-
-    @JsonProperty(CREATED)
-    private final String created;
-
-    @JsonProperty(MODIFIED_BY)
-    private final String modifiedBy;
-
-    @JsonProperty(MODIFIED)
-    private final String modified;
+    @JsonProperty(DETAILS)
+    private final DatasetDetailsVM details;
 
     @JsonProperty(VERSIONS)
     private final int versions;
@@ -85,44 +53,37 @@ public final class DatasetVM implements ViewModel {
     @JsonProperty(MEMBERS)
     private final List<MembersEntryVM> members;
 
-    @JsonProperty(USER_ACCESS_REQUESTS)
-    private final List<DatasetAccessRequestVM> accessRequests;
+    @JsonProperty(INHERITED_MEMBERS)
+    private final List<MembersEntryVM> inheritedMembers;
 
-    @JsonProperty(CAN_CREATE_ACCESS_REQUEST)
-    private final boolean canCreateAccessRequest;
-
-    @JsonProperty(CAN_MANAGE_ACCESS_REQUESTS)
-    private final boolean canManageAccessRequests;
+    @JsonProperty(ACCESS_REQUESTS)
+    private final AccessRequestsVM accessRequests;
 
     @JsonCreator
     public static DatasetVM apply(
         @JsonProperty(PROJECT) String project,
         @JsonProperty(DATASET) String dataset,
-        @JsonProperty(DESCRIPTION) String description,
-        @JsonProperty(OWNER) AuthorizationVM owner,
-        @JsonProperty(PRIVATE) String isPrivate,
-        @JsonProperty(REQUIRES_APPROVAL) String requiresApproval,
-        @JsonProperty(CLASSIFICATION) String classification,
-        @JsonProperty(CREATED_BY) String createdBy,
-        @JsonProperty(CREATED) String created,
-        @JsonProperty(MODIFIED_BY) String modifiedBy,
-        @JsonProperty(MODIFIED) String modified,
+        @JsonProperty(DETAILS) DatasetDetailsVM details,
         @JsonProperty(VERSIONS) int versions,
         @JsonProperty(MEMBERS) List<MembersEntryVM> members,
-        @JsonProperty(USER_ACCESS_REQUESTS) List<DatasetAccessRequestVM> accessRequests,
-        @JsonProperty(CAN_CREATE_ACCESS_REQUEST) boolean canCreateAccessRequest,
-        @JsonProperty(CAN_MANAGE_ACCESS_REQUESTS) boolean canManageAccessRequests) {
+        @JsonProperty(INHERITED_MEMBERS) List<MembersEntryVM> inheritedMembers,
+        @JsonProperty(ACCESS_REQUESTS) AccessRequestsVM accessRequests) {
 
         return new DatasetVM(
-            project, dataset, description, owner, isPrivate, requiresApproval, classification,
-            createdBy, created, modifiedBy, modified, versions, ImmutableList.copyOf(members), accessRequests,
-            canCreateAccessRequest, canManageAccessRequests);
+            project, dataset, details, versions, ImmutableList.copyOf(members), ImmutableList.copyOf(inheritedMembers), accessRequests);
     }
 
-    public static DatasetVM apply(DatasetDetails details, User executor, OutputFormat of) {
+    public static DatasetVM apply(DatasetDetails details, ProjectDetails project, User executor, OutputFormat of) {
         List<MembersEntryVM> members = details
             .getAcl()
             .getMembers()
+            .stream()
+            .map(grant -> MembersEntryVM.apply(grant, of))
+            .collect(Collectors.toList());
+
+        List<MembersEntryVM> inheritedMembers = project
+            .getAcl()
+            .getGrants()
             .stream()
             .map(grant -> MembersEntryVM.apply(grant, of))
             .collect(Collectors.toList());
@@ -141,10 +102,8 @@ public final class DatasetVM implements ViewModel {
         boolean canCreateAccessRequest = !(details.getAcl().canConsume(executor) || details.getAcl().canProduce(executor));
         boolean canManageAccessRequests = details.getAcl().canManage(executor);
 
-        return apply(
-            of.format(details.getDataset().getProject()),
-            of.format(details.getDataset().getName()),
-            details.getDescription().orElse(Markdown.apply()).asPlainText(),
+        DatasetDetailsVM detailsVM = DatasetDetailsVM.apply(
+            details.getDescription().map(Markdown::asPlainText).orElse(null),
             AuthorizationVM.apply(details.getAcl().getOwner()),
             of.format(details.getAcl().isPrivate()),
             of.format(details.getGovernance().isApprovalRequired()),
@@ -152,12 +111,23 @@ public final class DatasetVM implements ViewModel {
             of.format(details.getCreatedBy()),
             of.format(details.getCreated()),
             of.format(details.getModifiedBy()),
-            of.format(details.getModified()),
+            of.format(details.getModified()));
+
+        AccessRequestsVM accessRequestsVM = AccessRequestsVM.apply(
+            accessRequests,
+            Lists.newArrayList(),
+            canCreateAccessRequest,
+            canManageAccessRequests,
+            0);
+
+        return apply(
+            of.format(details.getDataset().getProject()),
+            of.format(details.getDataset().getName()),
+            detailsVM,
             details.getVersions().size(),
             members,
-            accessRequests,
-            canCreateAccessRequest,
-            canManageAccessRequests);
+            inheritedMembers,
+            accessRequestsVM);
     }
 
     @Override
@@ -167,15 +137,15 @@ public final class DatasetVM implements ViewModel {
 
         DataTable properties = DataTable
             .apply("key", "value")
-            .withRow("owner", owner.getAuthorization())
-            .withRow("requires approval", requiresApproval)
-            .withRow("classification", classification)
+            .withRow("owner", details.getOwner().getAuthorization())
+            .withRow("requires approval", details.getRequiresApproval())
+            .withRow("classification", details.getClassification())
             .withRow("", "")
-            .withRow("created", created)
-            .withRow("created by", createdBy)
+            .withRow("created", details.getCreated())
+            .withRow("created by", details.getCreatedBy())
             .withRow("", "")
-            .withRow("modified", modified)
-            .withRow("modified by", modifiedBy)
+            .withRow("modified", details.getModified())
+            .withRow("modified by", details.getModifiedBy())
             .withRow("", "")
             .withRow("versions", versions);
 
@@ -189,14 +159,14 @@ public final class DatasetVM implements ViewModel {
                 grant.getGrantedAt());
         }
 
-        if (description != null) {
-            out.println(description);
+        if (details.getDescription() != null) {
+            out.println(details.getDescription());
             out.println();
         }
 
         DataTable grants = DataTable.apply("request for", "privilege", "requested", "id");
 
-        for (DatasetAccessRequestVM request : accessRequests) {
+        for (DatasetAccessRequestVM request : accessRequests.getUserRequests()) {
             grants = grants.withRow(
                 request.getGrantFor(),
                 request.getGrant(),
@@ -212,7 +182,7 @@ public final class DatasetVM implements ViewModel {
         out.println("-------");
         out.println(acl.toAscii());
 
-        if (canManageAccessRequests) {
+        if (accessRequests.isCanManageAccessRequests()) {
             out.println();
             out.println("OPEN ACCESS REQUESTS");
             out.println("--------------------");
