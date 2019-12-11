@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.application.model.DatasetAccessRequest;
 import maquette.controller.domain.api.commands.CommandResult;
 import maquette.controller.domain.api.commands.DataTable;
 import maquette.controller.domain.api.commands.OutputFormat;
@@ -57,7 +58,7 @@ public final class DatasetVM implements ViewModel {
     private final List<MembersEntryVM> inheritedMembers;
 
     @JsonProperty(ACCESS_REQUESTS)
-    private final AccessRequestsVM accessRequests;
+    private final DatasetAccessRequestsVM accessRequests;
 
     @JsonCreator
     public static DatasetVM apply(
@@ -67,7 +68,7 @@ public final class DatasetVM implements ViewModel {
         @JsonProperty(VERSIONS) int versions,
         @JsonProperty(MEMBERS) List<MembersEntryVM> members,
         @JsonProperty(INHERITED_MEMBERS) List<MembersEntryVM> inheritedMembers,
-        @JsonProperty(ACCESS_REQUESTS) AccessRequestsVM accessRequests) {
+        @JsonProperty(ACCESS_REQUESTS) DatasetAccessRequestsVM accessRequests) {
 
         return new DatasetVM(
             project, dataset, details, versions, ImmutableList.copyOf(members), ImmutableList.copyOf(inheritedMembers), accessRequests);
@@ -88,19 +89,9 @@ public final class DatasetVM implements ViewModel {
             .map(grant -> MembersEntryVM.apply(grant, of))
             .collect(Collectors.toList());
 
-        List<DatasetAccessRequestVM> accessRequests = details
-            .getAcl()
-            .getOpenGrants()
-            .stream()
-            .map(grant -> DatasetAccessRequestVM.apply(grant, details, executor, of))
-            .collect(Collectors.toList());
-
         for (DatasetMember grant : details.getAcl().getMembers()) {
             members.add(MembersEntryVM.apply(grant, of));
         }
-
-        boolean canCreateAccessRequest = !(details.getAcl().canConsume(executor) || details.getAcl().canProduce(executor));
-        boolean canManageAccessRequests = details.getAcl().canManage(executor);
 
         DatasetDetailsVM detailsVM = DatasetDetailsVM.apply(
             details.getDescription().map(Markdown::asPlainText).orElse(null),
@@ -113,12 +104,7 @@ public final class DatasetVM implements ViewModel {
             of.format(details.getModifiedBy()),
             of.format(details.getModified()));
 
-        AccessRequestsVM accessRequestsVM = AccessRequestsVM.apply(
-            accessRequests,
-            Lists.newArrayList(),
-            canCreateAccessRequest,
-            canManageAccessRequests,
-            0);
+        DatasetAccessRequestsVM accessRequestsVM = DatasetAccessRequestsVM.apply(executor, details, of);
 
         return apply(
             of.format(details.getDataset().getProject()),
