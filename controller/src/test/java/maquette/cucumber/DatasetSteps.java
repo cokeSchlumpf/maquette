@@ -125,7 +125,7 @@ public final class DatasetSteps {
         assertThat(viewModel).isInstanceOf(DatasetVM.class);
 
         DatasetVM vm = (DatasetVM) viewModel;
-        assertThat(vm.isCanManageAccessRequests()).isTrue();
+        assertThat(vm.getAccessRequests().isCanManageAccessRequests()).isTrue();
     }
 
     @Given("{string} creates a dataset called {string} in project {string}")
@@ -210,7 +210,7 @@ public final class DatasetSteps {
 
         assertThat(viewModel).isInstanceOf(DatasetVM.class);
         DatasetVM vm = (DatasetVM) viewModel;
-        assertThat(vm.isCanCreateAccessRequest()).isTrue();
+        assertThat(vm.getAccessRequests().isCanCreateAccessRequest()).isTrue();
     }
 
     @Given("{string} requests consumer access to the dataset")
