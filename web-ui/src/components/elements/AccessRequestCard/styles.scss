@@ -1,0 +1,27 @@
+table.mq-access-request-card--table {
+  margin-bottom: 2em;
+}
+
+table.mq-access-request-card--table tr td {
+  padding-top: 1.5em;
+  padding-bottom: 1.5em;
+}
+
+table.mq-access-request-card--table tr td:first-child {
+  font-weight: bold;
+  padding-right: 2em;
+  border-right: 1px solid #333;
+  white-space: nowrap;
+}
+
+table.mq-access-request-card--table tr td:last-child {
+  padding-left: 2em;
+}
+
+table.mq-access-request-card--table tr {
+  border-bottom: 1px solid #333;
+}
+
+table.mq-access-request-card--table tr:last-child {
+  border-bottom: none;
+}

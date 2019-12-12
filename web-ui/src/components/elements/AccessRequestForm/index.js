@@ -36,35 +36,32 @@ export default ({ onSubmit = onSubmitDefault }) => {
     };
 
     return (
-        <>
-            <h3 className="mq--cards-heading">Request Access</h3>
-            <Form>
-                <ContentSection>
-                    <FormGroup legendText="Select the required access">
-                        <RadioButtonGroup
-                            name="privilege"
-                            id="privilege"
-                            defaultSelected={ defaultValue.privilege }
-                            onChange={ onChangeRadioGroup }>
+        <Form>
+            <ContentSection>
+                <FormGroup legendText="Select the required access">
+                    <RadioButtonGroup
+                        name="privilege"
+                        id="privilege"
+                        defaultSelected={ defaultValue.privilege }
+                        onChange={ onChangeRadioGroup }>
 
-                            <RadioButton value="consumer" id="consumer" labelText="consumer" />
-                            <RadioButton value="producer" id="producer" labelText="producer" />
-                            <RadioButton value="member" id="member" labelText="member" />
-                        </RadioButtonGroup>
-                    </FormGroup>
+                        <RadioButton value="consumer" id="consumer" labelText="consumer" />
+                        <RadioButton value="producer" id="producer" labelText="producer" />
+                        <RadioButton value="member" id="member" labelText="member" />
+                    </RadioButtonGroup>
+                </FormGroup>
 
-                    <FormGroup legendText="">
-                        <TextArea
-                            labelText="Justification"
-                            helperText="Enter a justification for your request"
-                            defaultValue={ defaultValue.justification }
-                            invalid={ justificationInvalid }
-                            invalidText="Justification must not be empty!"
-                            onChange={ onChangeInput("justification") } />
-                    </FormGroup>
+                <FormGroup legendText="">
+                    <TextArea
+                        labelText="Justification"
+                        helperText="Enter a justification for your request"
+                        defaultValue={ defaultValue.justification }
+                        invalid={ justificationInvalid }
+                        invalidText="Justification must not be empty!"
+                        onChange={ onChangeInput("justification") } />
+                </FormGroup>
 
-                    <Button type="submit" onClick={ onSubmitButtonClick }>Submit Request</Button>
-                </ContentSection>
-            </Form>
-        </>);
+                <Button type="submit" onClick={ onSubmitButtonClick }>Submit Request</Button>
+            </ContentSection>
+        </Form>);
 }

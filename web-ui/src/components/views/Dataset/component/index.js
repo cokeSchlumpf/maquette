@@ -3,6 +3,7 @@ import './styles.scss'
 import _ from 'lodash';
 import React from 'react';
 
+import AccessRequestCard from '../../../elements/AccessRequestCard';
 import AccessRequestForm from '../../../elements/AccessRequestForm';
 import PageBanner from '../../../elements/PageBanner';
 import ContentContainer from '../../../elements/ContentContainer';
@@ -27,7 +28,7 @@ export default ({ dataset, project, user, versions, onSubmitAccessRequest = onSu
     const properties = {
         'Owner': { 'value': _.get(dataset, 'details.owner.authorization', 'n/a') },
         'Private': { 'value': _.get(dataset, 'details.private', 'n/a') },
-        'Requires Approval': { 'value': _.get(dataset, 'requires-approval') },
+        'Requires Approval': { 'value': _.get(dataset, 'details.requires-approval') },
         'Data Classification': { 'value': _.get(dataset, 'details.classification', 'n/a') },
 
         'Created': { 'value': _.get(dataset, 'details.created', 'n/a') },
@@ -47,15 +48,41 @@ export default ({ dataset, project, user, versions, onSubmitAccessRequest = onSu
             to: user.name }))
     };
 
-    const createAccessRequestTab = () => (
-        <Tab label="Access Requests">
-            <AccessRequestForm onSubmit={ onSubmitAccessRequestHandler }/>
-        </Tab>);
+    const createAccessRequests = (requests) => {
+        return (
+            <>
+                <h3 className="mq--cards-heading">My access requests</h3>
+                { _.map(requests, r => <AccessRequestCard key={ r.id } data={ r } />) }
+            </>)
+    };
 
-    const manageAccessRequests = () => (
+    const createAccessRequestTab = () => {
+        const accessRequests = _.get(dataset, "access-requests.user-requests", []);
+
+        return (
+            <Tab label="Access Requests">
+                <h3 className="mq--cards-heading">Request Access</h3>
+                <AccessRequestForm onSubmit={ onSubmitAccessRequestHandler }/>
+
+                { _.size(accessRequests) > 0 && createAccessRequests(accessRequests) }
+            </Tab>);
+    };
+
+    const createManageAccessRequestsTab = () => (
         <Tab label="Access Requests">
             Manage!
             <AccessRequestForm onSubmit={ onSubmitAccessRequestHandler }/>
+        </Tab>);
+
+    const createMembersTab = () => (
+        <Tab label="Members">
+            <ContentSection title="Members">
+                <MembersTable members={ _.get(dataset, 'members', []) } />
+            </ContentSection>
+
+            <ContentSection title="Members inherited from project">
+                <MembersTable members={ _.get(dataset, 'inherited-members', []) } />
+            </ContentSection>
         </Tab>);
 
     return (
@@ -113,18 +140,10 @@ export default ({ dataset, project, user, versions, onSubmitAccessRequest = onSu
                         </ContentSection>
                     </Tab>
 
-                    <Tab label="Members">
-                        <ContentSection title="Members">
-                            <MembersTable members={ _.get(dataset, 'members', []) } />
-                        </ContentSection>
 
-                        <ContentSection title="Members inherited from project">
-                            <MembersTable members={ _.get(dataset, 'inherited-members', []) } />
-                        </ContentSection>
-                    </Tab>
-
-                    { _.get(dataset, 'can-create-access-request', false) && createAccessRequestTab() }
-                    { _.get(dataset, 'can-manage-access-requests', false) && manageAccessRequests() }
+                    { _.get(dataset, 'can-view-members', false) && createMembersTab() }
+                    { _.get(dataset, 'access-requests.can-create-access-request', false) && createAccessRequestTab() }
+                    { _.get(dataset, 'access-requests.can-manage-access-requests', false) && createManageAccessRequestsTab() }
                 </Tabs>
             </ContentContainer>
         </>);

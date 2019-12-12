@@ -11,11 +11,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cucumber.api.java.en.Then;
 import lombok.AllArgsConstructor;
-import maquette.controller.domain.api.commands.CommandResult;
-import maquette.controller.domain.api.commands.OutputFormat;
-import maquette.controller.domain.api.commands.commands.shop.FindDatasetsCmd;
-import maquette.controller.domain.api.commands.commands.shop.FindProjectsCmd;
-import maquette.controller.domain.api.commands.commands.shop.ListProjectsCmd;
+import maquette.controller.domain.api.CommandResult;
+import maquette.controller.domain.api.OutputFormat;
+import maquette.controller.domain.api.commands.shop.FindDatasetsCmd;
+import maquette.controller.domain.api.commands.shop.FindProjectsCmd;
+import maquette.controller.domain.api.commands.shop.ListProjectsCmd;
 import maquette.controller.domain.util.databind.ObjectMapperFactory;
 import maquette.controller.domain.values.iam.User;
 
