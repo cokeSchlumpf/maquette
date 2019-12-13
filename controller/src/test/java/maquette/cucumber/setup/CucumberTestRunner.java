@@ -8,6 +8,4 @@ import cucumber.api.CucumberOptions;
 @CucumberOptions(features = { "src/test/resources" }, plugin = "pretty", glue = "maquette.cucumber")
 public class CucumberTestRunner {
 
-
-
 }

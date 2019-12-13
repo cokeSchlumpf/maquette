@@ -2,6 +2,7 @@ package maquette.controller.domain.values.iam;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.thedeanda.lorem.Lorem;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,10 @@ public final class UserAuthorization implements Authorization {
 
     public static UserAuthorization apply(UserId user) {
         return apply(user.getId());
+    }
+
+    public static UserAuthorization random() {
+        return apply(Lorem.getName().toLowerCase());
     }
 
     @Override

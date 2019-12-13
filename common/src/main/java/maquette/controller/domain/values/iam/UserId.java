@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.thedeanda.lorem.Lorem;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,10 @@ public class UserId {
 
     public static UserId apply(String id) {
         return new UserId(id);
+    }
+
+    public static UserId random() {
+        return apply(Lorem.getFirstName().toLowerCase());
     }
 
     public static UserId apply(User executor, String id) {

@@ -31,4 +31,8 @@ public class Executed {
         return new Executed(by, at);
     }
 
+    public static Executed now(UserId by) {
+        return apply(by, Instant.now());
+    }
+
 }
