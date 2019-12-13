@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
-import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import maquette.controller.application.util.ContextUtils;
 import maquette.controller.domain.values.iam.User;
@@ -24,8 +23,6 @@ public class AboutResource {
         path = "/user",
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ApiOperation(
-        value = "Change the owner of a dataset")
     public CompletionStage<User> getUser(ServerWebExchange exchange) {
         return ctx.getUser(exchange);
     }

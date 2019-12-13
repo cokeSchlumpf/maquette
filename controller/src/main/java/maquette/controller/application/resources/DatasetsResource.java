@@ -23,7 +23,6 @@ import org.springframework.web.server.ServerWebExchange;
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import maquette.controller.application.model.DatasetAccessRequest;
 import maquette.controller.application.model.PublishDatasetVersionRequest;
@@ -49,8 +48,6 @@ public class DatasetsResource {
         path = "{namespace}/{name}/versions",
         method = RequestMethod.POST,
         produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ApiOperation(
-        value = "Create a new dataset version")
     public CompletionStage<UID> createDatasetVersion(
         @PathVariable("namespace") String namespace,
         @PathVariable("name") String name,
@@ -72,8 +69,6 @@ public class DatasetsResource {
         path = "{namespace}/{name}/versions/latest/data",
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ApiOperation(
-        value = "Read data from a dataset; version might be 'latest'")
     public CompletionStage<Resource> getData(
         @PathVariable("namespace") String namespace,
         @PathVariable("name") String name,
@@ -104,8 +99,6 @@ public class DatasetsResource {
         path = "{namespace}/{name}/versions/{version}/data",
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_OCTET_STREAM_VALUE})
-    @ApiOperation(
-        value = "Read data from a dataset; version might be 'latest'")
     public CompletionStage<Resource> getData(
         @PathVariable("namespace") String namespace,
         @PathVariable("name") String name,
@@ -138,8 +131,6 @@ public class DatasetsResource {
         path = "{namespace}/{name}",
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ApiOperation(
-        value = "Create a new dataset")
     public CompletionStage<DatasetDetails> getDetails(
         @PathVariable("namespace") String namespace,
         @PathVariable("name") String name,
@@ -160,8 +151,6 @@ public class DatasetsResource {
         path = "{namespace}/{name}/versions/{version}",
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ApiOperation(
-        value = "Read data from a dataset; version might be 'latest'")
     public CompletionStage<VersionDetails> getVersionDetails(
         @PathVariable("namespace") String namespace,
         @PathVariable("name") String name,
@@ -189,8 +178,6 @@ public class DatasetsResource {
         path = "{namespace}/{name}/settings/access",
         method = RequestMethod.PUT,
         produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ApiOperation(
-        value = "Change the owner of a dataset")
     public CompletionStage<DatasetDetails> grant(
         @PathVariable("namespace") String namespace,
         @PathVariable("name") String name,
@@ -214,8 +201,6 @@ public class DatasetsResource {
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
         produces = {MediaType.APPLICATION_JSON_VALUE}
     )
-    @ApiOperation(
-        value = "Push data into a dataset")
     public CompletionStage<VersionDetails> pushData(
         @PathVariable("namespace") String namespace,
         @PathVariable("name") String name,
@@ -250,8 +235,6 @@ public class DatasetsResource {
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
         produces = {MediaType.APPLICATION_JSON_VALUE}
     )
-    @ApiOperation(
-        value = "Push data into a dataset")
     public CompletionStage<VersionTag> putData(
         @PathVariable("namespace") String namespace,
         @PathVariable("name") String name,
@@ -283,8 +266,6 @@ public class DatasetsResource {
         method = RequestMethod.POST,
         produces = {MediaType.APPLICATION_JSON_VALUE}
     )
-    @ApiOperation(
-        value = "Publish a new dataset version")
     public CompletionStage<VersionTag> publishDatasetVersion(
         @PathVariable("namespace") String namespace,
         @PathVariable("name") String name,
@@ -308,8 +289,6 @@ public class DatasetsResource {
         path = "{namespace}/{name}/settings/access",
         method = RequestMethod.DELETE,
         produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ApiOperation(
-        value = "Change the owner of a dataset")
     public CompletionStage<DatasetDetails> revoke(
         @PathVariable("namespace") String namespace,
         @PathVariable("name") String name,
