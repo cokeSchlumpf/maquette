@@ -1,3 +1,8 @@
+@import 'carbon-components/scss/globals/scss/vendor/@carbon/type/scss/font-family.scss';
+@import 'carbon-components/scss/globals/scss/vendor/@carbon/layout/scss/breakpoint.scss';
+@import 'carbon-components/scss/globals/scss/typography.scss';
+@import 'carbon-components/scss/globals/scss/vars.scss';
+
 table.mq-access-request-card--table {
   margin-bottom: 2em;
 }
@@ -10,7 +15,7 @@ table.mq-access-request-card--table tr td {
 table.mq-access-request-card--table tr td:first-child {
   font-weight: bold;
   padding-right: 2em;
-  border-right: 1px solid #333;
+  border-right: 2px solid $ui-04;
   white-space: nowrap;
 }
 
@@ -19,7 +24,7 @@ table.mq-access-request-card--table tr td:last-child {
 }
 
 table.mq-access-request-card--table tr {
-  border-bottom: 1px solid #333;
+  border-bottom: 2px solid $ui-04;
 }
 
 table.mq-access-request-card--table tr:last-child {

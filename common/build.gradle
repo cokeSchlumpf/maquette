@@ -8,5 +8,8 @@ dependencies {
     compile libs['jackson-datatype-jdk8']
     compile libs['jackson-datatype-sr310']
     compile libs['jtwig-core']
+    compile libs['lorem']
+
+    testCompile libs['assertj-core']
 
 }

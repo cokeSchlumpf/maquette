@@ -19,11 +19,15 @@ const defaultProperties = {
 
 export default ({ properties = defaultProperties }) => {
     const entries = _.map(_.keys(properties), property => (
-        <div className="mq--properties--property" key={ property }>
-            <div className="mq--properties--label">{ property }</div>
-            <div className="mq--properties--value">{ properties[property].value }</div>
-        </div>
-    ));
+        <tr key={ property }>
+            <td>{ property }</td>
+            <td>{ properties[property].value }</td>
+        </tr>));
 
-    return <div className="mq--properties">{ entries }</div>;
+    return (
+        <table className="mq-properties--table">
+            <tbody>
+                { entries }
+            </tbody>
+        </table>);
 }

@@ -3,6 +3,9 @@ package maquette.controller.domain.values.core.governance;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.Value;
 import maquette.controller.domain.values.core.Executed;
 import maquette.controller.domain.values.core.Markdown;
 
@@ -14,6 +17,8 @@ import maquette.controller.domain.values.core.Markdown;
         @JsonSubTypes.Type(value = Approved.class, name = "approved"),
         @JsonSubTypes.Type(value = Rejected.class, name = "rejected")
     })
+@ToString
+@EqualsAndHashCode
 public abstract class AccessRequestResponse {
 
     private final Executed executed;

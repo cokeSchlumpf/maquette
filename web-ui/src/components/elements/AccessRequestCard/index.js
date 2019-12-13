@@ -4,6 +4,8 @@ import './styles.scss';
 
 import { Button } from 'carbon-components-react';
 
+import Properties from '../Properties';
+
 const defaultViewModel = {
   "canApprove": false,
   "canRevoke": false,
@@ -24,42 +26,22 @@ export default ({
                     data = defaultViewModel
                 }) => {
     const request = _.assign({}, defaultViewModel, data);
+    const propertyValues = {
+        "Id": request.id,
+        "Initiated by": request.initiatedBy,
+        "Initiated": request.initiated,
+        "Requested Grant": request.grant,
+        "Requested for": _.get(request, "grantFor.authorization"),
+        "Justification": defaultViewModel.justification,
+        "Actions": (<Button kind="secondary" size="small">Revoke Request</Button>)
+    };
+
+    const properties = _.mapValues(propertyValues, value => ({ value: value }));
 
     return (
         <div className="mq-access-request-card">
             <div className="mq-access-request-card--header">
-                <table className="mq-access-request-card--table">
-                    <tbody>
-                        <tr>
-                            <td>Id</td>
-                            <td>{ request.id }</td>
-                        </tr>
-                        <tr>
-                            <td>Initiated by</td>
-                            <td>{ request.initiatedBy }</td>
-                        </tr>
-                        <tr>
-                            <td>Initiated</td>
-                            <td>{ request.initiated }</td>
-                        </tr>
-                        <tr>
-                            <td>Requested Grant</td>
-                            <td>{ request.grant }</td>
-                        </tr>
-                        <tr>
-                            <td>Requested for</td>
-                            <td>{ _.get(request, "grantFor.authorization") }</td>
-                        </tr>
-                        <tr>
-                            <td>Justification</td>
-                            <td>{ defaultViewModel.justification }</td>
-                        </tr>
-                        <tr>
-                            <td>Actions</td>
-                            <td><Button kind="secondary" size="small">Revoke Request</Button></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <Properties properties={ properties } />
             </div>
         </div>);
 }

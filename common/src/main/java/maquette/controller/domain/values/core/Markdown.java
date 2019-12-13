@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.thedeanda.lorem.Lorem;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -36,6 +37,15 @@ public class Markdown {
         JtwigModel model = JtwigModel.newModel(values);
 
         return apply(template.render(model));
+    }
+
+    public static Markdown lorem(int min, int max) {
+        String words = Lorem.getWords(min, max);
+        return apply(words);
+    }
+
+    public static Markdown lorem() {
+        return lorem(10, 20);
     }
 
     public String asASCIIString() {

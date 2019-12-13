@@ -15,6 +15,8 @@ import Properties from "../../../elements/Properties";
 import DatasetVersionCard from '../../../elements/DatasetVersionCard';
 
 import {
+    Accordion,
+    AccordionItem,
     Tabs,
     Tab
 } from 'carbon-components-react';
@@ -51,20 +53,29 @@ export default ({ dataset, project, user, versions, onSubmitAccessRequest = onSu
     const createAccessRequests = (requests) => {
         return (
             <>
-                <h3 className="mq--cards-heading">My access requests</h3>
-                { _.map(requests, r => <AccessRequestCard key={ r.id } data={ r } />) }
+                <h3 className="mq--cards-heading">My Access Requests</h3>
+                <Accordion>
+                    <AccordionItem title="Open (1)" open={ false }>
+                        { _.map(requests, r => <AccessRequestCard key={ r.id } data={ r } />) }
+                    </AccordionItem>
+                    <AccordionItem title="Active (0)">
+
+                    </AccordionItem>
+                    <AccordionItem title="Closed (0)" />
+
+                </Accordion>
             </>)
     };
 
-    const createAccessRequestTab = () => {
+    const createUserAccessRequestTab = () => {
         const accessRequests = _.get(dataset, "access-requests.user-requests", []);
 
         return (
             <Tab label="Access Requests">
-                <h3 className="mq--cards-heading">Request Access</h3>
-                <AccessRequestForm onSubmit={ onSubmitAccessRequestHandler }/>
-
                 { _.size(accessRequests) > 0 && createAccessRequests(accessRequests) }
+
+                <h3 className="mq--cards-heading">Create a new Access Request</h3>
+                <AccessRequestForm onSubmit={ onSubmitAccessRequestHandler }/>
             </Tab>);
     };
 
@@ -142,7 +153,7 @@ export default ({ dataset, project, user, versions, onSubmitAccessRequest = onSu
 
 
                     { _.get(dataset, 'can-view-members', false) && createMembersTab() }
-                    { _.get(dataset, 'access-requests.can-create-access-request', false) && createAccessRequestTab() }
+                    { _.get(dataset, 'access-requests.can-create-access-request', false) && createUserAccessRequestTab() }
                     { _.get(dataset, 'access-requests.can-manage-access-requests', false) && createManageAccessRequestsTab() }
                 </Tabs>
             </ContentContainer>

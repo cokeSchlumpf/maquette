@@ -116,6 +116,11 @@ public class DatasetGrant {
         }
     }
 
+    public boolean isSimilar(DatasetGrant grant) {
+        // TODO mw: Implement
+        return false;
+    }
+
     public Result<DatasetGrant> reject(UserId executor, Instant executedAt, Markdown justification) {
         return reject$validate()
             .map(

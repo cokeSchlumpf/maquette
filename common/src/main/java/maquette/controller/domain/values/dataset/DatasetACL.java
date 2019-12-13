@@ -12,6 +12,7 @@ import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import maquette.controller.domain.values.core.Result;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.iam.Authorization;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
@@ -151,7 +152,7 @@ public class DatasetACL {
                 .collect(Collectors.toSet()));
     }
 
-    public DatasetACL withGrant(DatasetGrant grant) {
+    public Result<DatasetACL> withGrant(DatasetGrant grant) {
         Set<DatasetGrant> grants = Sets
             .newHashSet(this.grants)
             .stream()
@@ -159,7 +160,7 @@ public class DatasetACL {
             .collect(Collectors.toSet());
 
         grants.add(grant);
-        return apply(owner, grants, isPrivate);
+        return Result.success(apply(owner, grants, isPrivate));
     }
 
     public DatasetACL withPrivacy(boolean isPrivate) {

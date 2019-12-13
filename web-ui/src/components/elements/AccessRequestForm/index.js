@@ -61,7 +61,7 @@ export default ({ onSubmit = onSubmitDefault }) => {
                         onChange={ onChangeInput("justification") } />
                 </FormGroup>
 
-                <Button type="submit" onClick={ onSubmitButtonClick }>Submit Request</Button>
+                <Button type="submit" onClick={ onSubmitButtonClick } size="small">Submit Request</Button>
             </ContentSection>
         </Form>);
 }

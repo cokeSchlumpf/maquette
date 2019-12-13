@@ -3,71 +3,31 @@
 @import 'carbon-components/scss/globals/scss/typography.scss';
 @import 'carbon-components/scss/globals/scss/vars.scss';
 
-.mq--properties {
-  border: 1px solid $ui-03;
-  border-bottom-width: 2px;
-  border-right-width: 2px;
+table.mq-properties--table {
+  margin-bottom: 2em;
 }
 
-.mq--properties--property {
-  padding: $spacing-05 $spacing-05;
-  border-bottom: 1px solid $ui-03;
+table.mq-properties--table tr td {
+  padding-top: 1.5em;
+  padding-bottom: 1.5em;
 }
 
-.mq--properties--property:last-child {
+table.mq-properties--table tr td:first-child {
+  font-weight: bold;
+  padding-right: 2em;
+  border-right: 2px solid $ui-04;
+  white-space: nowrap;
+}
+
+table.mq-properties--table tr td:last-child {
+  padding-left: 2em;
+  width: 100%;
+}
+
+table.mq-properties--table tr {
+  border-bottom: 2px solid $ui-04;
+}
+
+table.mq-properties--table tr:last-child {
   border-bottom: none;
-}
-
-.mq--properties--label {
-  @include carbon--type-style('body-long-01');
-  color: $text-02;
-  margin-bottom: $spacing-02;
-}
-
-.mq--properties--value {
-  @include carbon--type-style('body-long-02');
-}
-
-.mq--project-card {
-  border-bottom: 1px solid $ui-03;
-  padding-bottom: $spacing-04;
-  margin-bottom: $spacing-04;
-}
-
-.mq--project-card--name {
-  @include carbon--type-style('productive-heading-02');
-}
-
-.mq--project-card--name a {
-  color: $text-01;
-  text-decoration: none;
-}
-
-.mq--project-card--name a:hover {
-  color: $link-01;
-}
-
-.mq--project-card--no-description,
-.mq--project-card--description {
-  @include carbon--type-style('body-long-02');
-  margin-top: $spacing-02;
-  margin-bottom: $spacing-03;
-}
-
-.mq--project-card--no-description {
-  font-style: italic;
-}
-
-.mq--project-card--details {
-  @include carbon--type-style('label-01');
-  color: $text-02;
-
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-
-.mq--project-card--details li {
-  display: inline;
-  margin-right: 1em;
 }
