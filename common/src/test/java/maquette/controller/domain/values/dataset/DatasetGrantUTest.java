@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import maquette.controller.domain.values.core.Executed;
 import maquette.controller.domain.values.core.Markdown;
+import maquette.controller.domain.values.core.Result;
 import maquette.controller.domain.values.core.UID;
 import maquette.controller.domain.values.core.governance.AccessRequest;
 import maquette.controller.domain.values.core.governance.AccessRequestResponse;
@@ -120,6 +121,9 @@ public class DatasetGrantUTest {
             });
     }
 
+    /**
+     * A requested grant can be approved by an owner. After this, the grant becomes active.
+     */
     @Test
     public void approveGrant() {
         /*
@@ -183,6 +187,10 @@ public class DatasetGrantUTest {
             });
     }
 
+    /**
+     * A requested grant can be rejected. Then the request is closed and the user does not become
+     * a member.
+     */
     @Test
     public void rejectGrant() {
         /*
@@ -199,9 +207,6 @@ public class DatasetGrantUTest {
         var rejectBy = UserId.random();
         var rejectAt = Instant.now();
         var justification = Markdown.lorem();
-
-        var grantedAuth = GrantedAuthorization.apply(rejectBy, rejectAt, grantFor);
-        var member = DatasetMember.apply(grantedAuth, privilege);
 
         /*
          * When
@@ -239,6 +244,272 @@ public class DatasetGrantUTest {
                 assertThat(g.isOpen()).isFalse();
                 assertThat(g.isActive()).isFalse();
                 assertThat(g.isClosed()).isTrue();
+            });
+    }
+
+    /**
+     * If a request is responded twice no error is raised if the decision is the same. If the decision
+     * is different, an error is returned.
+     */
+    @Test
+    public void respondRejected() {
+        /*
+         * Given
+         */
+        var uid = UID.apply();
+        var grantFor = UserAuthorization.random();
+        var privilege = DatasetPrivilege.CONSUMER;
+
+        var executed = Executed.now(UserId.random());
+        var request = AccessRequest.apply(executed, Markdown.lorem());
+        var grant = DatasetGrant.createRequested(uid, grantFor, privilege, request);
+
+        var rejectBy = UserId.random();
+        var rejectAt = Instant.now();
+        var justification = Markdown.lorem();
+
+        var firstGrant = grant
+            .reject(rejectBy, rejectAt, justification)
+            .map(g -> g, e -> null);
+
+        /*
+         * When
+         */
+        Result<DatasetGrant> approve = firstGrant.approve(rejectBy, rejectAt, Markdown.lorem());
+        Result<DatasetGrant> reject = firstGrant.reject(UserId.random(), rejectAt, Markdown.lorem());
+
+        /*
+         * Then
+         */
+        assertThat(approve.isFailure())
+            .as("The 2nd call to approve cannot be successful")
+            .isTrue();
+
+        assertThat(reject)
+            .as("The 2nd call to reject is also successful with the same result")
+            .satisfies(r -> {
+                var secondGrant = r.map(g -> g, g -> null);
+                assertThat(r.isSuccess()).isTrue();
+                assertThat(secondGrant).isEqualTo(firstGrant);
+            });
+    }
+
+    /**
+     * If a request is responded twice no error is raised if the decision is the same. If the decision
+     * is different, an error is returned.
+     */
+    @Test
+    public void respondApproved() {
+        /*
+         * Given
+         */
+        var uid = UID.apply();
+        var grantFor = UserAuthorization.random();
+        var privilege = DatasetPrivilege.CONSUMER;
+
+        var executed = Executed.now(UserId.random());
+        var request = AccessRequest.apply(executed, Markdown.lorem());
+        var grant = DatasetGrant.createRequested(uid, grantFor, privilege, request);
+
+        var approvedBy = UserId.random();
+        var approvedAt = Instant.now();
+        var justification = Markdown.lorem();
+
+        var firstReject = grant
+            .approve(approvedBy, approvedAt, justification)
+            .map(g -> g, e -> null);
+
+        /*
+         * When
+         */
+        Result<DatasetGrant> approve = firstReject.approve(approvedBy, approvedAt, Markdown.lorem());
+        Result<DatasetGrant> reject = firstReject.reject(UserId.random(), approvedAt, Markdown.lorem());
+
+        /*
+         * Then
+         */
+        assertThat(reject.isFailure())
+            .as("The 2nd call as reject cannot be successful")
+            .isTrue();
+
+        assertThat(approve)
+            .as("The 2nd call as approve is also successful with the same result")
+            .satisfies(r -> {
+                var secondReject = r.map(g -> g, g -> null);
+                assertThat(r.isSuccess()).isTrue();
+                assertThat(secondReject).isEqualTo(firstReject);
+            });
+    }
+
+    /**
+     * A user can revoke her request. The request is then closed and cannot be answered.
+     */
+    @Test
+    public void revokeRequested() {
+        /*
+         * Given
+         */
+        var uid = UID.apply();
+        var grantFor = UserAuthorization.random();
+        var privilege = DatasetPrivilege.CONSUMER;
+
+        var executed = Executed.now(UserId.random());
+        var request = AccessRequest.apply(executed, Markdown.lorem());
+        var grant = DatasetGrant.createRequested(uid, grantFor, privilege, request);
+
+        /*
+         * When
+         */
+        DatasetGrant revoked = grant.revoke(UserId.random(), Instant.now(), Markdown.lorem());
+
+        /*
+         * Then
+         */
+        assertThat(revoked)
+            .as("The request is closed and not active after it is revoked")
+            .satisfies(g -> {
+                assertThat(g.asDatasetMember()).isNotPresent();
+                assertThat(g.isOpen()).isFalse();
+                assertThat(g.isActive()).isFalse();
+                assertThat(g.isClosed()).isTrue();
+            });
+    }
+
+    /**
+     * A user can also revoke an active and already approved grant.
+     */
+    @Test
+    public void revokeApproved() {
+        var uid = UID.apply();
+        var user = UserAuthorization.random();
+        var granted = Instant.now();
+        var privilege = DatasetPrivilege.CONSUMER;
+        var executor = UserId.random();
+
+        var grant = DatasetGrant.createApproved(
+            uid, user, privilege,
+            executor, granted, Markdown.lorem());
+
+        /*
+         * When
+         */
+        DatasetGrant revoked = grant.revoke(UserId.random(), Instant.now(), Markdown.lorem());
+
+        /*
+         * Then
+         */
+        assertThat(revoked)
+            .as("The request is closed and not active after it is revoked")
+            .satisfies(g -> {
+                assertThat(g.asDatasetMember()).isNotPresent();
+                assertThat(g.isOpen()).isFalse();
+                assertThat(g.isActive()).isFalse();
+                assertThat(g.isClosed()).isTrue();
+            });
+    }
+
+    /**
+     * An already revoked grant can be revoked twice without raising an error.
+     */
+    @Test
+    public void revokeRevoked() {
+        var uid = UID.apply();
+        var user = UserAuthorization.random();
+        var granted = Instant.now();
+        var privilege = DatasetPrivilege.CONSUMER;
+        var executor = UserId.random();
+
+        var grant = DatasetGrant.createApproved(
+            uid, user, privilege,
+            executor, granted, Markdown.lorem());
+
+        /*
+         * When
+         */
+        DatasetGrant firstRevoked = grant.revoke(UserId.random(), Instant.now(), Markdown.lorem());
+        DatasetGrant secondRevoked = firstRevoked.revoke(UserId.random(), Instant.now(), Markdown.lorem());
+
+        /*
+         * Then
+         */
+        assertThat(firstRevoked)
+            .as("The request is closed and not active after it is revoked")
+            .satisfies(g -> {
+                assertThat(g.asDatasetMember()).isNotPresent();
+                assertThat(g.isOpen()).isFalse();
+                assertThat(g.isActive()).isFalse();
+                assertThat(g.isClosed()).isTrue();
+            })
+            .isEqualTo(secondRevoked);
+    }
+
+    /**
+     * When an already revoked grant gets accepted, an error will be returned.
+     */
+    @Test
+    public void acceptRevoked() {
+        /*
+         * Given
+         */
+        var uid = UID.apply();
+        var user = UserAuthorization.random();
+        var granted = Instant.now();
+        var privilege = DatasetPrivilege.CONSUMER;
+        var executor = UserId.random();
+
+        var grant = DatasetGrant.createApproved(
+            uid, user, privilege,
+            executor, granted, Markdown.lorem());
+
+        var revoked = grant.revoke(UserId.random(), Instant.now(), Markdown.lorem());
+
+        /*
+         * When
+         */
+        var approved = revoked.approve(executor, Instant.now(), Markdown.lorem());
+
+        /*
+         * Then
+         */
+        assertThat(approved)
+            .as("The approval should not be successful")
+            .satisfies(a -> {
+                assertThat(a.isFailure()).isTrue();
+            });
+    }
+
+    /**
+     * An already revoked request grant cannot be rejected.
+     */
+    @Test
+    public void rejectRevoked() {
+        /*
+         * Given
+         */
+        var uid = UID.apply();
+        var user = UserAuthorization.random();
+        var granted = Instant.now();
+        var privilege = DatasetPrivilege.CONSUMER;
+        var executor = UserId.random();
+
+        var grant = DatasetGrant.createApproved(
+            uid, user, privilege,
+            executor, granted, Markdown.lorem());
+
+        var revoked = grant.revoke(UserId.random(), Instant.now(), Markdown.lorem());
+
+        /*
+         * When
+         */
+        var rejected = revoked.reject(UserId.random(), Instant.now(), Markdown.lorem());
+
+        /*
+         * Then
+         */
+        assertThat(rejected)
+            .as("The reject should not be successful")
+            .satisfies(a -> {
+                assertThat(a.isFailure()).isTrue();
             });
     }
 
