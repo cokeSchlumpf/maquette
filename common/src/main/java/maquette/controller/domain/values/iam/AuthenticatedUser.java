@@ -39,6 +39,10 @@ public final class AuthenticatedUser implements User {
         return apply(id, name, Sets.newHashSet(roles));
     }
 
+    public static AuthenticatedUser apply(UserId user, String... roles) {
+        return apply(user.getId(), user.getId(), roles);
+    }
+
     @Override
     @JsonIgnore
     public UserId getUserId() {

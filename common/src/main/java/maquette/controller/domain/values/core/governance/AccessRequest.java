@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.controller.domain.values.core.Executed;
 import maquette.controller.domain.values.core.Markdown;
+import maquette.controller.domain.values.iam.UserId;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -28,6 +29,11 @@ public class AccessRequest {
         @JsonProperty(JUSTIFICATION) Markdown justification) {
 
         return new AccessRequest(executed, justification);
+    }
+
+    public static AccessRequest fake() {
+        var executed = Executed.now(UserId.random());
+        return apply(executed, Markdown.lorem());
     }
 
 }

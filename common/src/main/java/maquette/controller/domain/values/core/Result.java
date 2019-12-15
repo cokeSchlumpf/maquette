@@ -2,6 +2,7 @@ package maquette.controller.domain.values.core;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -52,6 +53,12 @@ public abstract class Result<L> {
     @JsonIgnore
     public abstract boolean isFailure();
 
+    public abstract L orElseThrow(Function<ErrorMessage, RuntimeException> ex);
+
+    public L orElseThrow() {
+        return orElseThrow(em -> new RuntimeException(em.getMessage()));
+    }
+
     @Value
     @EqualsAndHashCode(callSuper = false)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -82,6 +89,11 @@ public abstract class Result<L> {
         @Override
         public boolean isFailure() {
             return false;
+        }
+
+        @Override
+        public L orElseThrow(Function<ErrorMessage, RuntimeException> ex) {
+            return value;
         }
 
     }
@@ -116,6 +128,11 @@ public abstract class Result<L> {
         @Override
         public boolean isFailure() {
             return true;
+        }
+
+        @Override
+        public L orElseThrow(Function<ErrorMessage, RuntimeException> ex) {
+            throw ex.apply(value);
         }
 
     }
