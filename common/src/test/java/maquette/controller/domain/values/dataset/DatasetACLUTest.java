@@ -14,7 +14,7 @@ import maquette.controller.domain.values.core.governance.AccessRequest;
 import maquette.controller.domain.values.iam.AuthenticatedUser;
 import maquette.controller.domain.values.iam.GrantedAuthorization;
 import maquette.controller.domain.values.iam.UserAuthorization;
-import maquette.controller.domaina.values.iam.UserId;
+import maquette.controller.domain.values.iam.UserId;
 
 public class DatasetACLUTest {
 
