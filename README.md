@@ -6,12 +6,12 @@
 
 The data shop can be used to find the right data and to easily request access to data. The catalog offers three methods to retrieve data:
 
-* **Data-Streams** provide a mechanism to publish and store events for a provided retention time.
+* **Data Streams** provide a mechanism to publish and store events for a provided retention time.
 
-* **Datasets** allow providers to share immutable sets of data. A dataset may contain multiple versions of the data. Detailed concepts can be found in th [Dataset features](controller/src/test/resources/features/datasets.md).
+* **Data Sets** allow providers to share immutable sets of data. A dataset may contain multiple versions of the data. Detailed concepts can be found in th [Dataset features](controller/src/test/resources/features/datasets.md).
 
-* **Data-Collections** allow providers to share collections of raw binary files.
+* **Data Collections** allow providers to share collections of raw binary files.
 
-* **Data-Sources** allows consumers to directly fetch data from existing data sources.
+* **Data Sources** allows consumers to directly fetch data from existing data sources.
 
 To push data to streams or datasets, data providers can use the maquette's **Python SDK** or the **Java SDK** to push data from various data sources into the catalog.
