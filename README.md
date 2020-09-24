@@ -15,5 +15,3 @@ The data shop can be used to find the right data and to easily request access to
 * **Data-Sources** allows consumers to directly fetch data from existing data sources.
 
 To push data to streams or datasets, data providers can use the maquette's **Python SDK** or the **Java SDK** to push data from various data sources into the catalog.
-
-In addition to Data-Streams and Datasets the catalog also offers **Datasources**. Datasources allow useres to browse available data sources and request access and data from the sources.
