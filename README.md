@@ -1,17 +1,9 @@
-# Maquette [![Actions Status](https://github.com/cokeSchlumpf/maquette/workflows/Gradle%20Build/badge.svg)](https://github.com/cokeSchlumpf/maquette/actions)
+# Maquette Data Science and Machine Learning Platform
 
-## Concepts
+Maquette is an open, extendable Data Science and Machine Learning Platform. It aims to connect several technologies, toolsets, frameworks and platforms into a single platform which connects all the dots in an end-to-end data science workflow.
 
-### Data Shop
+## Development
 
-The data shop can be used to find the right data and to easily request access to data. The catalog offers three methods to retrieve data:
+The project consists of the following components:
 
-* **Data Streams** provide a mechanism to publish and store events for a provided retention time.
-
-* **Data Sets** allow providers to share immutable sets of data. A dataset may contain multiple versions of the data. Detailed concepts can be found in th [Dataset features](controller/src/test/resources/features/datasets.md).
-
-* **Data Collections** allow providers to share collections of raw binary files.
-
-* **Data Sources** allows consumers to directly fetch data from existing data sources.
-
-To push data to streams or datasets, data providers can use the maquette's **Python SDK** or the **Java SDK** to push data from various data sources into the catalog.
+* [Maquette Hub](./backend) is the main component of Maquette. A Spring Boot application which is serves the Maquette API, the frontend and integrates all other Maquette services and external providers.

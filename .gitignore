@@ -141,3 +141,4 @@ public/**
 **/*/__pycache__
 
 **/*/*.md.feature
+env/**/*

@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "maquette"
+version = "3.0.0"
+description = "Maquette is an open, extendable Data Science and Machine Learning Platform."
+authors = ["Michael Wellner <michaelwellner@kpmg.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[tool.poetry.group.dev.dependencies]
+mkdocs = "^1.4.3"
+mkdocs-material = "^9.1.15"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

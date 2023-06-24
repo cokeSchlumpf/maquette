@@ -1,0 +1,20 @@
+site_name: Maquette
+nav:
+  - Home: index.md
+theme:
+  name: material
+repo_name: alpine-data/maquette
+repo_url: https://github.com/alpine-data/maquette
+edit_uri: edit/main/docs
+plugins:
+  - search
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+extra_css:
+  - stylesheets/extra.css

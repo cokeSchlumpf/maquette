@@ -40,7 +40,7 @@ public class Workspace extends AggregateRoot<String, Workspace> {
     private ActionMetadata modified;
 
     @JsonCreator
-    public static Workspace apply(
+    private static Workspace apply(
         @JsonProperty(ID) final String id,
         @JsonProperty(NAME) String name,
         @JsonProperty(DESCRIPTION) String description,
@@ -48,6 +48,13 @@ public class Workspace extends AggregateRoot<String, Workspace> {
         @JsonProperty(MODIFIED) ActionMetadata modified
     ) {
         return new Workspace(id, name, description, created, modified);
+    }
+
+    public static Workspace fake(String name) {
+        return apply(
+            "123", name, "Lorem ipsum",
+            ActionMetadata.apply("alice"), ActionMetadata.apply("bob")
+        );
     }
 
     public static Workspace fromInitialSettings(User creator, String name, String description) {

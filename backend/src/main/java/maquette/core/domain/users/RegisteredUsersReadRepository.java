@@ -1,6 +1,6 @@
 package maquette.core.domain.users;
 
-import com.wellnr.ddd.DomainRepository;
+import maquette.common.DomainRepository;
 
 import java.util.Optional;
 

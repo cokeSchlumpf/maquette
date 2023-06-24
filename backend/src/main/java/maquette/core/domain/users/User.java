@@ -5,7 +5,7 @@ import maquette.core.domain.users.rbac.DomainPermission;
 
 import java.util.Arrays;
 
-sealed public interface User permits AnonymousUser, AuthenticatedUser, RegisteredUser {
+public interface User {
 
     boolean hasPermission(DomainPermission permission);
 

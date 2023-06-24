@@ -1,6 +1,6 @@
 package maquette.common.functions;
 
-import com.wellnr.common.Operators;
+import maquette.common.Operators;
 
 @FunctionalInterface
 public interface Function2<T1, T2, R> {

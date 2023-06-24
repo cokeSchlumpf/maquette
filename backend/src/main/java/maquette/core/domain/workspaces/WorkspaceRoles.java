@@ -15,7 +15,9 @@ public final class WorkspaceRoles {
 
     @Value
     @EqualsAndHashCode(callSuper = false)
-    public record WorkspaceOwner(String workspace) implements DomainRole {
+    public static class WorkspaceOwner implements DomainRole {
+
+        String workspace;
 
         public static String NAME = "/maquette/workspaces/roles/owner";
 
@@ -33,7 +35,11 @@ public final class WorkspaceRoles {
         }
     }
 
-    public record WorkspaceContributor(String workspace) implements DomainRole {
+    @Value
+    @EqualsAndHashCode(callSuper = false)
+    public static class WorkspaceContributor implements DomainRole {
+
+        String workspace;
 
         public static String NAME = "/maquette/workspaces/roles/member";
 

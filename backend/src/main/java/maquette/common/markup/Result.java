@@ -1,8 +1,8 @@
 package maquette.common.markup;
 
-import com.wellnr.common.functions.Function1;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import maquette.common.functions.Function1;
 
 import java.util.Objects;
 

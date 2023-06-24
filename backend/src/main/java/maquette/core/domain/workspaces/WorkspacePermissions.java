@@ -12,7 +12,7 @@ public final class WorkspacePermissions {
 
     @Value
     @AllArgsConstructor(staticName = "apply")
-    public class CreateWorkspaces implements DomainPermission {
+    public static class CreateWorkspaces implements DomainPermission {
 
         public static final String NAME = "/maquette/workspaces/permissions/create";
 
