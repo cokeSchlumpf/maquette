@@ -1,12 +1,10 @@
-package maquette.ui.views.workspaces;
+package maquette.ui.views.workspace;
 
-import com.vaadin.flow.component.html.ListItem;
-import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
-import maquette.infrastructure.UserContext;
-import maquette.ui.components.RouterLinkWithIcon;
+import maquette.infrastructure.MaquetteSpringUserContext;
+import maquette.ui.components.MaquetteRouterLinkWithIcon;
 import maquette.ui.layout.MaquetteAppView;
 import maquette.ui.views.WorkspacesView;
 
@@ -16,9 +14,9 @@ public abstract class AbstractWorkspaceView extends VerticalLayout implements Ma
 
     protected String workspace;
 
-    protected final UserContext userContext;
+    protected final MaquetteSpringUserContext userContext;
 
-    public AbstractWorkspaceView(UserContext userContext) {
+    public AbstractWorkspaceView(MaquetteSpringUserContext userContext) {
         this.userContext = userContext;
     }
 
@@ -31,19 +29,19 @@ public abstract class AbstractWorkspaceView extends VerticalLayout implements Ma
 
     @Override
     public List<RouterLink> getMainMenuComponents() {
-        var back = new RouterLinkWithIcon(
+        var back = new MaquetteRouterLinkWithIcon(
             VaadinIcon.ARROW_LEFT, "All Workspaces", WorkspacesView.class
         );
         back.setHighlightCondition(HighlightConditions.never());
         back.setDivider(true);
 
-        var overview = new RouterLinkWithIcon(
+        var overview = new MaquetteRouterLinkWithIcon(
             VaadinIcon.DASHBOARD, "Overview", WorkspaceView.class,
             new RouteParameters("name", workspace)
         );
         overview.setHighlightCondition(HighlightConditions.sameLocation());
 
-        var sandboxes = new RouterLinkWithIcon(
+        var sandboxes = new MaquetteRouterLinkWithIcon(
             VaadinIcon.ABACUS, "Sandboxes", SandboxesView.class,
             new RouteParameters("name", workspace)
         );
@@ -52,16 +50,16 @@ public abstract class AbstractWorkspaceView extends VerticalLayout implements Ma
         return List.of(
             back,
             overview,
-            new RouterLinkWithIcon(
+            new MaquetteRouterLinkWithIcon(
                 VaadinIcon.DATABASE, "Data Assets", DataAssetsView.class,
                 new RouteParameters("name", workspace)
             ),
-            new RouterLinkWithIcon(
+            new MaquetteRouterLinkWithIcon(
                 VaadinIcon.COMPILE, "Models", ModelsView.class,
                 new RouteParameters("name", workspace)
             ),
             sandboxes,
-            new RouterLinkWithIcon(
+            new MaquetteRouterLinkWithIcon(
                 VaadinIcon.COG, "Settings", SettingsView.class,
                 new RouteParameters("name", workspace)
             )
@@ -69,7 +67,7 @@ public abstract class AbstractWorkspaceView extends VerticalLayout implements Ma
     }
 
     @Override
-    public UserContext getUserContext() {
+    public MaquetteSpringUserContext getUserContext() {
         return userContext;
     }
 }

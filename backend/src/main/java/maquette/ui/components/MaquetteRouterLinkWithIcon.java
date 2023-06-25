@@ -7,9 +7,9 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
-public class RouterLinkWithIcon extends RouterLink {
+public class MaquetteRouterLinkWithIcon extends RouterLink {
 
-    public RouterLinkWithIcon(Icon icon, String text, Class<? extends Component> navigationTarget, RouteParameters paramters) {
+    public MaquetteRouterLinkWithIcon(Icon icon, String text, Class<? extends Component> navigationTarget, RouteParameters paramters) {
         super(text, navigationTarget, paramters);
 
         this.removeAll();
@@ -19,15 +19,15 @@ public class RouterLinkWithIcon extends RouterLink {
         this.setHighlightCondition(HighlightConditions.locationPrefix());
     }
 
-    public RouterLinkWithIcon(Icon icon, String text, Class<? extends Component> navigationTarget) {
+    public MaquetteRouterLinkWithIcon(Icon icon, String text, Class<? extends Component> navigationTarget) {
         this(icon, text, navigationTarget, RouteParameters.empty());
     }
 
-    public RouterLinkWithIcon(VaadinIcon icon, String text, Class<? extends Component> navigationTarget, RouteParameters paramters) {
+    public MaquetteRouterLinkWithIcon(VaadinIcon icon, String text, Class<? extends Component> navigationTarget, RouteParameters paramters) {
         this(new Icon(icon), text, navigationTarget, paramters);
     }
 
-    public RouterLinkWithIcon(VaadinIcon icon, String text, Class<? extends Component> navigationTarget) {
+    public MaquetteRouterLinkWithIcon(VaadinIcon icon, String text, Class<? extends Component> navigationTarget) {
         this(icon, text, navigationTarget, RouteParameters.empty());
     }
 

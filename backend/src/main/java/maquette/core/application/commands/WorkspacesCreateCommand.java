@@ -27,7 +27,7 @@ public class WorkspacesCreateCommand implements Command<MessageResult<Workspace>
         workspace.create(user, domainRegistry.getWorkspaces());
 
         return MessageResult
-            .formatted("Successfully created workspace `%s`", workspace)
+            .formatted("Successfully created workspace `%s`", workspace.getName())
             .withData(workspace);
     }
 

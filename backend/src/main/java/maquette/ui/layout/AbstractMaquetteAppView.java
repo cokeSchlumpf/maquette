@@ -3,8 +3,8 @@ package maquette.ui.layout;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.RouterLink;
-import maquette.infrastructure.UserContext;
-import maquette.ui.components.RouterLinkWithIcon;
+import maquette.infrastructure.MaquetteSpringUserContext;
+import maquette.ui.components.MaquetteRouterLinkWithIcon;
 import maquette.ui.views.Dashboard;
 import maquette.ui.views.WorkspacesView;
 
@@ -12,22 +12,22 @@ import java.util.List;
 
 public class AbstractMaquetteAppView extends VerticalLayout implements MaquetteAppView {
 
-    protected UserContext userContext;
+    protected MaquetteSpringUserContext userContext;
 
-    public AbstractMaquetteAppView(UserContext userContext) {
+    public AbstractMaquetteAppView(MaquetteSpringUserContext userContext) {
         this.userContext = userContext;
     }
 
     @Override
     public List<RouterLink> getMainMenuComponents() {
         return List.of(
-            new RouterLinkWithIcon(VaadinIcon.DASHBOARD, "Dashboard", Dashboard.class),
-            new RouterLinkWithIcon(VaadinIcon.WORKPLACE, "Workspaces", WorkspacesView.class)
+            new MaquetteRouterLinkWithIcon(VaadinIcon.DASHBOARD, "Dashboard", Dashboard.class),
+            new MaquetteRouterLinkWithIcon(VaadinIcon.WORKPLACE, "Workspaces", WorkspacesView.class)
         );
     }
 
     @Override
-    public UserContext getUserContext() {
+    public MaquetteSpringUserContext getUserContext() {
         return userContext;
     }
 

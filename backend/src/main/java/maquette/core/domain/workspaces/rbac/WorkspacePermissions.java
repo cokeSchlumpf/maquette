@@ -1,6 +1,5 @@
-package maquette.core.domain.workspaces;
+package maquette.core.domain.workspaces.rbac;
 
-import lombok.AllArgsConstructor;
 import lombok.Value;
 import maquette.core.domain.users.rbac.DomainPermission;
 
@@ -11,7 +10,6 @@ public final class WorkspacePermissions {
     }
 
     @Value
-    @AllArgsConstructor(staticName = "apply")
     public static class CreateWorkspaces implements DomainPermission {
 
         public static final String NAME = "/maquette/workspaces/permissions/create";

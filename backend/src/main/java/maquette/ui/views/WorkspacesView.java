@@ -1,22 +1,20 @@
 package maquette.ui.views;
 
-import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.router.RouterLink;
 import maquette.core.domain.workspaces.Workspace;
-import maquette.infrastructure.UserContext;
+import maquette.infrastructure.MaquetteSpringUserContext;
 import maquette.ui.components.MaquetteGridWithControls;
 import maquette.ui.layout.AbstractMaquetteAppView;
 import maquette.ui.layout.MaquetteAppLayout;
-import maquette.ui.views.workspaces.WorkspaceView;
+import maquette.ui.views.workspace.WorkspaceView;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -25,7 +23,7 @@ import java.util.stream.IntStream;
 @Route(value = "/workspaces", layout = MaquetteAppLayout.class)
 public class WorkspacesView extends AbstractMaquetteAppView {
 
-    public WorkspacesView(UserContext userContext) {
+    public WorkspacesView(MaquetteSpringUserContext userContext) {
         super(userContext);
 
         this.add(
@@ -68,7 +66,8 @@ public class WorkspacesView extends AbstractMaquetteAppView {
                 new GridSortOrder<>(workspaceColumn, SortDirection.ASCENDING)
             ));
 
-            this.getMenuBar().addItem("New Workspace");
+            var bttNew = this.getMenuBar().addItem("New Workspace");
+            bttNew.addClickListener(ignore -> UI.getCurrent().navigate(CreateWorkspaceView.class));
 
             this.getGrid().setItems(
                 IntStream

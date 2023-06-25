@@ -12,6 +12,7 @@ import maquette.core.domain.users.User;
 import maquette.core.domain.values.ActionMetadata;
 import maquette.core.domain.workspaces.events.WorkspaceCreatedEvent;
 import maquette.core.domain.workspaces.exceptions.WorkspaceAlreadyExistsException;
+import maquette.core.domain.workspaces.rbac.WorkspacePermissions;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -85,7 +86,7 @@ public class Workspace extends AggregateRoot<String, Workspace> {
         }
 
         // Check Permissions
-        executor.requirePermission(WorkspacePermissions.CreateWorkspaces.apply());
+        executor.requirePermission(new WorkspacePermissions.CreateWorkspaces());
 
         // TODO: Add Bean Validation
         workspaces.insertOrUpdate(this);

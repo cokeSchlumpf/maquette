@@ -12,9 +12,10 @@ import lombok.With;
 import lombok.extern.slf4j.Slf4j;
 import maquette.MaquetteDomainRegistry;
 import maquette.common.Operators;
+import maquette.core.application.MaquetteApplicationConfiguration;
 import maquette.core.domain.users.AuthenticatedUser;
 import maquette.core.domain.users.User;
-import maquette.core.domain.users.rbac.DomainPermission;
+import maquette.core.domain.users.rbac.DomainRole;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -22,17 +23,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * This interceptor checks for a headers injected by Maquette Authentication Proxy.
  */
 @Component
 @AllArgsConstructor
-public class MaquetteAuthenticationFilter implements Filter {
+public class MaquetteSpringAuthenticationFilter implements Filter {
 
     MaquetteDomainRegistry domainRegistry;
 
-    UserContext userContext;
+    MaquetteSpringUserContext userContext;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -69,8 +71,15 @@ public class MaquetteAuthenticationFilter implements Filter {
 
         private User delegate;
 
-        public static HttpHeaderAuthenticatedUser apply(MaquetteDomainRegistry registry, String userId, String userRoles, String userDetails) {
-            return HttpHeaderAuthenticatedUser.apply(registry, userId, userRoles, userDetails, null);
+        public static HttpHeaderAuthenticatedUser apply(
+            MaquetteDomainRegistry registry,
+            String userId,
+            String userRoles,
+            String userDetails
+        ) {
+            return HttpHeaderAuthenticatedUser.apply(
+                registry, userId, userRoles, userDetails, null
+            );
         }
 
         private void loadDelegate() {
@@ -95,6 +104,10 @@ public class MaquetteAuthenticationFilter implements Filter {
                     userDetailsObj.getName()
                 );
             }
+
+            delegate.assignDomainRolesFromConfiguration(
+                registry.getConfiguration()
+            );
         }
 
         private User getDelegate() {
@@ -106,8 +119,8 @@ public class MaquetteAuthenticationFilter implements Filter {
         }
 
         @Override
-        public boolean hasPermission(DomainPermission permission) {
-            return getDelegate().hasPermission(permission);
+        public Set<DomainRole> getRoles() {
+            return getDelegate().getRoles();
         }
 
         @Override
@@ -115,6 +128,23 @@ public class MaquetteAuthenticationFilter implements Filter {
             return getDelegate().getDisplayName();
         }
 
+        @Override
+        public void assignDomainRolesFromConfiguration(MaquetteApplicationConfiguration configuration) {
+            getDelegate().assignDomainRolesFromConfiguration(configuration);
+        }
+
+        @Override
+        public String toString() {
+            var json = new String(Base64
+                .getDecoder()
+                .decode(userDetails), StandardCharsets.UTF_8);
+
+            return "HttpHeaderAuthenticatedUser(" +
+                "userId=" + this.userId + ", " +
+                "userRoles=" + this.userRoles + ", " +
+                "userDetails=" + json + ", " +
+                "delegate=" + this.delegate + ")";
+        }
     }
 
     @Value

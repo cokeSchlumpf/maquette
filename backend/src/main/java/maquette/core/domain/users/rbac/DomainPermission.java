@@ -2,7 +2,7 @@ package maquette.core.domain.users.rbac;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import maquette.core.domain.workspaces.WorkspacePermissions;
+import maquette.core.domain.workspaces.rbac.WorkspacePermissions;
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.CUSTOM,

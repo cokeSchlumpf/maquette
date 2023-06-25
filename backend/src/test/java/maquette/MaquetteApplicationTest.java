@@ -5,6 +5,8 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 import lombok.extern.slf4j.Slf4j;
+import maquette.core.domain.users.RegisteredUser;
+import maquette.core.domain.users.RegisteredUsersRepository;
 import maquette.test.containers.MaquetteAuthContainer;
 import maquette.test.containers.MongoContainer;
 import org.springframework.boot.SpringApplication;
@@ -12,6 +14,7 @@ import org.springframework.test.context.support.TestPropertySourceUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 public class MaquetteApplicationTest {
@@ -39,7 +42,16 @@ public class MaquetteApplicationTest {
         });
 
         Runtime.getRuntime().addShutdownHook(new Thread(MaquetteApplicationTest::clean));
-        app.run();
+        var context = app.run();
+
+        /*
+         * Register sample users.
+         */
+        var users = context.getBean(RegisteredUsersRepository.class);
+        var michael = RegisteredUser.createNew(
+            "michael.wellner@googlemail.com", "Michael", "Wellner", Set.of()
+        );
+        michael.register(users);
 
         log.info("Local test environment started. Visit {} to access Mars UI.", auth.getUrl());
     }

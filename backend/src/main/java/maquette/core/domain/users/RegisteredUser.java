@@ -1,19 +1,24 @@
 package maquette.core.domain.users;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import maquette.common.AggregateRoot;
+import maquette.core.application.MaquetteApplicationConfiguration;
 import maquette.core.domain.users.events.RegisteredUserRegisteredEvent;
 import maquette.core.domain.users.exceptions.UserAlreadyExistsException;
-import maquette.core.domain.users.rbac.DomainPermission;
 import maquette.core.domain.users.rbac.DomainRole;
+import org.glassfish.jersey.internal.guava.Sets;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -25,7 +30,7 @@ public final class RegisteredUser extends AggregateRoot<String, RegisteredUser> 
     private static final String FIRST_NAME = "firstName";
     private static final String LAST_NAME = "lastName";
     private static final String LAST_LOGIN = "lastLogin";
-    private static final String DOMAIN_ROLES = "domainRoles";
+    private static final String DOMAIN_ROLES = "roles";
 
     /**
      * The unique idempotent id of the user.
@@ -61,7 +66,16 @@ public final class RegisteredUser extends AggregateRoot<String, RegisteredUser> 
      * The roles assigned to the user.
      */
     @JsonProperty(DOMAIN_ROLES)
-    Set<DomainRole> domainRoles;
+    Set<DomainRole> persistedRoles;
+
+    /**
+     * A set of roles which are not persisted, but
+     * assigned based on application configuration.
+     * <p>
+     * See {@link MaquetteApplicationConfiguration#getRegisteredUsersDefaultRoles()}.
+     */
+    @JsonIgnore
+    Set<DomainRole> configurationAssignedRoles;
 
     @JsonCreator
     public static RegisteredUser apply(
@@ -77,13 +91,12 @@ public final class RegisteredUser extends AggregateRoot<String, RegisteredUser> 
         }
 
         return new RegisteredUser(
-            id, email, firstName, lastName, lastLogin, Set.copyOf(domainRoles)
+            id, email, firstName, lastName, lastLogin, Set.copyOf(domainRoles), Set.of()
         );
     }
 
     public static RegisteredUser createNew(
         String email,
-        String password,
         String firstName,
         String lastName,
         Set<DomainRole> domainRoles
@@ -95,7 +108,7 @@ public final class RegisteredUser extends AggregateRoot<String, RegisteredUser> 
         var id = UUID.randomUUID().toString();
 
         return new RegisteredUser(
-            id, email, firstName, lastName, Instant.now(), Set.copyOf(domainRoles)
+            id, email, firstName, lastName, Instant.now(), Set.copyOf(domainRoles), Set.of()
         );
     }
 
@@ -129,13 +142,12 @@ public final class RegisteredUser extends AggregateRoot<String, RegisteredUser> 
         return Optional.ofNullable(lastLogin);
     }
 
-    @Override
-    public boolean hasPermission(DomainPermission permission) {
-        var allPermissions = getPermissions();
+    public Set<DomainRole> getRoles() {
+        var roles = Sets.<DomainRole>newHashSet();
+        roles.addAll(this.persistedRoles);
+        roles.addAll(this.configurationAssignedRoles);
 
-        return allPermissions
-            .stream()
-            .anyMatch(p -> p.equals(permission));
+        return roles;
     }
 
     @Override
@@ -143,12 +155,9 @@ public final class RegisteredUser extends AggregateRoot<String, RegisteredUser> 
         return firstName + " " + lastName;
     }
 
-    private List<DomainPermission> getPermissions() {
-        return this
-            .domainRoles
-            .stream()
-            .flatMap(role -> role.getPermissions().stream())
-            .toList();
+    @Override
+    public void assignDomainRolesFromConfiguration(MaquetteApplicationConfiguration configuration) {
+        this.configurationAssignedRoles = configuration.getRegisteredUsersDefaultRoles();
     }
 
 }

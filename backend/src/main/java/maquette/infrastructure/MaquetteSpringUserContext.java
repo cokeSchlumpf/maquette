@@ -16,13 +16,13 @@ import org.springframework.web.context.annotation.SessionScope;
  */
 @Component
 @SessionScope
-public class UserContext {
+public class MaquetteSpringUserContext {
 
     private User user;
 
     private boolean updated;
 
-    public UserContext() {
+    public MaquetteSpringUserContext() {
         this.user = AnonymousUser.apply();
         this.updated = false;
     }
